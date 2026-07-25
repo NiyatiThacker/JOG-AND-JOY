@@ -9,6 +9,20 @@
 </head>
 
 <body>
+  <div id="error-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,0,0,0.9); color: white; padding: 2rem; z-index: 999999; overflow: auto; font-family: monospace;">
+    <h1>Application Error</h1>
+    <pre id="error-message"></pre>
+  </div>
+  <script>
+    window.addEventListener('error', function(e) {
+      document.getElementById('error-overlay').style.display = 'block';
+      document.getElementById('error-message').textContent = e.error ? e.error.stack : e.message;
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      document.getElementById('error-overlay').style.display = 'block';
+      document.getElementById('error-message').textContent = e.reason ? e.reason.stack || e.reason : e.promise;
+    });
+  </script>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

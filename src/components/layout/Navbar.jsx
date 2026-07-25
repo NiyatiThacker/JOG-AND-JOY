@@ -10,7 +10,8 @@ export default function Navbar({ onOpenProfile }) {
     { label: "About Us", link: "/about-us" },
     { label: "Why Choose Us", link: "/why-us" },
     { label: "Contact Us", link: "/contact-us" },
-    { label: "Distributors", link: "/distributor-network" }
+    { label: "Distributors", link: "/distributor-network" },
+    { label: "Admin Dashboard", link: "/admin" }
   ];
 
   const socialItems = [
