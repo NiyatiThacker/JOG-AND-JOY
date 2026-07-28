@@ -40,7 +40,7 @@ import AdminFinancials from './pages/admin/AdminFinancials';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [pathname]);
@@ -70,14 +70,14 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
     <div className="min-h-screen bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
       <AnnouncementBar />
       <Navbar onOpenProfile={() => setIsProfileOpen(true)} />
-      
+
       <LiveChatDrawer isOpen={isLiveChatOpen} onClose={() => setIsLiveChatOpen(false)} />
       <UserProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
-      
+
       <div className="flex-grow">
         <Outlet />
       </div>
-      
+
       <Footer />
       <BottomNav onOpenProfile={() => setIsProfileOpen(true)} />
       <FloatingActions onOpenLiveChat={() => setIsLiveChatOpen(true)} />

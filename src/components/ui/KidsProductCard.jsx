@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
@@ -23,16 +24,18 @@ export default function KidsProductCard({ product }) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <img
-          src={isHovered && product.gallery?.[1] ? product.gallery[1] : product.image}
-          alt={product.name}
-          className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-        />
+        <Link to={`/product/${product.id}`} className="absolute inset-0">
+          <img
+            src={isHovered && product.gallery?.[1] ? product.gallery[1] : product.image}
+            alt={product.name}
+            className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
 
         {/* Heart Icon */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-100 text-slate-400 hover:text-[#EF4A45] hover:scale-110 transition-all z-10"
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-100 text-slate-400 hover:text-[#EF4A45] hover:scale-110 transition-all z-10 cursor-pointer"
         >
           <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-[#EF4A45] text-[#EF4A45]' : ''}`} />
         </button>
@@ -41,9 +44,11 @@ export default function KidsProductCard({ product }) {
       {/* Content Block */}
       <div className="flex flex-col items-center text-center space-y-2 flex-grow">
         {/* Title */}
-        <h3 className="text-sm font-black text-slate-900 tracking-tight line-clamp-1">
-          {product.name}
-        </h3>
+        <Link to={`/product/${product.id}`}>
+          <h3 className="text-sm font-black text-slate-900 tracking-tight line-clamp-1 hover:underline">
+            {product.name}
+          </h3>
+        </Link>
 
         {/* Star Rating */}
         <div className="flex items-center gap-0.5">

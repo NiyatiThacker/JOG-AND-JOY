@@ -1,16 +1,18 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
-import ProductCard from '../components/ui/ProductCard';
+import NewArrivalProductCard from '../components/ui/NewArrivalProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
-import { PRODUCTS } from '../data/productsData';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Link } from 'react-router-dom';
 
 export default function NewArrivalsPage() {
   const spotlightRef = useRef(null);
   
+  const { combinedProducts, isLoading } = useCombinedProducts();
+  
   const newProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => p.isNew);
-  }, []);
+    return combinedProducts.filter((p) => p.isNew);
+  }, [combinedProducts]);
 
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -167,12 +169,13 @@ export default function NewArrivalsPage() {
           </div>
         </div>
 
-        {/* Product Grid */}
-        {newProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="py-20 text-center text-slate-400 font-bold">Loading newest drops...</div>
+        ) : newProducts.length > 0 ? (
           <div className="mb-16">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
               {currentProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
+                <NewArrivalProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
               ))}
             </div>
 

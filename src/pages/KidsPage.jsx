@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import ProductCard from '../components/ui/ProductCard';
+import KidsProductCard from '../components/ui/KidsProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
-import { PRODUCTS } from '../data/productsData';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import ShopByAge from '../components/home/ShopByAge';
 
 export default function KidsPage() {
@@ -57,9 +57,11 @@ export default function KidsPage() {
     setCurrentPage(1); // Reset page on filter change
   };
 
+  const { combinedProducts, isLoading } = useCombinedProducts();
+
   const kidsProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => ['Boys', 'Girls', 'Newborn'].includes(p.category));
-  }, []);
+    return combinedProducts.filter((p) => ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category));
+  }, [combinedProducts]);
 
   const filteredProducts = useMemo(() => {
     let result = kidsProducts.filter((p) => {
@@ -89,6 +91,7 @@ export default function KidsPage() {
         if (filters.genders.includes('Boys') && p.category === 'Boys') matchGender = true;
         if (filters.genders.includes('Girls') && p.category === 'Girls') matchGender = true;
         if (filters.genders.includes('Newborn') && p.category === 'Newborn') matchGender = true;
+        if (filters.genders.includes('Unisex') && p.category === 'Unisex') matchGender = true;
       }
 
       // Size Filter (mock)
@@ -169,7 +172,8 @@ export default function KidsPage() {
   const genderOptions = [
     { id: 'Boys', label: 'Boys' },
     { id: 'Girls', label: 'Girls' },
-    { id: 'Newborn', label: 'Newborn' }
+    { id: 'Newborn', label: 'Newborn' },
+    { id: 'Unisex', label: 'Unisex' }
   ];
 
   const sizeOptions = ['XS', 'S', 'M', 'L', 'XL'];
@@ -420,11 +424,13 @@ export default function KidsPage() {
 
           {/* Right Product Grid */}
           <div className="lg:col-span-4">
-            {currentProducts.length > 0 ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20 text-slate-400 font-bold">Loading kids collection...</div>
+            ) : currentProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
                   {currentProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
+                    <KidsProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
                   ))}
                 </div>
 

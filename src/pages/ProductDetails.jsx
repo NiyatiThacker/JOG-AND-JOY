@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { PRODUCTS } from '../data/productsData';
 import ProductCard from '../components/ui/ProductCard';
 import SizeGuideModal from '../components/ui/SizeGuideModal';
@@ -26,23 +27,34 @@ export default function ProductDetails() {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const product = PRODUCTS.find((p) => p.id === id) || PRODUCTS[0];
+  const { combinedProducts, isLoading } = useCombinedProducts();
+  const product = combinedProducts.find((p) => String(p.id) === String(id));
 
-  const [activeImage, setActiveImage] = useState(product.image);
-  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || '4Y-5Y');
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.hex || '#AEE6FF');
+  const [activeImage, setActiveImage] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('4Y-5Y');
+  const [selectedColor, setSelectedColor] = useState('#AEE6FF');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   useEffect(() => {
-    setActiveImage(product.image);
-    setSelectedSize(product.sizes?.[0] || '4Y-5Y');
-    setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
-    setQuantity(1);
-    window.scrollTo(0, 0);
+    if (product) {
+      setActiveImage(product.image);
+      setSelectedSize(product.sizes?.[0] || '4Y-5Y');
+      setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
+      setQuantity(1);
+      window.scrollTo(0, 0);
+    }
   }, [product]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#FFF8EC] font-black text-slate-400">Loading Product...</div>;
+  }
+
+  if (!product) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#FFF8EC] font-black text-slate-800 text-2xl">Product not found.</div>;
+  }
 
   const isFavorited = isInWishlist(product.id);
 
@@ -58,7 +70,7 @@ export default function ProductDetails() {
   };
 
   const galleryImages = product.gallery || [product.image];
-  const relatedProducts = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id);
+  const relatedProducts = combinedProducts.filter((p) => p.category === product.category && String(p.id) !== String(product.id));
 
   return (
     <div className="min-h-screen bg-[#FFF8EC] py-8 pb-24 sm:pb-16">

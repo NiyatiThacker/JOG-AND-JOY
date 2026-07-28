@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
-import { PRODUCTS } from '../data/productsData';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 
 export default function Products({ pageCategory = null }) {
@@ -28,14 +28,16 @@ export default function Products({ pageCategory = null }) {
     setSelectedItemFilter('');
   }, [pageCategory, searchParams]);
 
+  const { combinedProducts, isLoading } = useCombinedProducts();
+
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return combinedProducts.filter((p) => {
       // Category Mapping Logic
       let matchCat = false;
       if (!selectedCategory || selectedCategory === 'All') {
         matchCat = true;
       } else if (selectedCategory === 'Kids') {
-        matchCat = ['Boys', 'Girls', 'Newborn'].includes(p.category);
+        matchCat = ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category);
       } else if (selectedCategory === 'Male') {
         matchCat = p.category === "Men's Collection";
       } else if (selectedCategory === 'Female') {
@@ -245,7 +247,11 @@ export default function Products({ pageCategory = null }) {
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-20 bg-white rounded-3xl p-8 shadow-md border border-slate-100 space-y-3">
+             <div className="text-slate-400 font-bold">Loading products...</div>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
