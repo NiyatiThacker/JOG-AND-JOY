@@ -1,657 +1,372 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
-import { ChevronLeft, ChevronRight, ShoppingBag, Check, Sparkles, ArrowRight } from "lucide-react";
+"use client";
 
-const freshArrivalsSection = {
-  eyebrow: "NEW ARRIVALS",
-  heading: "Trending Activewear & Essentials",
-  ctaLabel: "Shop All Products",
-  ctaHref: "/products"
+import React, { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
+
+const categories = [
+  { label: 'KIDS T-SHIRTS', href: '/kids/t-shirts', image: 'https://images.unsplash.com/photo-1519241047957-be31d7379a5d?auto=format&fit=crop&w=300&q=80' },
+  { label: 'KIDS JOGGERS & TRACK PANTS', href: '/kids/joggers', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=300&q=80' },
+  { label: 'KIDS SHORTS & BERMUDAS', href: '/kids/shorts', image: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?auto=format&fit=crop&w=300&q=80' },
+  { label: 'KIDS NIGHT & PAJAMA SUITS', href: '/kids/nightwear', image: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=300&q=80' },
+  { label: 'GIRLS\' FROCKS', href: '/girls/frocks', image: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=300&q=80' }
+];
+
+const categorySection = {
+  heading: "Shop by Department"
 };
 
-const products = [
-  {
-    id: "p1",
-    name: "Speedster Quick-Dry Sports Tee",
-    categoryName: "KIDS T-SHIRTS",
-    description: "Moisture-wicking active tee with micro-ventilation channels. Keeps...",
-    price: 599,
-    variants: [1, 2, 3], // used for size count
-    images: ["https://images.unsplash.com/photo-1519241047957-be31d7379a5d?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "kids",
-    slug: "speedster-tee",
-    isBestSeller: true
-  },
-  {
-    id: "p2",
-    name: "Flex-Knee Fleece Cuffed Joggers",
-    categoryName: "KIDS JOGGERS & TRACK PANTS",
-    description: "Featuring double-stitched knee patches for extra abrasion...",
-    price: 799,
-    variants: [1, 2, 3, 4],
-    images: ["https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "kids",
-    slug: "flex-knee-joggers",
-    isNewArrival: true
-  },
-  {
-    id: "p3",
-    name: "Breezy-Deck Elastic Bermuda",
-    categoryName: "KIDS SHORTS & BERMUDAS",
-    description: "Everyday summer bermudas engineered with 4-way stretch...",
-    price: 549,
-    variants: [1, 2, 3],
-    images: ["https://images.unsplash.com/photo-1622290319146-7b63df48a635?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "kids",
-    slug: "breezy-bermuda",
-    isBestSeller: true
-  },
-  {
-    id: "p4",
-    name: "Comfy Cotton Night Suit Set",
-    categoryName: "KIDS NIGHT & PAJAMA SUITS",
-    description: "Ultra-soft breathable cotton set for a cozy night sleep.",
-    price: 899,
-    variants: [1, 2, 3, 4],
-    images: ["https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "kids",
-    slug: "cotton-night-suit",
-    isNewArrival: true
-  },
-  {
-    id: "p5",
-    name: "Vibrant Casual Active Frock",
-    categoryName: "GIRLS' FROCKS",
-    description: "Stylish and comfortable frock for everyday play.",
-    price: 999,
-    variants: [1, 2, 3, 4],
-    images: ["https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "girls",
-    slug: "vibrant-active-frock",
-    isBestSeller: true
-  },
-  {
-    id: "p6",
-    name: "Sunshine Twirl Tiered Cotton Frock",
-    categoryName: "GIRLS' FROCKS",
-    description: "Flowy, twirl-tested A-line frock crafted from lightweight breathab...",
-    price: 749,
-    variants: [1, 2, 3, 4],
-    images: ["https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=800&q=80"], // Using similar frock image
-    categorySlug: "girls",
-    slug: "sunshine-twirl-frock",
-    isNewArrival: true,
-    isBestSeller: true
-  },
-  {
-    id: "p7",
-    name: "Blooming Meadow Printed Dress",
-    categoryName: "GIRLS' FROCKS",
-    description: "Bright floral print casual dress featuring smocked bodice stretch...",
-    price: 799,
-    variants: [1, 2, 3],
-    images: ["https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "girls",
-    slug: "blooming-meadow-dress",
-    isNewArrival: true
-  },
-  {
-    id: "p8",
-    name: "Play-Pro Organic Cotton Graphic Tee",
-    categoryName: "KIDS T-SHIRTS",
-    description: "Built for nonstop playgrounds and weekend adventures. Crafted fro...",
-    price: 499,
-    variants: [1, 2, 3, 4],
-    images: ["https://images.unsplash.com/photo-1519241047957-be31d7379a5d?auto=format&fit=crop&w=800&q=80"], // Using similar tee image
-    categorySlug: "kids",
-    slug: "play-pro-organic-tee",
-    isNewArrival: true,
-    isBestSeller: true
-  },
-  {
-    id: "p9",
-    name: "Dino Print Cozy Romper",
-    categoryName: "NEWBORN ESSENTIALS",
-    description: "Soft and snuggly romper with cute dinosaur prints for your little one.",
-    price: 549,
-    variants: [1, 2],
-    images: ["https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "newborn",
-    slug: "dino-print-romper",
-    isBestSeller: true
-  },
-  {
-    id: "p10",
-    name: "Classic Denim Dungarees",
-    categoryName: "KIDS JOGGERS & TRACK PANTS",
-    description: "Durable and stylish denim overalls for everyday wear.",
-    price: 1199,
-    variants: [1, 2, 3, 4, 5],
-    images: ["https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80"],
-    categorySlug: "kids",
-    slug: "classic-denim-dungarees",
-    isNewArrival: true
-  }
+// Direct color mapping inspired by the brand logo letters
+const brandColors = [
+  "var(--color-blue)",
+  "var(--color-yellow)",
+  "var(--color-accent)",
+  "var(--color-green)",
+  "var(--color-orange)",
+  "var(--color-surface)"
 ];
 
 export default function CategoryGrid() {
-  const [loading, setLoading] = useState(false);
-  const [rotation, setRotation] = useState(0);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const sectionRef = useRef(null);
+  const folderRef = useRef(null);
+  const cardsParentRef = useRef(null);
+  const cardsRef = useRef([]);
 
-  const startXRef = useRef(0);
-  const startRotationRef = useRef(0);
-  const animFrameRef = useRef(null);
-
-  const { addToCart } = useCart();
-  const [addedId, setAddedId] = useState(null);
-
-  const total = products.length || 1;
-  const angleStep = 360 / total;
-
-  // Auto rotation
   useEffect(() => {
-    let lastTime = performance.now();
+    const el = sectionRef.current;
+    if (!el) return;
 
-    const animate = (time) => {
-      if (!isDragging) {
-        const delta = (time - lastTime) / 1000;
-        setRotation((prev) => (prev - delta * 6) % 360);
-      }
-      lastTime = time;
-      animFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    animFrameRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, [isDragging]);
-
-  const handlePrev = () => {
-    const nextIdx = (activeIndex - 1 + total) % total;
-    setActiveIndex(nextIdx);
-    setRotation(-nextIdx * angleStep);
-  };
-
-  const handleNext = () => {
-    const nextIdx = (activeIndex + 1) % total;
-    setActiveIndex(nextIdx);
-    setRotation(-nextIdx * angleStep);
-  };
-
-  const handlePointerDown = (e) => {
-    setIsDragging(true);
-    startXRef.current = e.clientX;
-    startRotationRef.current = rotation;
-  };
-
-  const handlePointerMove = (e) => {
-    if (!isDragging) return;
-    const diffX = e.clientX - startXRef.current;
-    const newRot = startRotationRef.current + diffX * 0.35;
-    setRotation(newRot);
-
-    // Calculate nearest active card
-    const normalized = ((-newRot % 360) + 360) % 360;
-    const index = Math.round(normalized / angleStep) % total;
-    setActiveIndex(index);
-  };
-
-  const handlePointerUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleCardClick = (index) => {
-    setActiveIndex(index);
-    setRotation(-index * angleStep);
-  };
-
-  const handleQuickAdd = (product, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    addToCart(
-      {
-        id: product.id,
-        name: product.name,
-        category: product.categoryName,
-        price: product.price,
-        image: product.images[0]
+    // Trigger open when entering view, and close when exiting view to support replay on scroll
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsOpen(entry.isIntersecting);
       },
-      undefined,
-      undefined,
-      e
+      { 
+        threshold: 0.1,
+        rootMargin: "-10% 0px -10% 0px" // Trigger slightly before it fully leaves/enters
+      }
     );
 
-    setAddedId(product.id);
-    setTimeout(() => setAddedId(null), 2000);
-  };
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-  const activeProduct = products[activeIndex] || products[0];
+  useEffect(() => {
+    if (!folderRef.current || !cardsParentRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const folderEl = folderRef.current;
+      const cards = cardsRef.current.filter((c) => c !== null);
+
+      if (!folderEl || cards.length === 0) return;
+
+      const folderRect = folderEl.getBoundingClientRect();
+
+      // Helper to calculate offset vector from each card to the folder center
+      const getOffsets = () => {
+        return cards.map((card) => {
+          const cardRect = card.getBoundingClientRect();
+          const dx = (folderRect.left + folderRect.width / 2) - (cardRect.left + cardRect.width / 2);
+          const dy = (folderRect.top + folderRect.height / 2) - (cardRect.top + cardRect.height / 2);
+          return { dx, dy };
+        });
+      };
+
+      if (isOpen) {
+        // --- OPEN ANIMATION ---
+        const offsets = getOffsets();
+
+        // 1. Position cards inside folder initially
+        cards.forEach((card, idx) => {
+          const { dx, dy } = offsets[idx];
+          gsap.set(card, {
+            x: dx,
+            y: dy,
+            scale: 0.1,
+            opacity: 0,
+            rotation: gsap.utils.random(-15, 15)
+          });
+        });
+
+        const tl = gsap.timeline();
+
+        // 2. Open folder front cover
+        tl.to(".folder-front-flap", {
+          rotateX: -32,
+          translateY: 8,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+
+        // 3. Stagger pop out cards to grid alignment
+        tl.to(cards, {
+          x: 0,
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          rotation: 0,
+          stagger: 0.08,
+          duration: 0.8,
+          ease: "back.out(1.15)"
+        }, "-=0.25");
+      } else {
+        // --- CLOSE ANIMATION (Tuck back in) ---
+        const offsets = getOffsets();
+        const tl = gsap.timeline();
+
+        // 1. Animate cards back into folder
+        tl.to(cards, {
+          x: (idx) => offsets[idx]?.dx || 0,
+          y: (idx) => offsets[idx]?.dy || 0,
+          scale: 0.1,
+          opacity: 0,
+          rotation: () => gsap.utils.random(-15, 15),
+          stagger: 0.04,
+          duration: 0.5,
+          ease: "power2.in"
+        });
+
+        // 2. Close folder cover
+        tl.to(".folder-front-flap", {
+          rotateX: -10,
+          translateY: 0,
+          duration: 0.4,
+          ease: "power2.in"
+        }, "-=0.2");
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [isOpen]);
 
   return (
-    <section
-      className="fresh-arrivals-section"
-      style={{
-        position: "relative",
-        backgroundColor: "#FAF7F2",
-        padding: "80px 0 100px",
-        overflow: "hidden",
-      }}
-    >
-      {/* Multi-color Doodle Pattern Backdrop */}
-      <div
+    <>
+      {/* Immersive backdrop blur for the rest of the page (everything except the active category section) */}
+      <div 
         style={{
-          position: "absolute",
+          position: "fixed",
           inset: 0,
-          background: "linear-gradient(135deg, #f4a2b3 0%, #f26b3a 35%, #f7c844 70%, #fbd7c8 100%)",
-          mixBlendMode: "multiply",
-          pointerEvents: "none",
-          zIndex: 0,
+          zIndex: 12, // Sits above standard page content, below category section (15)
+          backdropFilter: "blur(12px)",
+          backgroundColor: "rgba(34, 34, 34, 0.35)", // Subtle dark tint overlay
+          opacity: isOpen ? 1 : 0,
+          visibility: isOpen ? "visible" : "hidden",
+          transition: "opacity 0.6s ease, visibility 0.6s ease",
+          pointerEvents: "none" // Allow users to scroll freely through overlay
+        }}
+      />
+
+      <section 
+        ref={sectionRef} 
+        className="section py-16" 
+        style={{ 
+          backgroundColor: "#faf6f0", 
+          borderBottom: "1.5px solid #222222",
+          overflow: "hidden",
+          position: "relative",
+          zIndex: 15 // Keeps category section above the blurred page backdrop!
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "url(/images/category_section.jpeg)",
-            backgroundSize: "350px",
-            backgroundRepeat: "repeat",
-            mixBlendMode: "screen",
-            filter: "grayscale(1) contrast(1.8)",
-            opacity: 0.8,
-          }}
-        />
-      </div>
-
-      <div className="container max-w-7xl mx-auto px-4" style={{ position: "relative", zIndex: 2 }}>
-        {/* Section Header with Controls */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            marginBottom: "64px",
-            gap: "16px",
-          }}
-        >
-          <div>
-            <span
-              className="eyebrow"
-              style={{
-                textAlign: "left",
-                color: "#E05A47",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                margin: 0,
-              }}
-            >
-              <Sparkles size={14} /> {freshArrivalsSection.eyebrow}
-            </span>
-            <h2
-              className="section-heading"
-              style={{
-                textAlign: "left",
-                margin: "6px 0 0 0",
-                fontSize: "clamp(1.8rem, 4vw, 2.5rem)",
-                fontWeight: 900,
-                color: "#2C302E",
-              }}
-            >
-              {freshArrivalsSection.heading}
+        <div className="container max-w-7xl mx-auto px-4">
+          {/* Title / Section Heading */}
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <span className="eyebrow" style={{ color: "var(--color-orange)", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "2px", fontSize: "0.85rem" }}>Browse Our Range</span>
+            <h2 className="section-heading" style={{
+              fontSize: "clamp(2rem, 4vw, 2.8rem)",
+              fontWeight: 800,
+              margin: "4px 0 0"
+            }}>
+              {categorySection.heading}
             </h2>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {/* Manual Scroll Arrows */}
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button
-                onClick={handlePrev}
-                aria-label="Previous product"
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "50%",
-                  backgroundColor: "#ffffff",
-                  border: "1.5px solid #EADBCE",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  color: "#2C302E",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <ChevronLeft size={22} />
-              </button>
-              <button
-                onClick={handleNext}
-                aria-label="Next product"
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "50%",
-                  backgroundColor: "#ffffff",
-                  border: "1.5px solid #EADBCE",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  color: "#2C302E",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <ChevronRight size={22} />
-              </button>
+            {/* Decorative wave divider */}
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "12px" }}>
+              <svg viewBox="0 0 100 8" style={{ width: "120px", height: "8px" }}>
+                <path d="M 0 4 Q 25 1 50 4 T 100 4" fill="none" stroke="var(--color-blue)" strokeWidth="2.5" />
+              </svg>
             </div>
-
-            <Link
-              to={freshArrivalsSection.ctaHref}
-              className="btn"
-              style={{
-                padding: "12px 24px",
-                borderRadius: "12px",
-                fontSize: "0.92rem",
-                backgroundColor: "#E05A47",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                color: "white",
-                textDecoration: "none",
-                fontWeight: 700
-              }}
-            >
-              {freshArrivalsSection.ctaLabel} <ArrowRight size={16} />
-            </Link>
           </div>
-        </div>
-      </div>
 
-      {/* 3D Circular Gallery Stage */}
-      {loading ? (
-        <div style={{ padding: "80px 0", textAlign: "center", color: "#666" }}>
-          Loading products gallery...
-        </div>
-      ) : (
-        <div
-          className="circular-3d-stage"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "500px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            perspective: "2500px",
-            transformStyle: "preserve-3d",
-            cursor: isDragging ? "grabbing" : "grab",
-            userSelect: "none",
-            zIndex: 1,
-            marginTop: "20px",
-            paddingTop: "20px",
-          }}
-        >
-          <div
-            className="circular-3d-ring"
+          {/* 1. Purple File Folder (Center Top) */}
+          <div 
+            ref={folderRef}
+            className="folder-graphic"
             style={{
-              position: "absolute",
-              width: "240px",
-              height: "380px",
-              transformStyle: "preserve-3d",
-              transform: `rotateY(${rotation}deg) rotateX(0deg)`,
-              transition: isDragging ? "none" : "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+              position: "relative",
+              width: "280px",
+              height: "180px",
+              margin: "0 auto 48px",
+              perspective: "1000px",
+              zIndex: 10
             }}
           >
-            {products.map((product, idx) => {
-              const itemAngle = idx * angleStep;
-              const isSelected = activeIndex === idx;
+            {/* Folder Back Cover */}
+            <div 
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "#8B5CF6", // Purple
+                border: "3px solid #222222",
+                borderRadius: "16px",
+                boxShadow: "6px 6px 0px #222222",
+                zIndex: 1
+              }}
+            >
+              {/* Tab */}
+              <div 
+                style={{
+                  position: "absolute",
+                  top: "-16px",
+                  left: "20px",
+                  width: "90px",
+                  height: "18px",
+                  backgroundColor: "#8B5CF6",
+                  borderTop: "3px solid #222222",
+                  borderLeft: "3px solid #222222",
+                  borderRight: "3px solid #222222",
+                  borderRadius: "8px 8px 0 0"
+                }}
+              />
+            </div>
+
+            {/* Folder Front Cover Flap */}
+            <div 
+              className="folder-front-flap"
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: "70%",
+                backgroundColor: "#A78BFA", // Lighter purple
+                border: "3px solid #222222",
+                borderRadius: "0 0 16px 16px",
+                zIndex: 8,
+                transformOrigin: "bottom center",
+                transform: "rotateX(-10deg)",
+                pointerEvents: "none"
+              }}
+            >
+              {/* Slanted cutoff design */}
+              <div 
+                style={{
+                  position: "absolute",
+                  top: "-12px",
+                  right: "20px",
+                  width: "40%",
+                  height: "13px",
+                  backgroundColor: "#A78BFA",
+                  borderTop: "3px solid #222222",
+                  borderLeft: "3px solid #222222",
+                  borderRadius: "8px 0 0 0",
+                  transform: "skewX(-20deg)"
+                }}
+              />
+
+              {/* Label Badge on front cover */}
+              <div style={{
+                position: "absolute",
+                bottom: "12px",
+                left: "16px",
+                backgroundColor: "#FAF6F0",
+                border: "1.5px solid #222222",
+                borderRadius: "20px",
+                padding: "2px 10px",
+                fontSize: "0.68rem",
+                fontWeight: "bold",
+                color: "#222222",
+                boxShadow: "1.5px 1.5px 0px #222222"
+              }}>
+                📂 Categories
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Arranged Category Cards Grid */}
+          <div 
+            ref={cardsParentRef}
+            className="flex flex-wrap justify-center gap-6 relative z-10 w-full max-w-5xl mx-auto"
+          >
+            {categories.map((cat, idx) => {
+              const cardBg = brandColors[idx % brandColors.length];
+              const isLightBg = cardBg === "var(--color-yellow)" || cardBg === "var(--color-surface)";
+              const textInk = isLightBg ? "#222222" : "#ffffff";
 
               return (
                 <div
-                  key={product.id}
-                  onClick={() => handleCardClick(idx)}
-                  className="product-3d-card"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "240px",
-                    height: "380px",
-                    backgroundColor: "#ffffff",
-                    borderRadius: "18px",
-                    overflow: "hidden",
-                    border: "1.5px solid #EADBCE",
-                    boxShadow: isSelected
-                      ? "0 16px 36px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.08)"
-                      : "0 6px 18px rgba(0, 0, 0, 0.05)",
-                    transformStyle: "preserve-3d",
-                    transform: `rotateY(${itemAngle}deg) translateZ(420px)`,
-                    transition: "transform 0.5s ease, box-shadow 0.4s ease, border-color 0.4s ease",
-                    display: "flex",
-                    flexDirection: "column",
-                    cursor: "pointer",
-                  }}
+                  key={cat.label}
+                  ref={(el) => { cardsRef.current[idx] = el; }}
+                  className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0"
+                  style={{ opacity: 0 }} // Pre-hidden to avoid initial flash of unstyled content
                 >
-                  {/* Product Image & Badges */}
-                  <Link
-                    to={`/product/${product.id}`}
-                    onClick={(e) => {
-                      if (isDragging) e.preventDefault();
-                    }}
+                  <a
+                    href={cat.href}
                     style={{
-                      position: "relative",
                       display: "block",
-                      width: "100%",
-                      height: "180px",
-                      backgroundColor: "#f5f5f5",
+                      border: "1.5px solid #222222",
+                      borderRadius: "20px",
                       overflow: "hidden",
+                      textDecoration: "none",
+                      color: textInk,
+                      backgroundColor: cardBg,
+                      boxShadow: "0 4px 0 #222222",
+                      transition: "transform 0.2s, box-shadow 0.2s"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-6px)";
+                      e.currentTarget.style.boxShadow = "0 8px 0 #222222";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 4px 0 #222222";
                     }}
                   >
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        transition: "transform 0.5s ease",
-                      }}
-                    />
-
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "10px",
-                        left: "10px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "4px",
-                        zIndex: 2,
-                      }}
-                    >
-                      {product.isNewArrival && (
-                        <span
-                          style={{
-                            backgroundColor: "#E05A47",
-                            color: "#ffffff",
-                            fontSize: "0.65rem",
-                            fontWeight: 800,
-                            padding: "3px 8px",
-                            borderRadius: "10px",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          New Arrival
-                        </span>
-                      )}
-                      {product.isBestSeller && (
-                        <span
-                          style={{
-                            backgroundColor: "#FEF8E7",
-                            color: "#D97706",
-                            border: "1px solid #FDE6B5",
-                            fontSize: "0.65rem",
-                            fontWeight: 800,
-                            padding: "3px 8px",
-                            borderRadius: "10px",
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          Bestseller
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-
-                  {/* Product Details & Actions */}
-                  <div
-                    style={{
-                      padding: "12px 14px",
-                      flex: 1,
+                    {/* Category Card Image Container */}
+                    <div style={{
+                      height: "150px",
+                      backgroundColor: "rgba(255, 255, 255, 0.95)",
                       display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      backgroundColor: "#ffffff",
-                    }}
-                  >
-                    <div>
-                      <span
-                        style={{
-                          fontSize: "0.68rem",
-                          textTransform: "uppercase",
-                          fontWeight: 700,
-                          color: "#3B82F6",
-                          letterSpacing: "0.05em",
-                          display: "block",
-                          marginBottom: "2px",
-                        }}
-                      >
-                        {product.categoryName}
-                      </span>
-                      <Link
-                        to={`/product/${product.id}`}
-                        style={{ textDecoration: "none", color: "#2C302E" }}
-                      >
-                        <h3
-                          style={{
-                            fontSize: "0.92rem",
-                            fontWeight: 800,
-                            margin: "0 0 2px 0",
-                            lineHeight: 1.25,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {product.name}
-                        </h3>
-                      </Link>
-                      <p
-                        style={{
-                          fontSize: "0.78rem",
-                          color: "#666666",
-                          lineHeight: 1.3,
-                          margin: "0 0 8px 0",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {product.description}
-                      </p>
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderBottom: "1.5px solid #222222",
+                      overflow: "hidden",
+                      padding: "8px"
+                    }}>
+                      <img 
+                        src={cat.image} 
+                        alt={cat.label} 
+                        style={{ 
+                          width: "100%", 
+                          height: "100%", 
+                          objectFit: "cover", 
+                          borderRadius: "12px",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                        }} 
+                      />
                     </div>
-
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          marginBottom: "12px",
-                        }}
-                      >
-                        <span style={{ fontSize: "1.15rem", fontWeight: 900, color: "#2C302E" }}>
-                          ₹{product.price}
-                        </span>
-                        <span style={{ fontSize: "0.76rem", color: "#777777", fontWeight: 600 }}>
-                          {product.variants.length} Sizes
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={(e) => handleQuickAdd(product, e)}
-                        style={{
-                          width: "100%",
-                          padding: "10px",
-                          borderRadius: "10px",
-                          backgroundColor: addedId === product.id ? "#2E7D32" : "#2C302E",
-                          color: "#ffffff",
-                          fontWeight: 700,
-                          fontSize: "0.85rem",
-                          border: "none",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "8px",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {addedId === product.id ? (
-                          <>
-                            <Check size={15} /> Added!
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag size={15} /> Quick Add
-                          </>
-                        )}
-                      </button>
+                    
+                    {/* Tag label */}
+                    <div style={{ 
+                      padding: "16px 12px", 
+                      fontWeight: 800, 
+                      fontSize: "0.85rem", 
+                      textAlign: "center",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.02em",
+                      lineHeight: "1.3",
+                      minHeight: "54px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}>
+                      {cat.label}
                     </div>
-                  </div>
+                  </a>
                 </div>
               );
             })}
           </div>
         </div>
-      )}
-
-      {/* Controls Hint */}
-      <div style={{ textAlign: "center", marginTop: "65px", position: "relative", zIndex: 10 }}>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "8px 22px",
-            borderRadius: "30px",
-            backgroundColor: "#ffffff",
-            border: "1.5px solid #EADBCE",
-            color: "#555555",
-            fontSize: "0.78rem",
-            fontWeight: 700,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.05)",
-          }}
-        >
-          <Sparkles size={14} color="#E05A47" /> Drag or click arrows to explore 3D gallery
-        </span>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

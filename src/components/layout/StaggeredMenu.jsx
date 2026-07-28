@@ -2,8 +2,6 @@ import React, { useCallback, useLayoutEffect, useRef, useState, useEffect } from
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { Search, Heart, User, ShoppingBag } from '../ui/CustomIcons';
-import { Home, Info, Heart as HeartIcon, Briefcase, Phone, ShoppingBag as ShoppingBagIcon, Sparkles, Baby, Truck } from 'lucide-react';
-import { AnimeNavBar } from '../ui/anime-navbar';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import BrandLogo from '../ui/BrandLogo';
@@ -46,17 +44,6 @@ export const StaggeredMenu = ({
   const { wishlistCount } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const navItems = [
-    { name: "Home", url: "/", icon: Home, color: "#EF4A45" },
-    { name: "Products", url: "/products", icon: ShoppingBagIcon, color: "#00A3E0" },
-    { name: "New Arrivals", url: "/new-arrivals", icon: Sparkles, color: "#39B54A" },
-    { name: "Kids", url: "/kids", icon: Baby, color: "#FFD800" },
-    { name: "About Us", url: "/about-us", icon: Info, color: "#EF4A45" },
-    { name: "Why Us", url: "/why-us", icon: HeartIcon, color: "#00A3E0" },
-    { name: "Contact", url: "/contact-us", icon: Phone, color: "#39B54A" },
-    { name: "Distributors", url: "/distributor-network", icon: Truck, color: "#FFD800" },
-  ];
 
   const openTlRef = useRef(null);
   const closeTweenRef = useRef(null);
@@ -422,11 +409,6 @@ export const StaggeredMenu = ({
           <BrandLogo className="h-8 md:h-10" showTagline={false} animate={true} />
         </div>
 
-        {/* Center Navigation */}
-        <div className="hidden md:flex flex-1 justify-center" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
-          <AnimeNavBar items={navItems} defaultActive="Home" />
-        </div>
-
         <div className="sm-header-right">
           {/* Search Icon */}
           <button
@@ -489,6 +471,30 @@ export const StaggeredMenu = ({
             </div>
           </Link>
 
+          {/* Menu Toggle */}
+          <button
+            ref={toggleBtnRef}
+            className="sm-toggle"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            aria-controls="staggered-menu-panel"
+            onClick={toggleMenu}
+            type="button"
+          >
+            <span ref={textWrapRef} className="sm-toggle-textWrap" aria-hidden="true">
+              <span ref={textInnerRef} className="sm-toggle-textInner">
+                {textLines.map((l, i) => (
+                  <span className="sm-toggle-line" key={i}>
+                    {l}
+                  </span>
+                ))}
+              </span>
+            </span>
+            <span ref={iconRef} className="sm-icon" aria-hidden="true">
+              <span ref={plusHRef} className="sm-icon-line" />
+              <span ref={plusVRef} className="sm-icon-line sm-icon-line-v" />
+            </span>
+          </button>
         </div>
       </header>
 
