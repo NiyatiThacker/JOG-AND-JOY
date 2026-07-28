@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 
-export default function BrandLogo({ className = 'h-10', showTagline = true, animate = false }) {
+export default function BrandLogo({ className = 'h-10', showTagline = true, animate = false, linkTo = '/' }) {
   const logoRef = useRef(null);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function BrandLogo({ className = 'h-10', showTagline = true, anim
 
   return (
     <Link 
-      to="/" 
+      to={linkTo} 
       className="flex flex-col items-start group select-none"
       onMouseEnter={handleHover}
     >

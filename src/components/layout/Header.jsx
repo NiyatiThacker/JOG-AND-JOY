@@ -224,6 +224,7 @@ export default function Header() {
             <Link to="/distributors" className="py-3 text-lg font-bold border-b border-slate-800 text-white">Distributor Network</Link>
             <Link to="/career" className="py-3 text-lg font-bold border-b border-slate-800 text-white">Career</Link>
             <Link to="/contact-us" className="py-3 text-lg font-bold border-b border-slate-800 text-white">Contact Us</Link>
+            <Link to="/admin" className="py-3 text-lg font-bold text-[#ccff00]">Admin Dashboard</Link>
           </nav>
         </div>
       )}

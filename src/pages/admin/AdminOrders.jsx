@@ -1,0 +1,401 @@
+import React, { useState } from 'react';
+import { Search, Eye, X, MapPin, Calendar, CreditCard, Package, AlertCircle, ArrowLeft, MoreHorizontal, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
+import { useOrdersList, useUpdateOrder } from '../../queries/useOrders';
+import { useSettingsContext } from '../../context/SettingsContext';
+
+export default function AdminOrders() {
+  const [activeTab, setActiveTab] = useState('unfulfilled');
+  const [search, setSearch] = useState('');
+  const [view, setView] = useState('list');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showDraftModal, setShowDraftModal] = useState(false);
+  const [draftData, setDraftData] = useState({ customerEmail: '', items: [] });
+  
+  const { formatCurrency, formatDate } = useSettingsContext();
+
+  const filters = {};
+  if (activeTab === 'unfulfilled') filters.fulfillmentStatus = 'unfulfilled';
+  if (['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'ON_HOLD'].includes(activeTab)) {
+    filters.status = activeTab;
+  }
+  if (search) filters.search = search;
+  
+  const { data, isLoading } = useOrdersList(filters);
+  let orders = data?.data || [];
+
+  if (activeTab === 'returns') {
+    orders = []; // Mock Returns/RMA tab
+  }
+
+  const updateMut = useUpdateOrder();
+
+  const handleOpenDetail = (order) => {
+    setSelectedOrder(order);
+    setView('detail');
+  };
+
+  const handleStatusChange = (newStatus) => {
+    if (selectedOrder) {
+      const historyEntry = { status: newStatus, timestamp: new Date().toISOString(), note: 'Status updated by admin' };
+      
+      updateMut.mutate({ 
+        id: selectedOrder.id, 
+        patch: { 
+          status: newStatus,
+          statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
+        } 
+      }, {
+        onSuccess: (updated) => setSelectedOrder(updated)
+      });
+    }
+  };
+
+  const handleRefund = () => {
+    if (selectedOrder && window.confirm('Are you sure you want to refund this order?')) {
+      const historyEntry = { status: 'REFUNDED', timestamp: new Date().toISOString(), note: 'Order refunded by admin' };
+      updateMut.mutate({
+        id: selectedOrder.id,
+        patch: {
+          paymentStatus: 'refunded',
+          status: 'REFUNDED',
+          statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
+        }
+      }, {
+        onSuccess: (updated) => setSelectedOrder(updated)
+      });
+    }
+  };
+
+  const handleFulfill = () => {
+    if (selectedOrder) {
+      const historyEntry = { status: 'SHIPPED', timestamp: new Date().toISOString(), note: 'Items fulfilled' };
+      updateMut.mutate({
+        id: selectedOrder.id,
+        patch: {
+          fulfillmentStatus: 'fulfilled',
+          status: 'SHIPPED',
+          statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
+        }
+      }, {
+        onSuccess: (updated) => setSelectedOrder(updated)
+      });
+    }
+  };
+
+  const handleTagAdd = (e) => {
+    if (e.key === 'Enter' && e.target.value.trim() !== '') {
+      const newTag = e.target.value.trim();
+      const currentTags = selectedOrder.tags || [];
+      if (!currentTags.includes(newTag)) {
+        updateMut.mutate({
+          id: selectedOrder.id,
+          patch: { tags: [...currentTags, newTag] }
+        }, {
+          onSuccess: (updated) => setSelectedOrder(updated)
+        });
+      }
+      e.target.value = '';
+    }
+  };
+
+  if (view === 'detail' && selectedOrder) {
+    const o = selectedOrder;
+    return (
+      <div className="w-full max-w-5xl mx-auto pb-12 animate-in fade-in duration-300">
+        <div className="flex items-center gap-4 mb-6">
+          <button onClick={() => setView('list')} className="p-2 bg-white rounded-lg border border-border hover:bg-zinc-50 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-zinc-500" />
+          </button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-extrabold text-primary-dark">{o.orderNumber || o.id}</h1>
+              <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-md ${
+                o.status === 'DELIVERED' ? 'bg-success/15 text-success-dark' : 
+                o.status === 'SHIPPED' ? 'bg-info/15 text-info-dark' : 
+                o.status === 'CANCELLED' ? 'bg-error/10 text-error' : 
+                o.status === 'ON_HOLD' ? 'bg-warning/15 text-warning-dark' : 'bg-zinc-200 text-zinc-600'
+              }`}>
+                {o.status.replace('_', ' ')}
+              </span>
+              <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-md ${
+                o.paymentStatus === 'paid' ? 'bg-success/15 text-success-dark' : 'bg-warning/15 text-warning-dark'
+              }`}>
+                {o.paymentStatus}
+              </span>
+            </div>
+            <p className="text-sm text-text-secondary mt-1">{formatDate(o.createdAt)} from {o.channel?.replace('_', ' ')}</p>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <button onClick={handleRefund} className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Refund</button>
+            <button className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Edit</button>
+            <div className="relative group">
+              <button className="p-2 bg-primary-dark text-white rounded-xl shadow-sm hover:bg-primary-hover">
+                <MoreHorizontal className="w-5 h-5" />
+              </button>
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                <div className="p-1">
+                  {['PROCESSING', 'ON_HOLD', 'CANCELLED'].map(st => (
+                    <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
+                      Mark as {st.replace('_', ' ')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 space-y-6">
+            {/* Line Items */}
+            <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden p-6">
+              <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2">
+                <Package className="w-5 h-5 text-accent-green" /> Unfulfilled ({o.items?.length || 0})
+              </h2>
+              <div className="space-y-4">
+                {o.items?.map((item, i) => (
+                  <div key={i} className="flex gap-4 p-4 bg-zinc-50 border border-border rounded-xl items-center">
+                    <div className="w-12 h-12 bg-white rounded-lg border border-border flex shrink-0 items-center justify-center text-xs font-bold text-zinc-300">IMG</div>
+                    <div className="flex-1">
+                      <p className="font-bold text-primary-dark">{item.titleSnapshot}</p>
+                      <p className="text-xs text-text-secondary font-mono mt-0.5">{formatCurrency(item.unitPrice)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-primary-dark">x{item.quantity}</p>
+                      <p className="text-sm font-bold mt-0.5">{formatCurrency(item.unitPrice * item.quantity)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button onClick={handleFulfill} className="px-6 py-2 bg-primary-dark text-white rounded-xl font-bold text-sm shadow-sm hover:bg-primary-hover">Fulfill Items</button>
+              </div>
+            </div>
+
+            {/* Payment Summary */}
+            <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+              <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-accent-green" /> Payment
+              </h2>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-text-secondary"><p>Subtotal</p><p>{formatCurrency(o.subtotal)}</p></div>
+                {o.discountAmount > 0 && <div className="flex justify-between text-text-secondary"><p>Discount ({o.promotionCodeApplied})</p><p>-{formatCurrency(o.discountAmount)}</p></div>}
+                <div className="flex justify-between text-text-secondary"><p>Shipping</p><p>{formatCurrency(o.shippingCost)}</p></div>
+                <div className="flex justify-between text-text-secondary"><p>Tax</p><p>{formatCurrency(o.tax)}</p></div>
+                <div className="border-t border-border mt-3 pt-3 flex justify-between font-bold text-lg text-primary-dark">
+                  <p>Total</p><p>{formatCurrency(o.total)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+              <h2 className="text-lg font-bold text-primary-dark mb-4">Timeline</h2>
+              <div className="space-y-4">
+                {o.statusHistory?.map((evt, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center shrink-0 border border-border">
+                      <CheckCircle2 className="w-4 h-4 text-zinc-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-primary-dark">{evt.note || `Status changed to ${evt.status}`}</p>
+                      <p className="text-xs text-text-secondary">{formatDate(evt.timestamp)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Customer */}
+            <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+              <h2 className="text-lg font-bold text-primary-dark mb-4">Customer</h2>
+              <p className="font-bold text-primary-dark">{o.shippingAddress?.name || 'Customer'}</p>
+              <p className="text-sm text-text-secondary">0 orders</p>
+              
+              <hr className="border-border my-4" />
+              <h3 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2">Contact</h3>
+              <p className="text-sm text-primary-dark font-medium cursor-pointer hover:underline">customer@example.com</p>
+              
+              <hr className="border-border my-4" />
+              <h3 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2">Shipping Address</h3>
+              <p className="text-sm text-text-secondary leading-relaxed">
+                {o.shippingAddress?.line1}<br/>
+                {o.shippingAddress?.city}, {o.shippingAddress?.state} {o.shippingAddress?.postalCode}<br/>
+                {o.shippingAddress?.country}
+              </p>
+            </div>
+
+            {/* Tags & Risk */}
+            <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+              <h2 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-3">Tags</h2>
+              <input type="text" placeholder="Add a tag and press Enter..." onKeyDown={handleTagAdd} className="w-full px-3 py-2 bg-zinc-50 border border-border rounded-lg text-sm focus:outline-none focus:border-accent-green mb-2" />
+              <div className="flex flex-wrap gap-2">
+                {o.tags?.map(t => <span key={t} className="px-2 py-1 bg-zinc-100 rounded text-xs font-bold text-text-secondary">{t}</span>)}
+              </div>
+
+              <hr className="border-border my-4" />
+              <h2 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-3">Fraud Analysis</h2>
+              <div className={`p-3 rounded-lg flex items-start gap-3 ${o.riskLevel === 'high' ? 'bg-error/10 text-error' : o.riskLevel === 'medium' ? 'bg-warning/10 text-warning-dark' : 'bg-success/10 text-success-dark'}`}>
+                <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
+                <p className="text-sm font-bold">{o.riskLevel === 'high' ? 'High Risk' : o.riskLevel === 'medium' ? 'Medium Risk' : 'Low Risk'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // LIST VIEW
+  return (
+    <div className="w-full animate-in fade-in duration-300">
+      <div className="flex justify-between items-end mb-8">
+        <div>
+          <span className="text-[10px] text-accent-green font-bold uppercase tracking-widest font-mono">Operations</span>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Orders</h1>
+          <p className="text-xs text-text-secondary mt-1">Lifecycle, fulfillment, and returns</p>
+        </div>
+        <button onClick={() => setShowDraftModal(true)} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-border text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
+          Create draft order
+        </button>
+      </div>
+
+      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-zinc-50/50 p-4 gap-4">
+          <div className="flex overflow-x-auto w-full hide-scrollbar gap-2">
+            {[
+              { id: 'all', label: 'All' },
+              { id: 'unfulfilled', label: 'Unfulfilled' },
+              { id: 'PROCESSING', label: 'Processing' },
+              { id: 'SHIPPED', label: 'Shipped' },
+              { id: 'DELIVERED', label: 'Delivered' },
+              { id: 'CANCELLED', label: 'Cancelled' },
+              { id: 'ON_HOLD', label: 'On Hold' },
+              { id: 'returns', label: 'Returns' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                  activeTab === tab.id 
+                    ? 'bg-white border border-border shadow-sm text-primary-dark' 
+                    : 'text-text-secondary hover:text-text-primary hover:bg-zinc-100/50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input 
+              type="text" 
+              placeholder="Search orders..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-white focus:outline-none focus:border-accent-green text-sm transition-colors"
+            />
+          </div>
+        </div>
+
+        <div className="overflow-x-auto min-h-[400px]">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading orders...</div>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-border text-[11px] uppercase tracking-wider">
+                <tr>
+                  <th className="px-6 py-4">Order</th>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Customer</th>
+                  <th className="px-6 py-4">Payment</th>
+                  <th className="px-6 py-4">Fulfillment</th>
+                  <th className="px-6 py-4">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="p-12 text-center text-text-secondary">
+                      <FileText className="w-8 h-8 mx-auto mb-3 opacity-20" />
+                      <p className="font-bold text-primary-dark">No orders found</p>
+                    </td>
+                  </tr>
+                ) : (
+                  orders.map((order) => (
+                    <tr key={order.id} onClick={() => handleOpenDetail(order)} className="hover:bg-zinc-50/50 transition-colors cursor-pointer group">
+                      <td className="px-6 py-4 font-bold text-primary-dark group-hover:text-accent-green">{order.orderNumber || order.id}</td>
+                      <td className="px-6 py-4 text-text-secondary">{formatDate(order.createdAt)}</td>
+                      <td className="px-6 py-4 font-medium text-primary-dark">{order.shippingAddress?.name || 'Customer'}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+                          order.paymentStatus === 'paid' ? 'bg-zinc-100 text-zinc-700' : 'bg-warning/15 text-warning-dark'
+                        }`}>
+                          {order.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+                          order.fulfillmentStatus === 'fulfilled' ? 'bg-zinc-100 text-zinc-700' : 
+                          order.fulfillmentStatus === 'partial' ? 'bg-info/15 text-info-dark' : 'bg-warning/15 text-warning-dark'
+                        }`}>
+                          {order.fulfillmentStatus || 'unfulfilled'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-primary-dark">{formatCurrency(order.total)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {showDraftModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-border flex justify-between items-center bg-zinc-50">
+              <h2 className="font-extrabold text-lg text-primary-dark">Create Draft Order</h2>
+              <button onClick={() => setShowDraftModal(false)} className="p-2 bg-white rounded-lg border border-border hover:bg-zinc-100 transition-colors">
+                <X className="w-4 h-4 text-zinc-500" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Customer Email</label>
+                <input type="email" value={draftData.customerEmail} onChange={e => setDraftData({...draftData, customerEmail: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl bg-zinc-50 focus:border-accent-green outline-none" placeholder="customer@example.com" />
+              </div>
+              <div className="p-4 bg-zinc-50 border border-border rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-bold text-primary-dark">Items</span>
+                  <button onClick={() => setDraftData({...draftData, items: [...draftData.items, { titleSnapshot: '', unitPrice: 0, quantity: 1 }]})} className="text-xs font-bold text-accent-green hover:underline">+ Add Custom Item</button>
+                </div>
+                {draftData.items.length === 0 ? (
+                  <p className="text-xs text-text-secondary italic">No items added.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {draftData.items.map((item, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <input type="text" placeholder="Item name" value={item.titleSnapshot} onChange={e => { const newItems = [...draftData.items]; newItems[idx].titleSnapshot = e.target.value; setDraftData({...draftData, items: newItems}); }} className="flex-1 px-2 py-1 text-sm border border-border rounded" />
+                        <input type="number" placeholder="Price" value={item.unitPrice} onChange={e => { const newItems = [...draftData.items]; newItems[idx].unitPrice = Number(e.target.value); setDraftData({...draftData, items: newItems}); }} className="w-20 px-2 py-1 text-sm border border-border rounded" />
+                        <input type="number" placeholder="Qty" value={item.quantity} onChange={e => { const newItems = [...draftData.items]; newItems[idx].quantity = Number(e.target.value); setDraftData({...draftData, items: newItems}); }} className="w-16 px-2 py-1 text-sm border border-border rounded" />
+                        <button onClick={() => { const newItems = draftData.items.filter((_, i) => i !== idx); setDraftData({...draftData, items: newItems}); }} className="text-error hover:bg-error/10 p-1 rounded"><X className="w-3 h-3"/></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="p-4 border-t border-border bg-zinc-50 flex justify-end gap-3">
+              <button onClick={() => setShowDraftModal(false)} className="px-4 py-2 text-sm font-bold text-text-secondary hover:text-primary-dark transition-colors">Cancel</button>
+              <button onClick={() => { alert('Draft order created!'); setShowDraftModal(false); setDraftData({ customerEmail: '', items: [] }); }} className="px-6 py-2 bg-primary-dark text-white rounded-xl font-bold text-sm shadow-sm hover:bg-primary-hover transition-colors">Save Draft</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
