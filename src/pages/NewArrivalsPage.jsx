@@ -128,29 +128,16 @@ export default function NewArrivalsPage() {
               </div>
             </Link>
 
-            <div className="md:col-span-7 grid grid-rows-2 gap-6 h-full">
-              {/* Block 2: Men (Vibrant Indigo) */}
-              <Link to="/men" className="relative group overflow-hidden rounded-[2rem] bg-slate-100 cursor-pointer block h-full">
-                <img src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800&auto=format&fit=crop" alt="Men" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-indigo-600/70 group-hover:bg-indigo-500/50 mix-blend-multiply transition-colors"></div>
-                <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                  <h4 className="text-white text-3xl font-black flex items-center gap-2">
-                    Men's <ArrowRight className="w-8 h-8 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all" />
-                  </h4>
-                </div>
-              </Link>
-
-              {/* Block 3: Women (Vibrant Rose) */}
-              <Link to="/women" className="relative group overflow-hidden rounded-[2rem] bg-slate-100 cursor-pointer block h-full">
-                <img src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?q=80&w=800&auto=format&fit=crop" alt="Women" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-rose-500/70 group-hover:bg-rose-400/50 mix-blend-multiply transition-colors"></div>
-                <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                  <h4 className="text-white text-3xl font-black flex items-center gap-2">
-                    Women's <ArrowRight className="w-8 h-8 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all" />
-                  </h4>
-                </div>
-              </Link>
-            </div>
+            {/* Block 2: Men (Vibrant Indigo) */}
+            <Link to="/men" className="md:col-span-7 relative group overflow-hidden rounded-[2rem] bg-slate-100 cursor-pointer block h-full">
+              <img src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800&auto=format&fit=crop" alt="Men" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-indigo-600/70 group-hover:bg-indigo-500/50 mix-blend-multiply transition-colors"></div>
+              <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                <h4 className="text-white text-3xl font-black flex items-center gap-2">
+                  Men's <ArrowRight className="w-8 h-8 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all" />
+                </h4>
+              </div>
+            </Link>
 
           </div>
         </div>

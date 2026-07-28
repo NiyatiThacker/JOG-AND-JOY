@@ -4,6 +4,7 @@ import { gsap } from 'gsap';
 import { ArrowUpRight, Search, Heart, User, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import BrandLogo from '../ui/BrandLogo';
 import './CardNav.css';
 
 const CardNav = ({
@@ -170,8 +171,7 @@ const CardNav = ({
         { label: "Products", href: "/products", ariaLabel: "Products" },
         { label: "New Arrivals", href: "/new-arrivals", ariaLabel: "New Arrivals" },
         { label: "Kids Wear", href: "/kids", ariaLabel: "Kids Collection" },
-        { label: "Men Wear", href: "/men", ariaLabel: "Men Collection" },
-        { label: "Women Wear", href: "/women", ariaLabel: "Women Collection" }
+        { label: "Men Wear", href: "/men", ariaLabel: "Men Collection" }
       ]
     },
     {
@@ -220,9 +220,7 @@ const CardNav = ({
           </div>
 
           <div className="logo-container">
-            <Link to="/">
-              <img src={logo} alt={logoAlt} className="logo" />
-            </Link>
+            <BrandLogo className="h-7 md:h-9" showTagline={false} />
           </div>
 
           <div className="card-nav-actions-right">

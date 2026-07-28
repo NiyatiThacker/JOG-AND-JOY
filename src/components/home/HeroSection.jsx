@@ -16,7 +16,7 @@ const trailImages = [
 
 export default function HeroSection() {
   return (
-    <section style={{
+    <section className="hero-section" style={{
       position: "relative",
       height: "calc(100vh - 70px)",
       backgroundColor: "#FAF6F0", // Warm cream/sand background matching the logo layout

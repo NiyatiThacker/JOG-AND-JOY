@@ -20,7 +20,7 @@ export default function Products({ pageCategory = null }) {
   const [selectedItemFilter, setSelectedItemFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  const categories = ['All', 'Kids', 'Male', 'Female'];
+  const categories = ['All', 'Kids', 'Male'];
   const ageGroups = ['All', '0–2 Years', '3–5 Years', '6–8 Years', '9–12 Years'];
 
   React.useEffect(() => {
@@ -38,8 +38,6 @@ export default function Products({ pageCategory = null }) {
         matchCat = ['Boys', 'Girls', 'Newborn'].includes(p.category);
       } else if (selectedCategory === 'Male') {
         matchCat = p.category === "Men's Collection";
-      } else if (selectedCategory === 'Female') {
-        matchCat = p.category === 'Girls';
       }
 
       // Item Filter Keyword Logic
@@ -77,39 +75,43 @@ export default function Products({ pageCategory = null }) {
   }, [selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
 
   return (
-    <div className="min-h-screen bg-[#FFF8EC] pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF8] via-[#FAF6F0] to-[#FFF8EC] pb-24 relative">
       
+      {/* Background Subtle Color Accents */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-[#FF5500]/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-40 right-10 w-72 h-72 bg-[#00A3E0]/5 rounded-full blur-3xl pointer-events-none"></div>
+
       {/* Kids Hero Section */}
       {pageCategory === 'Kids' && <CategoryHero />}
 
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${pageCategory === 'Kids' ? 'pt-4' : 'pt-10'}`}>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 ${pageCategory === 'Kids' ? 'pt-4' : 'pt-10'}`}>
 
         {/* Page Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-          <span className="px-4 py-1.5 rounded-full bg-[#AEE6FF]/50 text-sky-900 text-xs font-black uppercase tracking-wider inline-flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-sky-600" /> Explore Collection
+        <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+          <span className="px-4 py-1.5 rounded-full bg-orange-100/90 text-[#FF5500] text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5 shadow-xs border border-orange-200/50">
+            <Sparkles className="w-4 h-4 text-[#FF5500]" /> Explore Collection
           </span>
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight capitalize">
-            {pageCategory === 'Kids' ? 'Kids Fashion' : pageCategory === 'Male' ? "Men's Fashion" : pageCategory === 'Female' ? "Women's Fashion" : "All Products"} <span className="text-[#EF4A45]">Catalog</span>
+            {pageCategory === 'Kids' ? 'Kids Fashion' : pageCategory === 'Male' ? "Men's Fashion" : "All Products"} <span className="text-[#EF4A45]">Catalog</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium">
+          <p className="text-xs sm:text-sm text-slate-600 font-bold">
             Browse our premium collection of bio-washed cotton apparel, ethnic wear, and activewear.
           </p>
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="bg-white rounded-3xl p-5 shadow-xl border border-slate-100 mb-8 space-y-4">
+        <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-xl shadow-orange-950/5 border border-orange-100 mb-8 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
 
             {/* Search Input */}
             <div className={`relative ${pageCategory ? 'md:col-span-9' : 'md:col-span-5'}`}>
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-400" />
               <input
                 type="text"
                 placeholder="Search by product name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#EF4A45]"
+                className="w-full pl-11 pr-4 py-3 bg-[#FAF6F0] border border-orange-200/70 rounded-2xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#EF4A45] focus:ring-2 focus:ring-[#EF4A45]/20 shadow-xs"
               />
             </div>
 
@@ -118,10 +120,10 @@ export default function Products({ pageCategory = null }) {
               <div className="md:col-span-4 flex items-center justify-center sm:justify-start">
                 <button 
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold text-xs transition-colors shadow-sm ${
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs transition-all shadow-sm ${
                     showFilters 
-                      ? 'bg-slate-800 text-white' 
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                      ? 'bg-[#EF4A45] text-white shadow-md' 
+                      : 'bg-orange-100/70 hover:bg-orange-200/80 text-[#ED6B21] border border-orange-200/60'
                   }`}
                 >
                   <Filter className="w-4 h-4" />
@@ -132,11 +134,11 @@ export default function Products({ pageCategory = null }) {
 
             {/* Sort Select */}
             <div className="md:col-span-3 flex items-center justify-end gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-slate-400" />
+              <SlidersHorizontal className="w-4 h-4 text-orange-500" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#EF4A45]"
+                className="px-4 py-3 bg-[#FAF6F0] border border-orange-200/70 rounded-2xl text-xs font-black text-slate-800 focus:outline-none focus:border-[#EF4A45] focus:ring-2 focus:ring-[#EF4A45]/20 shadow-xs"
               >
                 <option value="popular">Sort by: Most Popular</option>
                 <option value="low">Price: Low to High</option>
@@ -146,44 +148,53 @@ export default function Products({ pageCategory = null }) {
 
             {/* Expandable Filter Menu */}
             {showFilters && !pageCategory && (
-              <div className="md:col-span-12 p-4 mt-2 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+              <div className="md:col-span-12 p-5 mt-2 bg-[#FAF6F0] rounded-2xl border border-orange-100 space-y-4">
                 
                 {/* Main Categories */}
                 <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Category</h4>
+                  <h4 className="text-[10px] font-black text-[#ED6B21] uppercase tracking-wider mb-2">Category</h4>
                   <div className="flex flex-wrap gap-2">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => {
-                          setSelectedCategory(cat);
-                          setSelectedItemFilter(''); // Reset sub-filters on category change
-                        }}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                          selectedCategory === cat || (!selectedCategory && cat === 'All')
-                            ? 'bg-[#EF4A45] text-white shadow-md'
-                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                    {categories.map((cat) => {
+                      const isActive = selectedCategory === cat || (!selectedCategory && cat === 'All');
+                      
+                      // Brand Color Mapping per Category Button
+                      let activeStyle = 'bg-[#EF4A45] text-white shadow-md';
+                      if (cat === 'Kids') activeStyle = 'bg-[#00A3E0] text-white shadow-md';
+                      if (cat === 'Male') activeStyle = 'bg-[#ED6B21] text-white shadow-md';
+
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => {
+                            setSelectedCategory(cat);
+                            setSelectedItemFilter(''); // Reset sub-filters on category change
+                          }}
+                          className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all shadow-xs ${
+                            isActive
+                              ? activeStyle
+                              : 'bg-white text-slate-700 border border-slate-200 hover:bg-orange-50 hover:border-orange-200'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Age Groups (Only show if Kids is selected or All is selected) */}
                 {(selectedCategory === 'Kids' || selectedCategory === 'All' || !selectedCategory) && (
                   <div>
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Kids Age Group</h4>
+                    <h4 className="text-[10px] font-black text-[#ED6B21] uppercase tracking-wider mb-2">Kids Age Group</h4>
                     <div className="flex flex-wrap gap-2">
                       {ageGroups.map((age) => (
                         <button
                           key={age}
                           onClick={() => setSelectedAge(age)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                          className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-xs ${
                             selectedAge === age || (!selectedAge && age === 'All')
-                              ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF]'
-                              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                              ? 'bg-[#FFD800] text-slate-900 font-black shadow-sm'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:bg-yellow-50 hover:border-yellow-200'
                           }`}
                         >
                           {age}
@@ -196,17 +207,17 @@ export default function Products({ pageCategory = null }) {
             )}
 
             {/* Sub-Item Filters */}
-            {(selectedCategory === 'Kids' || selectedCategory === 'Male' || selectedCategory === 'Female') && (
-              <div className="md:col-span-12 flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 no-scrollbar">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-wider shrink-0 mr-2">Filters:</span>
+            {(selectedCategory === 'Kids' || selectedCategory === 'Male') && (
+              <div className="md:col-span-12 flex items-center gap-2 overflow-x-auto pt-3 border-t border-orange-100/80 no-scrollbar">
+                <span className="text-xs font-black text-[#ED6B21] uppercase tracking-wider shrink-0 mr-2">Filters:</span>
 
                 {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits'].map(item => (
                   <button
                     key={item}
                     onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                        ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                    className={`px-3.5 py-2 rounded-xl font-black text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
+                        ? 'bg-[#00A3E0] text-white border-[#00A3E0] shadow-sm'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-sky-50 hover:border-sky-200'
                       }`}
                   >
                     {item}
@@ -217,22 +228,9 @@ export default function Products({ pageCategory = null }) {
                   <button
                     key={item}
                     onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                        ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                      }`}
-                  >
-                    {item}
-                  </button>
-                ))}
-
-                {selectedCategory === 'Female' && ['Girl Frocks'].map(item => (
-                  <button
-                    key={item}
-                    onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                        ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                    className={`px-3.5 py-2 rounded-xl font-black text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
+                        ? 'bg-[#ED6B21] text-white border-[#ED6B21] shadow-sm'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-orange-50 hover:border-orange-200'
                       }`}
                   >
                     {item}
@@ -252,10 +250,10 @@ export default function Products({ pageCategory = null }) {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white rounded-3xl p-8 shadow-md border border-slate-100 space-y-3">
+          <div className="text-center py-20 bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-md border border-orange-100 space-y-3">
             <span className="text-4xl">🔍</span>
-            <h3 className="text-xl font-black text-slate-800">No matching products found</h3>
-            <p className="text-xs text-slate-500 font-semibold">Try resetting filters or searching with different keywords.</p>
+            <h3 className="text-xl font-black text-slate-900">No matching products found</h3>
+            <p className="text-xs text-slate-500 font-bold">Try resetting filters or searching with different keywords.</p>
             <button
               onClick={() => {
                 setSelectedCategory(pageCategory || '');
@@ -263,7 +261,7 @@ export default function Products({ pageCategory = null }) {
                 setSearchQuery('');
                 setSelectedItemFilter('');
               }}
-              className="px-6 py-2.5 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-sm hover:bg-red-600"
+              className="px-6 py-3 rounded-full bg-[#EF4A45] hover:bg-[#FF5500] text-white font-black text-xs shadow-md transition-all hover:scale-105"
             >
               Reset Filters
             </button>

@@ -4,7 +4,6 @@ import HeroSection from '../components/home/HeroSection';
 import BrandStrip from '../components/home/BrandStrip';
 import CategoryGrid from '../components/home/CategoryGrid';
 import FeaturedCollections from '../components/home/FeaturedCollections';
-import BestSellers from '../components/home/BestSellers';
 
 import SeasonalCollection from '../components/home/SeasonalCollection';
 import LimitedTimeOffers from '../components/home/LimitedTimeOffers';
@@ -28,7 +27,6 @@ export default function Home() {
         <BrandStrip />
         <CategoryGrid />
         <FeaturedCollections />
-        <BestSellers onQuickView={setQuickViewProduct} />
         <LimitedTimeOffers />
 
         <SeasonalCollection onQuickView={setQuickViewProduct} />
