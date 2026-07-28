@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { flyToCart } from '../../utils/animations';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
@@ -12,7 +13,8 @@ export default function WomenProductCard({ product }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    addToCart(product, product.sizes?.[0] || 'M', product.colors?.[0]?.hex || '#000', e);
+    flyToCart(e, product.image);
+    addToCart(product, product.sizes?.[0] || 'M', product.colors?.[0]?.hex || '#000');
   };
 
   const handleWishlistClick = (e) => {

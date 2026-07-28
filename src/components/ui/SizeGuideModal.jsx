@@ -8,14 +8,15 @@ export default function SizeGuideModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const sizeChart = [
-    { age: '0–3 Months', size: '0-3M', chestCm: '40–42', heightCm: '55–61', chestIn: '15.7–16.5', heightIn: '21.6–24' },
-    { age: '3–6 Months', size: '3-6M', chestCm: '42–44', heightCm: '61–67', chestIn: '16.5–17.3', heightIn: '24–26.3' },
-    { age: '6–12 Months', size: '6-12M', chestCm: '44–46', heightCm: '67–74', chestIn: '17.3–18.1', heightIn: '26.3–29.1' },
-    { age: '2–3 Years', size: '2Y-3Y', chestCm: '52–54', heightCm: '88–96', chestIn: '20.5–21.2', heightIn: '34.6–37.7' },
-    { age: '4–5 Years', size: '4Y-5Y', chestCm: '56–58', heightCm: '104–110', chestIn: '22–22.8', heightIn: '40.9–43.3' },
-    { age: '6–7 Years', size: '6Y-7Y', chestCm: '60–62', heightCm: '116–122', chestIn: '23.6–24.4', heightIn: '45.6–48' },
-    { age: '8–9 Years', size: '8Y-9Y', chestCm: '64–66', heightCm: '128–134', chestIn: '25.2–26', heightIn: '50.3–52.7' },
-    { age: '10–12 Years', size: '10Y-12Y', chestCm: '70–74', heightCm: '140–152', chestIn: '27.5–29.1', heightIn: '55.1–59.8' }
+    { age: '0–3 M', size: '0-3M', heightCm: '55–61', weightKg: '4–6', chestCm: '40', waistCm: '39', heightIn: '21–24', weightLbs: '9-13', chestIn: '15.7', waistIn: '15.3' },
+    { age: '3–6 M', size: '3-6M', heightCm: '61–67', weightKg: '6–8', chestCm: '42', waistCm: '41', heightIn: '24–26', weightLbs: '13-17', chestIn: '16.5', waistIn: '16.1' },
+    { age: '6–12 M', size: '6-12M', heightCm: '67–74', weightKg: '8–10', chestCm: '46', waistCm: '45', heightIn: '26–29', weightLbs: '17-22', chestIn: '18.1', waistIn: '17.7' },
+    { age: '1–2 Yrs', size: '1Y-2Y', heightCm: '80-86', weightKg: '10-12', chestCm: '50', waistCm: '49', heightIn: '31-34', weightLbs: '22-26', chestIn: '19.6', waistIn: '19.2' },
+    { age: '2–3 Yrs', size: '2Y-3Y', heightCm: '88–96', weightKg: '12-14', chestCm: '54', waistCm: '51', heightIn: '34–38', weightLbs: '26-30', chestIn: '21.2', waistIn: '20.0' },
+    { age: '4–5 Yrs', size: '4Y-5Y', heightCm: '104–110', weightKg: '15-18', chestCm: '58', waistCm: '54', heightIn: '41–43', weightLbs: '33-39', chestIn: '22.8', waistIn: '21.2' },
+    { age: '6–7 Yrs', size: '6Y-7Y', heightCm: '116–122', weightKg: '20-23', chestCm: '62', waistCm: '57', heightIn: '45–48', weightLbs: '44-50', chestIn: '24.4', waistIn: '22.4' },
+    { age: '8–9 Yrs', size: '8Y-9Y', heightCm: '128–134', weightKg: '25-30', chestCm: '66', waistCm: '60', heightIn: '50–53', weightLbs: '55-66', chestIn: '26.0', waistIn: '23.6' },
+    { age: '10–12 Yrs', size: '10-12Y', heightCm: '140–152', weightKg: '32-40', chestCm: '74', waistCm: '64', heightIn: '55–60', weightLbs: '70-88', chestIn: '29.1', waistIn: '25.2' }
   ];
 
   return (
@@ -81,23 +82,27 @@ export default function SizeGuideModal({ isOpen, onClose }) {
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-[#FFF8EC] text-slate-800 font-black border-b border-amber-100">
                 <tr>
-                  <th className="p-3">Age Group</th>
-                  <th className="p-3">Tag Size</th>
-                  <th className="p-3">Chest ({unit.toUpperCase()})</th>
-                  <th className="p-3">Height ({unit.toUpperCase()})</th>
+                  <th className="p-3">Age</th>
+                  <th className="p-3">Size</th>
+                  <th className="p-3">Height</th>
+                  <th className="p-3">Weight</th>
+                  <th className="p-3">Chest</th>
+                  <th className="p-3">Waist</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-bold text-slate-700">
                 {sizeChart.map((row, i) => (
-                  <tr key={i} className="hover:bg-slate-50 transition-colors">
+                  <tr key={i} className="hover:bg-slate-50 transition-colors whitespace-nowrap">
                     <td className="p-3 font-extrabold text-slate-900">{row.age}</td>
                     <td className="p-3">
                       <span className="px-2 py-0.5 rounded-full bg-[#AEE6FF]/40 text-slate-800 text-[11px] font-black">
                         {row.size}
                       </span>
                     </td>
-                    <td className="p-3">{unit === 'cm' ? row.chestCm : row.chestIn}</td>
-                    <td className="p-3">{unit === 'cm' ? row.heightCm : row.heightIn}</td>
+                    <td className="p-3">{unit === 'cm' ? row.heightCm + ' cm' : row.heightIn + ' in'}</td>
+                    <td className="p-3">{unit === 'cm' ? row.weightKg + ' kg' : row.weightLbs + ' lbs'}</td>
+                    <td className="p-3">{unit === 'cm' ? row.chestCm + ' cm' : row.chestIn + ' in'}</td>
+                    <td className="p-3">{unit === 'cm' ? row.waistCm + ' cm' : row.waistIn + ' in'}</td>
                   </tr>
                 ))}
               </tbody>

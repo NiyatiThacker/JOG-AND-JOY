@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import WomenProductCard from '../components/ui/WomenProductCard';
+import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
 import { PRODUCTS } from '../data/productsData';
@@ -26,6 +26,7 @@ export default function Products({ pageCategory = null }) {
   React.useEffect(() => {
     setSelectedCategory(pageCategory || searchParams.get('category') || '');
     setSelectedItemFilter('');
+    setSearchQuery(searchParams.get('search') || '');
   }, [pageCategory, searchParams]);
 
   const filteredProducts = useMemo(() => {
@@ -248,7 +249,7 @@ export default function Products({ pageCategory = null }) {
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (
-              <WomenProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
+              <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
             ))}
           </div>
         ) : (

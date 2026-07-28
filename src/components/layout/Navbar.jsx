@@ -23,7 +23,7 @@ export default function Navbar({ onOpenProfile }) {
   return (
     <div className="relative w-full h-[96px] md:h-[96px] max-md:h-[72px] bg-[#FFF8EC] block select-none z-40">
       <StaggeredMenu
-        position="right"
+        position="left"
         items={menuItems}
         socialItems={socialItems}
         displaySocials={true}

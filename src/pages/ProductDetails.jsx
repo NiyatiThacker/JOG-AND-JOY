@@ -4,6 +4,7 @@ import { PRODUCTS } from '../data/productsData';
 import ProductCard from '../components/ui/ProductCard';
 import SizeGuideModal from '../components/ui/SizeGuideModal';
 import QuickViewModal from '../components/ui/QuickViewModal';
+import { flyToCart } from '../utils/animations';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import {
@@ -46,7 +47,10 @@ export default function ProductDetails() {
 
   const isFavorited = isInWishlist(product.id);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e = null) => {
+    if (e) {
+      flyToCart(e, product.image);
+    }
     for (let i = 0; i < quantity; i++) {
       addToCart(product, selectedSize, selectedColor);
     }
@@ -242,7 +246,7 @@ export default function ProductDetails() {
             {/* Primary Action Buttons */}
             <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
-                onClick={(e) => addToCart(product, selectedSize, selectedColor, e)}
+                onClick={handleAddToCart}
                 className="py-4 rounded-full bg-[#EF4A45] hover:bg-red-600 text-white font-extrabold text-sm shadow-xl hover:shadow-2xl hover:scale-102 transition-all flex items-center justify-center gap-2"
               >
                 <ShoppingBag className="w-5 h-5" /> Add To Bag
@@ -279,7 +283,7 @@ export default function ProductDetails() {
         {/* Tabs for Description, Fabric Details, Shipping Info */}
         <div className="mt-12 bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-100">
           <div className="flex border-b border-slate-100 font-black text-sm text-slate-500 space-x-8 overflow-x-auto pb-1">
-            {['description', 'fabric', 'care', 'shipping'].map((tab) => (
+            {['description', 'fabric', 'care', 'shipping', 'reviews'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -287,7 +291,7 @@ export default function ProductDetails() {
                   activeTab === tab ? 'border-[#EF4A45] text-[#EF4A45]' : 'border-transparent hover:text-slate-900'
                 }`}
               >
-                {tab === 'description' ? 'Description & Overview' : tab === 'fabric' ? 'Fabric & Material' : tab === 'care' ? 'Care Instructions' : 'Shipping & Returns'}
+                {tab === 'description' ? 'Description & Overview' : tab === 'fabric' ? 'Fabric & Material' : tab === 'care' ? 'Care Instructions' : tab === 'shipping' ? 'Shipping & Returns' : 'Customer Reviews'}
               </button>
             ))}
           </div>
@@ -304,6 +308,62 @@ export default function ProductDetails() {
             )}
             {activeTab === 'shipping' && (
               <p>Standard delivery takes 3-5 business days across India. Free shipping applies on all orders above ₹999. Hassle-free 15-day return policy.</p>
+            )}
+            {activeTab === 'reviews' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="text-4xl font-black text-slate-900">{product.rating}</div>
+                    <div>
+                      <div className="flex items-center gap-1 text-amber-500 mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-amber-400" />
+                        ))}
+                      </div>
+                      <p className="text-xs text-slate-500 font-bold">Based on {product.reviewsCount} reviews</p>
+                    </div>
+                  </div>
+                  <button className="px-6 py-2.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition-colors">
+                    Write a Review
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-[#AEE6FF] flex items-center justify-center text-sky-900 font-black text-xs">A</div>
+                        <span className="font-extrabold text-slate-900 text-sm">Ananya S.</span>
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Verified Buyer</span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-400">2 days ago</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-500 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-3 h-3 fill-amber-400" />
+                      ))}
+                    </div>
+                    <p className="text-sm font-medium text-slate-700">Absolutely love the quality! The fabric is so soft and my kid loves wearing it all day. True to size.</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-[#FFD6BA] flex items-center justify-center text-orange-900 font-black text-xs">R</div>
+                        <span className="font-extrabold text-slate-900 text-sm">Rahul M.</span>
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Verified Buyer</span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-400">1 week ago</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-500 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-3 h-3 fill-amber-400" />
+                      ))}
+                    </div>
+                    <p className="text-sm font-medium text-slate-700">Great purchase. The color didn't fade after the first wash, which usually happens with other brands. Very satisfied.</p>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

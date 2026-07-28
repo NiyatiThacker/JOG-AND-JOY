@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, Eye, ShoppingBag, Star, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { flyToCart } from '../../utils/animations';
 
 export default function ProductCard({ product, onQuickView }) {
   const { addToCart } = useCart();
@@ -138,7 +139,8 @@ export default function ProductCard({ product, onQuickView }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            addToCart(product, selectedSize, selectedColor, e);
+            flyToCart(e, product.image);
+            addToCart(product, selectedSize, selectedColor);
           }}
           className="w-full py-2.5 rounded-full bg-slate-900 hover:bg-[#EF4A45] text-white font-extrabold text-xs shadow-md transition-colors flex items-center justify-center gap-2 mt-2"
         >
