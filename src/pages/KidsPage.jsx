@@ -16,8 +16,6 @@ export default function KidsPage() {
     pattern: true
   });
 
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
-
   const [filters, setFilters] = useState({
     types: [],
     prices: [],
@@ -479,7 +477,6 @@ export default function KidsPage() {
 
         </div>
       </div>
-      <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>
   );
 }
