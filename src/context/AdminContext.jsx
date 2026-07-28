@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AdminContext = createContext(null);
 
 export const AdminProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Change to false to test login
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('jogjoy_admin_session') === 'true';
+  });
   
   // Store mock admin users to simulate real authentication in the session
   const [admins, setAdmins] = useState([
@@ -15,6 +17,7 @@ export const AdminProvider = ({ children }) => {
     const user = admins.find(a => a.email === email && a.password === password);
     if (user) {
       setIsAuthenticated(true);
+      localStorage.setItem('jogjoy_admin_session', 'true');
       return true;
     }
     return false;
@@ -30,6 +33,7 @@ export const AdminProvider = ({ children }) => {
       // Add the new admin to the mock database for this session
       setAdmins([...admins, { name, email, password }]);
       setIsAuthenticated(true);
+      localStorage.setItem('jogjoy_admin_session', 'true');
       return true;
     }
     return false;
@@ -37,6 +41,7 @@ export const AdminProvider = ({ children }) => {
 
   const logout = () => {
     setIsAuthenticated(false);
+    localStorage.removeItem('jogjoy_admin_session');
   };
 
   return (

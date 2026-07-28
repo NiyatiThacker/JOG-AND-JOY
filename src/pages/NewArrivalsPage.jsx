@@ -1,17 +1,21 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
 import NewArrivalProductCard from '../components/ui/NewArrivalProductCard';
-import { PRODUCTS } from '../data/productsData';
+import QuickViewModal from '../components/ui/QuickViewModal';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Link } from 'react-router-dom';
 
 export default function NewArrivalsPage() {
   const spotlightRef = useRef(null);
   
+  const { combinedProducts, isLoading } = useCombinedProducts();
+  
   const newProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => p.isNew);
-  }, []);
+    return combinedProducts.filter((p) => p.isNew);
+  }, [combinedProducts]);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const productsPerPage = 16;
   const totalPages = Math.ceil(newProducts.length / productsPerPage) || 1;
   const currentProducts = newProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
@@ -165,12 +169,13 @@ export default function NewArrivalsPage() {
           </div>
         </div>
 
-        {/* Product Grid */}
-        {newProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="py-20 text-center text-slate-400 font-bold">Loading newest drops...</div>
+        ) : newProducts.length > 0 ? (
           <div className="mb-16">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
               {currentProducts.map((product) => (
-                <NewArrivalProductCard key={product.id} product={product} />
+                <NewArrivalProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
               ))}
             </div>
 
@@ -224,6 +229,11 @@ export default function NewArrivalsPage() {
         )}
 
       </div>
+      
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   );
 }

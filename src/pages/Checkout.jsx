@@ -12,10 +12,12 @@ import {
   ShoppingBag,
   ArrowLeft
 } from 'lucide-react';
+import { useCreateOrder } from '../queries/useOrders';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { cart, cartSubtotal, discountAmount, shippingFee, cartGrandTotal, clearCart } = useCart();
+  const createOrder = useCreateOrder();
 
   const [step, setStep] = useState(1); // 1: Address | 2: Shipping | 3: Payment | 4: Order Confirmed
   const [formData, setFormData] = useState({
@@ -31,7 +33,7 @@ export default function Checkout() {
   });
 
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
-  const [placedOrderId, setPlacedOrderId] = useState('');
+  const [createdOrderId, setCreatedOrderId] = useState(null);
   const [errors, setErrors] = useState({});
 
   const validateStep1 = () => {
@@ -58,11 +60,48 @@ export default function Checkout() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = () => {
-    const orderId = `#JJ-${Math.floor(10000 + Math.random() * 90000)}`;
-    
-    const newOrder = {
-      id: orderId,
+  const handlePlaceOrder = async () => {
+    const orderPayload = {
+      orderNumber: `JJ-${Math.floor(Math.random() * 90000) + 10000}`,
+      createdAt: new Date().toISOString(),
+      status: 'PROCESSING',
+      paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'paid',
+      fulfillmentStatus: 'unfulfilled',
+      channel: 'Web Storefront',
+      riskLevel: 'low',
+      subtotal: cartSubtotal,
+      discountAmount: discountAmount,
+      shippingCost: shippingFee,
+      tax: 0,
+      total: cartGrandTotal,
+      items: cart.map(item => ({
+        id: item.id,
+        productId: item.id,
+        titleSnapshot: item.name,
+        unitPrice: item.price,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color
+      })),
+      shippingAddress: {
+        name: formData.fullName,
+        line1: formData.address,
+        city: formData.city,
+        state: formData.state,
+        postalCode: formData.pincode,
+        country: 'India'
+      },
+      statusHistory: [
+        { status: 'PROCESSING', timestamp: new Date().toISOString(), note: 'Order placed by customer' }
+      ]
+    };
+
+    const newOrder = await createOrder.mutateAsync(orderPayload);
+    const orderId = newOrder.orderNumber || newOrder.id;
+    setCreatedOrderId(orderId);
+
+    const localOrder = {
+      id: `#${orderId}`,
       date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       items: cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
       total: `₹${cartGrandTotal}`,
@@ -70,9 +109,8 @@ export default function Checkout() {
     };
 
     const existingOrders = JSON.parse(localStorage.getItem('jj_orders') || '[]');
-    localStorage.setItem('jj_orders', JSON.stringify([newOrder, ...existingOrders]));
-    
-    setPlacedOrderId(orderId);
+    localStorage.setItem('jj_orders', JSON.stringify([localOrder, ...existingOrders]));
+
     setIsOrderPlaced(true);
     clearCart();
   };
@@ -108,7 +146,7 @@ export default function Checkout() {
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900">Order Confirmed! 🎉</h2>
           <p className="text-xs text-slate-600 font-bold leading-relaxed">
-            Thank you for shopping with Jog & Joy Kids! Order <strong>{placedOrderId}</strong> has been placed successfully. A confirmation SMS & email have been sent to <strong>{formData.email}</strong>.
+            Thank you for shopping with Jog & Joy Kids! Order <strong>#{createdOrderId || 'JJ-94821'}</strong> has been placed successfully. A confirmation SMS & email have been sent to <strong>{formData.email}</strong>.
           </p>
           <div className="p-4 bg-amber-50 rounded-2xl text-xs font-semibold text-slate-700 text-left space-y-1 border border-amber-100">
             <div className="flex justify-between">
