@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
-import NewArrivalProductCard from '../components/ui/NewArrivalProductCard';
+import ProductCard from '../components/ui/ProductCard';
+import QuickViewModal from '../components/ui/QuickViewModal';
 import { PRODUCTS } from '../data/productsData';
 import { Link } from 'react-router-dom';
 
@@ -11,6 +12,7 @@ export default function NewArrivalsPage() {
     return PRODUCTS.filter((p) => p.isNew);
   }, []);
 
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 16;
   const totalPages = Math.ceil(newProducts.length / productsPerPage) || 1;
@@ -170,7 +172,7 @@ export default function NewArrivalsPage() {
           <div className="mb-16">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
               {currentProducts.map((product) => (
-                <NewArrivalProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
               ))}
             </div>
 
@@ -224,6 +226,7 @@ export default function NewArrivalsPage() {
         )}
 
       </div>
+      <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>
   );
 }
