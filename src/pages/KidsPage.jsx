@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import KidsProductCard from '../components/ui/KidsProductCard';
+import ProductCard from '../components/ui/ProductCard';
+import QuickViewModal from '../components/ui/QuickViewModal';
 import { PRODUCTS } from '../data/productsData';
 import ShopByAge from '../components/home/ShopByAge';
 
@@ -14,6 +15,8 @@ export default function KidsPage() {
     fabric: true,
     pattern: true
   });
+
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   const [filters, setFilters] = useState({
     types: [],
@@ -421,7 +424,7 @@ export default function KidsPage() {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
                   {currentProducts.map((product) => (
-                    <KidsProductCard key={product.id} product={product} />
+                    <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
                   ))}
                 </div>
 
@@ -470,6 +473,7 @@ export default function KidsPage() {
 
         </div>
       </div>
+      <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>
   );
 }

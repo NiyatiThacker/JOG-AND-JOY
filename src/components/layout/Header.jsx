@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, ChevronDown, Menu, X, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Search, ChevronDown, Menu, X, ShoppingBag, ArrowRight, Home, Info, HelpCircle, Briefcase, Phone } from 'lucide-react';
+import { AnimeNavBar } from '../ui/anime-navbar';
 
 export const productCategories = [
   { name: 'Kids T-Shirt', slug: 'kids-t-shirt', category: 'Kids' },
@@ -42,6 +43,14 @@ export default function Header() {
     }
   };
 
+  const navItems = [
+    { name: "Home", url: "/", icon: Home },
+    { name: "About", url: "/about-us", icon: Info },
+    { name: "Why Us", url: "/why-us", icon: HelpCircle },
+    { name: "Career", url: "/career", icon: Briefcase },
+    { name: "Contact", url: "/contact-us", icon: Phone },
+  ];
+
   return (
     <>
       <header 
@@ -78,25 +87,10 @@ export default function Header() {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center space-x-1">
-              <Link 
-                to="/" 
-                className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                  location.pathname === '/' ? 'text-[#ccff00] bg-white/5' : 'text-slate-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Home
-              </Link>
-              <Link 
-                to="/about-us" 
-                className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                  location.pathname === '/about-us' ? 'text-[#ccff00] bg-white/5' : 'text-slate-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                About Us
-              </Link>
+            <nav className="hidden lg:flex items-center gap-4">
+              <AnimeNavBar items={navItems} defaultActive="Home" />
 
-              {/* Products Mega Dropdown */}
+              {/* Products Mega Dropdown (Kept separate from the AnimeNavBar as it's a dropdown) */}
               <div 
                 className="relative"
                 onMouseEnter={() => setIsProductsDropdownOpen(true)}
@@ -145,47 +139,6 @@ export default function Header() {
                   </div>
                 )}
               </div>
-
-              <Link 
-                to="/collections" 
-                className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                  location.pathname === '/collections' ? 'text-[#ccff00] bg-white/5' : 'text-slate-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Collections
-              </Link>
-              <Link 
-                to="/why-us" 
-                className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                  location.pathname === '/why-us' ? 'text-[#ccff00] bg-white/5' : 'text-slate-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Why Us
-              </Link>
-              <Link 
-                to="/distributors" 
-                className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                  location.pathname === '/distributors' ? 'text-[#ccff00] bg-white/5' : 'text-slate-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Distributor Network
-              </Link>
-              <Link 
-                to="/career" 
-                className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                  location.pathname === '/career' ? 'text-[#ccff00] bg-white/5' : 'text-slate-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Career
-              </Link>
-              <Link 
-                to="/contact-us" 
-                className={`px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                  location.pathname === '/contact-us' ? 'text-[#ccff00] bg-white/5' : 'text-slate-200 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Contact
-              </Link>
             </nav>
 
             {/* Right Action Icons */}

@@ -55,14 +55,19 @@ export default function ProductCard({ product, onQuickView }) {
         </button>
 
         {/* Hover Action Overlay (Quick View) */}
-        <div className="absolute inset-x-0 bottom-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-          <button
-            onClick={() => onQuickView(product)}
-            className="w-full py-2.5 bg-white/90 backdrop-blur-md hover:bg-white text-slate-900 font-extrabold text-xs rounded-full shadow-lg flex items-center justify-center gap-1.5 transition-all hover:scale-102"
-          >
-            <Eye className="w-4 h-4 text-[#EF4A45]" /> Quick View
-          </button>
-        </div>
+        {onQuickView && (
+          <div className="absolute inset-x-0 bottom-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                onQuickView(product);
+              }}
+              className="w-full py-2.5 bg-white/90 backdrop-blur-md hover:bg-white text-slate-900 font-extrabold text-xs rounded-full shadow-lg flex items-center justify-center gap-1.5 transition-all hover:scale-102"
+            >
+              <Eye className="w-4 h-4 text-[#EF4A45]" /> Quick View
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Card Details Body */}

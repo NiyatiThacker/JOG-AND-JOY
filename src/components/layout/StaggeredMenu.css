@@ -16,8 +16,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  background-color: #FFF8EC; /* Cream brand background */
-  border-bottom: 1px solid rgba(239, 74, 69, 0.08);
+  background: linear-gradient(90deg, rgba(239, 74, 69, 0.15), rgba(0, 163, 224, 0.15), rgba(57, 181, 74, 0.15), rgba(255, 216, 0, 0.15));
+  border-bottom: none;
   z-index: 20;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
