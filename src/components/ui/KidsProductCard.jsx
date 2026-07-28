@@ -19,7 +19,7 @@ export default function KidsProductCard({ product }) {
   return (
     <div className="flex flex-col group w-full bg-white transition-all duration-300 rounded-2xl hover:shadow-xl border border-transparent hover:border-slate-100 p-2 sm:p-4 pb-6">
       {/* Image Block */}
-      <div 
+      <div
         className="relative aspect-square w-full bg-slate-50 rounded-xl overflow-hidden mb-5"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -53,9 +53,9 @@ export default function KidsProductCard({ product }) {
         {/* Star Rating */}
         <div className="flex items-center gap-0.5">
           {[...Array(5)].map((_, i) => (
-            <Star 
-              key={i} 
-              className={`w-3.5 h-3.5 ${i < Math.floor(product.rating) ? 'fill-[#FF8A00] text-[#FF8A00]' : 'fill-slate-200 text-slate-200'}`} 
+            <Star
+              key={i}
+              className={`w-3.5 h-3.5 ${i < Math.floor(product.rating) ? 'fill-[#FF8A00] text-[#FF8A00]' : 'fill-slate-200 text-slate-200'}`}
             />
           ))}
         </div>

@@ -15,6 +15,7 @@ export default function NewArrivalsPage() {
   }, [combinedProducts]);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const productsPerPage = 16;
   const totalPages = Math.ceil(newProducts.length / productsPerPage) || 1;
   const currentProducts = newProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
@@ -228,6 +229,11 @@ export default function NewArrivalsPage() {
         )}
 
       </div>
+      
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   );
 }

@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { Star, Check, X, Search, MessageSquare, AlertTriangle, ShieldBan, Image as ImageIcon } from 'lucide-react';
 import { useReviewsList, useUpdateReview } from '../../queries/useReviews';
+import { useOrder } from '../../queries/useOrders';
 
 export default function AdminReviews() {
   const [activeTab, setActiveTab] = useState('pending');
   const [search, setSearch] = useState('');
   const [selectedReview, setSelectedReview] = useState(null);
   const [replyText, setReplyText] = useState('');
+  const [replySuccess, setReplySuccess] = useState(false);
+  
+  const { data: orderData, isLoading: isLoadingOrder } = useOrder(
+    selectedReview?.orderId && !selectedReview.orderId.includes('ADMIN') ? selectedReview.orderId : null
+  );
 
   const filters = {};
   if (activeTab !== 'all') filters.status = activeTab;
@@ -20,6 +26,7 @@ export default function AdminReviews() {
   const handleOpenDetail = (review) => {
     setSelectedReview(review);
     setReplyText(review.merchantReply?.body || '');
+    setReplySuccess(false);
   };
 
   const handleStatusChange = (status) => {
@@ -36,7 +43,11 @@ export default function AdminReviews() {
         id: selectedReview.id, 
         patch: { merchantReply: { body: replyText, repliedAt: new Date().toISOString() } } 
       }, {
-        onSuccess: (updated) => setSelectedReview(updated)
+        onSuccess: (updated) => {
+          setSelectedReview(updated);
+          setReplySuccess(true);
+          setTimeout(() => setReplySuccess(false), 3000);
+        }
       });
     }
   };
@@ -144,6 +155,59 @@ export default function AdminReviews() {
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              
+              <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm">
+                <h4 className="text-xs font-bold text-blue-900 uppercase tracking-widest mb-3 flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Verified Purchase</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                  <div className="text-blue-700">
+                    <span className="opacity-70 text-[10px] uppercase block mb-0.5">Order ID</span>
+                    <span className="font-bold">{selectedReview.orderId || 'N/A'}</span>
+                  </div>
+                  <div className="text-blue-700">
+                    <span className="opacity-70 text-[10px] uppercase block mb-0.5">Customer Email</span>
+                    <span className="font-bold line-clamp-1">{selectedReview.customerEmail || 'N/A'}</span>
+                  </div>
+                </div>
+
+                {isLoadingOrder && (
+                  <div className="text-xs text-blue-500 font-bold animate-pulse mt-2">Loading order details...</div>
+                )}
+                
+                {orderData && (
+                  <div className="pt-3 border-t border-blue-200/60 mt-2 space-y-3 text-xs text-blue-800">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="opacity-70 uppercase block mb-0.5">Order Date</span>
+                        <span className="font-semibold">{new Date(orderData.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div>
+                        <span className="opacity-70 uppercase block mb-0.5">Status</span>
+                        <span className="font-semibold capitalize">{orderData.status || orderData.fulfillmentStatus}</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="opacity-70 uppercase block mb-0.5">Shipping Name</span>
+                      <span className="font-semibold">{orderData.shippingAddress?.fullName || orderData.customerInfo?.name || 'N/A'}</span>
+                    </div>
+
+                    {orderData.items?.length > 0 && (
+                      <div className="mt-3 bg-white/50 p-2.5 rounded-lg">
+                        <span className="opacity-70 uppercase block mb-1.5">Items in Order</span>
+                        <ul className="space-y-1.5">
+                          {orderData.items.map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-1.5 font-medium">
+                              <span className="w-1 h-1 rounded-full bg-blue-400 mt-1.5 shrink-0" />
+                              <span className="line-clamp-2 flex-1 leading-tight">{item.name || item.title} <span className="opacity-75 block text-[10px]">({item.size}, {item.colorName || item.color}) x{item.quantity}</span></span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex text-accent-green">
@@ -189,16 +253,16 @@ export default function AdminReviews() {
                   <textarea 
                     rows="3"
                     value={replyText}
-                    onChange={e => setReplyText(e.target.value)}
+                    onChange={e => { setReplyText(e.target.value); setReplySuccess(false); }}
                     placeholder="Write a public reply..."
                     className="w-full p-3 border border-border rounded-xl text-sm focus:outline-none focus:border-accent-green"
                   ></textarea>
                   <button 
                     onClick={handleSaveReply}
                     disabled={updateMut.isPending || !replyText.trim()}
-                    className="px-4 py-2 bg-primary-dark text-white rounded-lg font-bold text-sm hover:bg-primary-hover shadow-sm disabled:opacity-50 w-full"
+                    className={`px-4 py-2 text-white rounded-lg font-bold text-sm shadow-sm disabled:opacity-50 w-full transition-colors ${replySuccess ? 'bg-success hover:bg-success-dark' : 'bg-primary-dark hover:bg-primary-hover'}`}
                   >
-                    Post Reply
+                    {updateMut.isPending ? 'Saving...' : replySuccess ? '✓ Reply Posted!' : (selectedReview.merchantReply ? 'Update Reply' : 'Post Reply')}
                   </button>
                 </div>
               )}

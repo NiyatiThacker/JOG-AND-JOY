@@ -6,9 +6,14 @@ export function WishlistProvider({ children }) {
   const [wishlist, setWishlist] = useState(() => {
     try {
       const saved = localStorage.getItem('kids_wishlist');
-      return saved ? JSON.parse(saved) : ['prod-1', 'prod-2'];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Migrate old string arrays to object arrays
+        return parsed.map(item => typeof item === 'string' ? { id: item, size: null, color: null } : item);
+      }
+      return [];
     } catch {
-      return ['prod-1', 'prod-2'];
+      return [];
     }
   });
 
@@ -20,15 +25,22 @@ export function WishlistProvider({ children }) {
     }
   }, [wishlist]);
 
-  const toggleWishlist = (productId) => {
-    setWishlist((prev) =>
-      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
-    );
+  const toggleWishlist = (productId, size = null, color = null) => {
+    setWishlist((prev) => {
+      const exists = prev.some(item => item.id === productId && item.size === size && item.color === color);
+      if (exists) {
+        return prev.filter(item => !(item.id === productId && item.size === size && item.color === color));
+      } else {
+        return [...prev, { id: productId, size, color }];
+      }
+    });
   };
 
   const clearWishlist = () => setWishlist([]);
 
-  const isInWishlist = (productId) => wishlist.includes(productId);
+  const isInWishlist = (productId, size = null, color = null) => {
+    return wishlist.some(item => item.id === productId && item.size === size && item.color === color);
+  };
 
   return (
     <WishlistContext.Provider

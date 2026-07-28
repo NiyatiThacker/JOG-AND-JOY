@@ -28,6 +28,7 @@ export default function KidsPage() {
 
   const [sortBy, setSortBy] = useState('Recommended');
   const [currentPage, setCurrentPage] = useState(1);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const productsPerPage = 12;
   const topControlsRef = useRef(null);
 
@@ -477,6 +478,11 @@ export default function KidsPage() {
 
         </div>
       </div>
+      
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   );
 }

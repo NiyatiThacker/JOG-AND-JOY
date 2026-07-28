@@ -40,7 +40,7 @@ const StockRow = ({ item, product, updateMut }) => {
         <p className="font-mono text-xs font-bold text-zinc-700">{item.sku}</p>
         {product.weight > 0 && <p className="text-[10px] text-zinc-400 mt-1">weight: {product.weight}kg</p>}
       </td>
-      <td className="px-6 py-4 font-extrabold text-primary-dark">₹{product.basePrice}</td>
+      <td className="px-6 py-4 font-extrabold text-primary-dark">₹{product.price || product.basePrice}</td>
       <td className="px-6 py-4">
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-widest ${
           product.status === 'live' ? 'bg-green-50 text-accent-green' : 'bg-zinc-100 text-zinc-500'

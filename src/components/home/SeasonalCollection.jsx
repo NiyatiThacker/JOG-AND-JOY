@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import ProductCard from '../ui/ProductCard';
-import { PRODUCTS } from '../../data/productsData';
+import { useCombinedProducts } from '../../queries/useCombinedProducts';
 import { Sun, Snowflake, Sparkles, PartyPopper } from 'lucide-react';
 
 export default function SeasonalCollection({ onQuickView }) {
   const [activeTab, setActiveTab] = useState('Summer');
+  const { combinedProducts } = useCombinedProducts();
 
   const tabs = [
     { name: 'Summer', icon: Sun, color: '#AEE6FF' },
@@ -13,7 +14,7 @@ export default function SeasonalCollection({ onQuickView }) {
     { name: 'Birthday Collection', icon: PartyPopper, color: '#CFFFE5' }
   ];
 
-  const filtered = PRODUCTS.filter((p) => p.season === activeTab);
+  const filtered = combinedProducts.filter((p) => p.season === activeTab);
 
   return (
     <section className="py-16 bg-white relative">
@@ -54,7 +55,7 @@ export default function SeasonalCollection({ onQuickView }) {
 
         {/* Tab Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {(filtered.length > 0 ? filtered : PRODUCTS.slice(0, 4)).map((product) => (
+          {(filtered.length > 0 ? filtered : combinedProducts.slice(0, 4)).map((product) => (
             <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
           ))}
         </div>
