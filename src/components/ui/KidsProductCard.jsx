@@ -3,6 +3,7 @@ import { Heart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { flyToCart } from '../../utils/animations';
 
 export default function KidsProductCard({ product }) {
   const { addToCart } = useCart();
@@ -69,7 +70,8 @@ export default function KidsProductCard({ product }) {
         <button
           onClick={(e) => {
             e.preventDefault();
-            addToCart(product, product.sizes?.[0] || 'One Size', product.colors?.[0]?.hex || '#000', e);
+            flyToCart(e, product.image);
+            addToCart(product, product.sizes?.[0] || 'One Size', product.colors?.[0]?.hex || '#000');
           }}
           className="w-full mt-4 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-xs hover:border-[#EF4A45] hover:text-[#EF4A45] hover:bg-red-50/50 transition-all active:scale-95"
         >

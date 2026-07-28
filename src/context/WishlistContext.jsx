@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useCart } from './CartContext';
 
 const WishlistContext = createContext();
 
@@ -25,12 +26,16 @@ export function WishlistProvider({ children }) {
     }
   }, [wishlist]);
 
+  const { showToast } = useCart();
+
   const toggleWishlist = (productId, size = null, color = null) => {
     setWishlist((prev) => {
       const exists = prev.some(item => item.id === productId && item.size === size && item.color === color);
       if (exists) {
+        showToast && showToast('Removed from Wishlist 💔');
         return prev.filter(item => !(item.id === productId && item.size === size && item.color === color));
       } else {
+        showToast && showToast('Added to Wishlist 💖');
         return [...prev, { id: productId, size, color }];
       }
     });

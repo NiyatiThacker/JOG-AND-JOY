@@ -30,7 +30,6 @@ export function CartProvider({ children }) {
       setToastMessage(null);
     }, 3000);
   };
-
   const flyToCart = (event, imageUrl) => {
     if (!event || !imageUrl) return;
     try {
@@ -214,7 +213,8 @@ export function CartProvider({ children }) {
         appliedCoupon,
         applyCoupon,
         removeCoupon,
-        toastMessage
+        toastMessage,
+        showToast
       }}
     >
       {children}

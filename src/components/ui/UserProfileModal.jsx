@@ -6,25 +6,18 @@ import { useWishlist } from '../../context/WishlistContext';
 export default function UserProfileModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'addresses' | 'profile'
   const { wishlistCount } = useWishlist();
+  const [orders, setOrders] = useState([]);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      const storedOrders = JSON.parse(localStorage.getItem('jj_orders') || '[]');
+      setOrders(storedOrders);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const mockOrders = [
-    {
-      id: '#JJ-94821',
-      date: '18 July 2026',
-      items: 'Playful Dino Cotton Tee (4Y-5Y), Sunshine Twirl Frock',
-      total: '₹1,398',
-      status: 'In Transit 🚚'
-    },
-    {
-      id: '#JJ-89102',
-      date: '02 June 2026',
-      items: 'Cozy Bunny Organic Onesie (0-3M)',
-      total: '₹599',
-      status: 'Delivered ✅'
-    }
-  ];
+
 
   return (
     <AnimatePresence>
@@ -63,7 +56,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                 activeTab === 'orders' ? 'border-[#EF4A45] text-[#EF4A45]' : 'border-transparent hover:text-slate-900'
               }`}
             >
-              <Package className="w-4 h-4" /> My Orders ({mockOrders.length})
+              <Package className="w-4 h-4" /> My Orders ({orders.length})
             </button>
 
             <button
@@ -88,21 +81,31 @@ export default function UserProfileModal({ isOpen, onClose }) {
           {/* Tab Contents */}
           {activeTab === 'orders' && (
             <div className="space-y-4">
-              {mockOrders.map((order, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-[#FFF8EC] border border-amber-100 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-slate-900">{order.id}</span>
-                    <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-white text-slate-700 shadow-xs">
-                      {order.status}
-                    </span>
+              {orders.length > 0 ? (
+                orders.map((order, i) => (
+                  <div key={i} className="p-4 rounded-2xl bg-[#FFF8EC] border border-amber-100 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-900">{order.id}</span>
+                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-white text-slate-700 shadow-xs">
+                        {order.status}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-slate-600 line-clamp-1">{order.items}</p>
+                    <div className="flex items-center justify-between pt-2 border-t border-amber-200/50 text-xs">
+                      <span className="text-slate-500 font-semibold">Ordered: {order.date}</span>
+                      <span className="font-black text-slate-900 text-sm">{order.total}</span>
+                    </div>
                   </div>
-                  <p className="text-xs font-medium text-slate-600 line-clamp-1">{order.items}</p>
-                  <div className="flex items-center justify-between pt-2 border-t border-amber-200/50 text-xs">
-                    <span className="text-slate-500 font-semibold">Ordered: {order.date}</span>
-                    <span className="font-black text-slate-900 text-sm">{order.total}</span>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <Package className="w-6 h-6 text-slate-400" />
                   </div>
+                  <h4 className="text-sm font-black text-slate-800">No orders yet</h4>
+                  <p className="text-xs text-slate-500 mt-1">When you place an order, it will appear here.</p>
                 </div>
-              ))}
+              )}
             </div>
           )}
 
