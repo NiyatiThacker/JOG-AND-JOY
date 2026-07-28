@@ -11,13 +11,14 @@ export default function Products({ pageCategory = null }) {
   const categoryFilterParam = pageCategory || searchParams.get('category') || '';
   const ageFilterParam = searchParams.get('age') || '';
   const searchParam = searchParams.get('search') || '';
+  const itemFilterParam = searchParams.get('itemFilter') || '';
 
   const [selectedCategory, setSelectedCategory] = useState(categoryFilterParam);
   const [selectedAge, setSelectedAge] = useState(ageFilterParam);
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'low' | 'high'
   const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const [selectedItemFilter, setSelectedItemFilter] = useState('');
+  const [selectedItemFilter, setSelectedItemFilter] = useState(itemFilterParam);
   const [showFilters, setShowFilters] = useState(false);
 
   const categories = ['All', 'Kids', 'Male', 'Female'];
@@ -25,7 +26,7 @@ export default function Products({ pageCategory = null }) {
 
   React.useEffect(() => {
     setSelectedCategory(pageCategory || searchParams.get('category') || '');
-    setSelectedItemFilter('');
+    setSelectedItemFilter(searchParams.get('itemFilter') || '');
     setSearchQuery(searchParams.get('search') || '');
   }, [pageCategory, searchParams]);
 
@@ -40,7 +41,7 @@ export default function Products({ pageCategory = null }) {
       } else if (selectedCategory === 'Male') {
         matchCat = p.category === "Men's Collection";
       } else if (selectedCategory === 'Female') {
-        matchCat = p.category === 'Girls';
+        matchCat = p.category === "Women's Collection";
       }
 
       // Item Filter Keyword Logic
@@ -49,7 +50,7 @@ export default function Products({ pageCategory = null }) {
         const nameLower = p.name.toLowerCase();
 
         if (selectedItemFilter === 'Kids T-Shirt') {
-          matchItem = nameLower.includes('tee') || nameLower.includes('t-shirt');
+          matchItem = nameLower.includes('tee') || nameLower.includes('t-shirt') || nameLower.includes('shirt');
         } else if (selectedItemFilter.includes('Joggers') || selectedItemFilter.includes('Tracks')) {
           matchItem = nameLower.includes('track') || nameLower.includes('jogger');
         } else if (selectedItemFilter.includes('Shorts') || selectedItemFilter.includes('Bermuda')) {
@@ -60,6 +61,12 @@ export default function Products({ pageCategory = null }) {
           matchItem = nameLower.includes('boxer');
         } else if (selectedItemFilter === 'Girl Frocks') {
           matchItem = nameLower.includes('frock');
+        } else if (selectedItemFilter === 'Dresses') {
+          matchItem = nameLower.includes('dress');
+        } else if (selectedItemFilter === 'Tops & Shirts') {
+          matchItem = nameLower.includes('shirt') || nameLower.includes('blouse') || nameLower.includes('turtleneck');
+        } else if (selectedItemFilter === 'Bottoms') {
+          matchItem = nameLower.includes('trouser') || nameLower.includes('skirt') || nameLower.includes('pants');
         }
       }
 
@@ -201,7 +208,7 @@ export default function Products({ pageCategory = null }) {
               <div className="md:col-span-12 flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 no-scrollbar">
                 <span className="text-xs font-black text-slate-400 uppercase tracking-wider shrink-0 mr-2">Filters:</span>
 
-                {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits'].map(item => (
+                {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits', 'Girl Frocks'].map(item => (
                   <button
                     key={item}
                     onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
@@ -227,7 +234,7 @@ export default function Products({ pageCategory = null }) {
                   </button>
                 ))}
 
-                {selectedCategory === 'Female' && ['Girl Frocks'].map(item => (
+                {selectedCategory === 'Female' && ['Dresses', 'Tops & Shirts', 'Bottoms'].map(item => (
                   <button
                     key={item}
                     onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
