@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Palette, TrendingUp, Scissors, User, Building, ArrowRight, Sparkles } from 'lucide-react';
+import { ChevronRight, Palette, TrendingUp, Scissors, User, Building, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import FloatingElements from '../components/ui/FloatingElements';
 import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
@@ -47,106 +47,77 @@ export default function AboutUs() {
       <ClothDoodlesBackground />
       <FloatingElements />
 
-      {/* 1. Video Reference Hero Section */}
-      <section className="pt-6 pb-8 px-4 relative z-10 overflow-hidden bg-transparent">
+      {/* 1. Playful Kids Hero Section */}
+      <section className="pt-8 pb-10 px-4 relative z-10 overflow-hidden bg-transparent">
 
         {/* Main White Container Card */}
-        <div className="bg-white rounded-[2.5rem] p-6 md:p-8 w-full max-w-7xl mx-auto shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden flex flex-col border border-slate-100">
+        <div className="bg-[#FFFDF9] rounded-[2.5rem] p-6 md:p-10 w-full max-w-7xl mx-auto shadow-[0_12px_40px_rgba(255,122,89,0.08)] relative overflow-hidden flex flex-col border border-[#ECECEC]">
+
+          {/* Top Playful Badge */}
+          <div className="flex items-center justify-center mb-4">
+            <span className="px-4 py-1.5 rounded-full bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6] text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" /> Made For Play & Smiles 🌈
+            </span>
+          </div>
 
           {/* Center Text Content */}
-          <div className="text-center max-w-3xl mx-auto mb-6 px-4 relative z-20">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl leading-[1.1] font-black text-slate-900 tracking-tight mb-4 font-heading-primary">
-              Our Story of <span className="text-[#EF4A45]">Quality</span> <br />and True <span className="text-[#00A3E0]">Comfort</span>
+          <div className="text-center max-w-3xl mx-auto mb-8 px-4 relative z-20">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl leading-[1.15] font-black text-slate-900 tracking-tight mb-4 font-heading-primary">
+              Our Story of <span className="text-[#FF7A59]">Playful Joy</span> <br />and Pure <span className="text-[#8DD67C]">Comfort</span> 🎈
             </h1>
-            <p className="text-slate-600 text-base md:text-lg font-semibold max-w-xl mx-auto font-poppins">
-              Showcase your true self with our distinctive activewear collection that blends vibrant style and everyday durability.
+            <p className="text-slate-500 text-base md:text-lg font-medium max-w-xl mx-auto leading-relaxed">
+              Crafted with love for your little adventurers! 100% super-soft organic cotton, non-scratchy seams, and play-proof durability.
             </p>
           </div>
 
-          {/* Scattered clothing stickers/doodles on the LEFT side of typewriter */}
-          <CustomClothingSticker
-            type="sticker_0_1" // Lemon Tee
-            style={{ left: "-60px", top: "10%", transform: "rotate(-12deg)" }}
-          />
-          <CustomClothingSticker
-            type="sticker_0_0" // Grey Sweater
-            style={{ left: "-140px", top: "25%", transform: "rotate(20deg)" }}
-          />
-          <CustomClothingSticker
-            type="sticker_2_0" // Orange Carrot Tee
-            style={{ left: "-90px", top: "45%", transform: "rotate(10deg)" }}
-          />
-          <CustomClothingSticker
-            type="sticker_1_2" // Green Striped Tee
-            style={{ left: "-150px", top: "62%", transform: "rotate(-18deg)" }}
-          />
-          <CustomClothingSticker
-            type="sticker_2_2" // Red Fringed Dress
-            style={{ left: "-70px", top: "78%", transform: "rotate(15deg)" }}
-          />
-          {/* Scattered clothing stickers/doodles on the RIGHT side of typewriter */}
-          <CustomClothingSticker
-            type="sticker_1_0" // Beige Hoodie
-            style={{ right: "-60px", top: "12%", transform: "rotate(15deg)" }}
-          />
-          <CustomClothingSticker
-            type="sticker_0_2" // Pink Raglan Sweater
-            style={{ right: "-130px", top: "28%", transform: "rotate(-25deg)" }}
-          />
-          <CustomClothingSticker
-            type="sticker_2_1" // Purple Collared Shirt
-            style={{ right: "-90px", top: "48%", transform: "rotate(-10deg)" }}
-          />
-          <CustomClothingSticker
-            type="sticker_1_1" // Yellow Raglan Sweater
-            style={{ right: "-140px", top: "66%", transform: "rotate(8deg)" }}
-          />
-
-          {/* Image Slider / Marquee with Parabolic Curved Masks */}
-          <div
-            className="relative w-full overflow-hidden mb-6 flex items-center bg-[#F8F9FA] h-[200px] md:h-[280px]"
-            style={{ clipPath: "ellipse(50% 50% at 50% 50%)" }}
-          >
-            {/* Scrolling Images */}
+          {/* Playful Kids Gallery Grid */}
+          <div className="relative w-full overflow-hidden mb-8">
             <motion.div
-              className="flex gap-4 md:gap-8 min-w-max py-4 px-8 items-center"
+              className="flex gap-4 md:gap-6 min-w-max py-2 px-4 items-center"
               animate={{ x: ["0%", "-50%"] }}
-              transition={{ ease: "linear", duration: 30, repeat: Infinity }}
+              transition={{ ease: "linear", duration: 25, repeat: Infinity }}
             >
               {[
-                "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1519238396255-81b670474ed5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                "https://images.unsplash.com/photo-1519238396255-81b670474ed5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-              ].map((src, idx) => (
-                <div key={idx} className="h-[140px] w-[120px] md:h-[200px] md:w-[160px] rounded-[2rem] overflow-hidden flex-shrink-0 group shadow-lg border-4 border-white transform hover:-translate-y-2 hover:scale-105 transition-all duration-300">
+                { src: "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop", tag: "☁️ Soft Tees" },
+                { src: "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop", tag: "🎨 Fun Colors" },
+                { src: "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=600&auto=format&fit=crop", tag: "🏃 Active Play" },
+                { src: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600&auto=format&fit=crop", tag: "✨ Comfy Shorts" },
+                { src: "https://images.unsplash.com/photo-1471286174574-e9627710ee7e?q=80&w=600&auto=format&fit=crop", tag: "🎈 Cute Frocks" },
+                { src: "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop", tag: "☁️ Soft Tees" },
+                { src: "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop", tag: "🎨 Fun Colors" },
+                { src: "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=600&auto=format&fit=crop", tag: "🏃 Active Play" }
+              ].map((item, idx) => (
+                <div key={idx} className="relative h-[180px] w-[140px] md:h-[230px] md:w-[180px] rounded-[24px] overflow-hidden flex-shrink-0 group shadow-md border-4 border-white bg-[#FFF8EC] transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <img
-                    src={src}
+                    src={item.src}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    alt={`Jog&Joy Collection ${idx}`}
+                    alt={`Kids Outfit ${idx}`}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop";
+                    }}
                   />
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-full text-center">
+                    <span className="text-[11px] font-extrabold text-slate-800 tracking-wide">{item.tag}</span>
+                  </div>
                 </div>
               ))}
             </motion.div>
           </div>
 
           {/* Bottom Widgets */}
-          <div className="flex flex-col md:flex-row items-center justify-between w-full px-4 gap-8 mt-auto relative z-20">
+          <div className="flex flex-col md:flex-row items-center justify-between w-full px-4 gap-6 mt-auto relative z-20 pt-2 border-t border-slate-100">
 
             {/* Left: Reviews / Customers */}
-            <div className="flex items-center gap-4 flex-1">
-              <div className="flex -space-x-3">
-                <img src="https://ui-avatars.com/api/?name=User+1&background=FFE89A&color=000" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
-                <img src="https://ui-avatars.com/api/?name=User+2&background=AEE6FF&color=000" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
-                <img src="https://ui-avatars.com/api/?name=User+3&background=CFFFE5&color=000" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
+            <div className="flex items-center gap-3.5 flex-1">
+              <div className="flex -space-x-2.5">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&q=80" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" alt="Parent" />
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" alt="Parent" />
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=80" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" alt="Parent" />
               </div>
-              <div className="text-left hidden sm:block font-poppins">
-                <p className="font-extrabold text-slate-900 text-sm">1M+ Happy Customers</p>
-                <p className="text-xs text-[#EF4A45] font-black uppercase tracking-wider">Trusted nationwide</p>
+              <div className="text-left hidden sm:block">
+                <p className="font-extrabold text-slate-900 text-sm">50,000+ Happy Families 💕</p>
+                <p className="text-xs text-[#FF7A59] font-bold uppercase tracking-wider">Trusted Nationwide</p>
               </div>
             </div>
 
@@ -155,14 +126,19 @@ export default function AboutUs() {
               className="flex flex-col items-center cursor-pointer group flex-1"
               onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <span className="font-extrabold text-[#2D2D2D] text-sm mb-3 group-hover:text-[#EF4A45] transition-colors font-poppins">Explore More</span>
-              <div className="w-12 h-12 rounded-full border-2 border-slate-100 flex items-center justify-center group-hover:border-[#EF4A45] group-hover:bg-[#EF4A45]/5 transition-all">
-                <ArrowRight className="w-5 h-5 text-slate-600 group-hover:text-[#EF4A45] rotate-90 transition-colors" />
+              <span className="font-extrabold text-slate-700 text-sm mb-2 group-hover:text-[#FF7A59] transition-colors">Explore Our Story</span>
+              <div className="w-10 h-10 rounded-full bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6] flex items-center justify-center group-hover:bg-[#FF7A59] group-hover:text-white transition-all shadow-xs">
+                <ArrowRight className="w-4 h-4 rotate-90 transition-transform group-hover:translate-y-0.5" />
               </div>
             </div>
 
-            {/* Right: Empty div to balance flex-1 */}
-            <div className="flex-1 hidden md:block"></div>
+            {/* Right: Guarantee Badge */}
+            <div className="flex-1 hidden md:flex justify-end">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8DD67C]/15 border border-[#8DD67C]/30 text-green-800 text-xs font-bold">
+                <ShieldCheck className="w-4 h-4 text-green-600" />
+                <span>Non-Toxic & Skin Safe</span>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -234,28 +210,7 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* 3. Statistics Bar */}
-      <section className="py-16 px-4 relative z-10">
-        <div className="max-w-7xl mx-auto bg-white rounded-[3rem] p-8 md:p-12 shadow-xl border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100 overflow-hidden">
-          {stats.map((stat, idx) => {
-            const borderHoverColor = idx === 0 ? 'hover:border-b-[#EF4A45]' :
-              idx === 1 ? 'hover:border-b-[#EAB308]' :
-                idx === 2 ? 'hover:border-b-[#00A3E0]' :
-                  'hover:border-b-[#10B981]';
-            return (
-              <div
-                key={idx}
-                className={`flex-1 text-center w-full py-6 md:py-4 transition-all duration-300 hover:scale-105 border-b-4 border-b-transparent ${borderHoverColor}`}
-              >
-                <div className={`text-5xl md:text-6xl font-black mb-2 flex items-center justify-center ${stat.color} font-heading-primary`}>
-                  <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                </div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest font-poppins">{stat.label}</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+
 
       {/* 4. Vibrant CTA Section */}
       <section className="relative py-32 md:py-48 mt-12 bg-[url('https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80')] bg-fixed bg-cover bg-center rounded-3xl mx-4 overflow-hidden">

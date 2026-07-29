@@ -2,10 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ShieldCheck, Heart, Award } from 'lucide-react';
 import WhyChooseUs from '../components/home/WhyChooseUs';
+import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
 
 export default function WhyUs() {
   return (
-    <div className="bg-[#F8F9FA] min-h-screen font-sans">
+    <div className="bg-[#FFF8EC] min-h-screen font-sans relative overflow-hidden">
+      <ClothDoodlesBackground />
 
       {/* Hero Section */}
       <section className="relative w-full min-h-[50vh] flex flex-col items-center justify-center pt-32 pb-16 px-4 overflow-hidden">

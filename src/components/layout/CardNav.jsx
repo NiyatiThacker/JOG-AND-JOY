@@ -1,6 +1,6 @@
-import { useLayoutEffect, useRef, useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { gsap } from 'gsap';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Search, Heart, User, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -11,27 +11,24 @@ const CardNav = ({
   logo = '/images/official_logo.png',
   logoAlt = 'JOG&JOY® - Love is in the wear',
   className = '',
-  ease = 'power3.out',
   baseColor = '#FFF8EC',
   menuColor = '#2D2D2D',
   buttonBgColor = '#EF4A45',
   buttonTextColor = '#ffffff',
   onOpenProfile
 }) => {
-  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [navHeight, setNavHeight] = useState(60);
+  const [isMobile, setIsMobile] = useState(false);
 
   const { cartTotalCount } = useCart();
   const { wishlistCount } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const navRef = useRef(null);
-  const cardsRef = useRef([]);
-  const tlRef = useRef(null);
+  const contentRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,116 +38,37 @@ const CardNav = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const calculateHeight = () => {
-    const navEl = navRef.current;
-    if (!navEl) return 260;
-
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    if (isMobile) {
-      const contentEl = navEl.querySelector('.card-nav-content');
-      if (contentEl) {
-        const wasVisible = contentEl.style.visibility;
-        const wasPointerEvents = contentEl.style.pointerEvents;
-        const wasPosition = contentEl.style.position;
-        const wasHeight = contentEl.style.height;
-
-        contentEl.style.visibility = 'visible';
-        contentEl.style.pointerEvents = 'auto';
-        contentEl.style.position = 'static';
-        contentEl.style.height = 'auto';
-
-        contentEl.offsetHeight;
-
-        const topBar = 60;
-        const padding = 16;
-        const contentHeight = contentEl.scrollHeight;
-
-        contentEl.style.visibility = wasVisible;
-        contentEl.style.pointerEvents = wasPointerEvents;
-        contentEl.style.position = wasPosition;
-        contentEl.style.height = wasHeight;
-
-        return topBar + contentHeight + padding;
-      }
-    }
-    return 260;
-  };
-
-  const createTimeline = () => {
-    const navEl = navRef.current;
-    if (!navEl) return null;
-
-    gsap.set(navEl, { height: 60, overflow: 'hidden' });
-    gsap.set(cardsRef.current, { y: 50, opacity: 0 });
-
-    const tl = gsap.timeline({ paused: true });
-
-    tl.to(navEl, {
-      height: calculateHeight,
-      duration: 0.4,
-      ease
-    });
-
-    tl.to(cardsRef.current, { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.08 }, '-=0.1');
-
-    return tl;
-  };
-
   useLayoutEffect(() => {
-    const tl = createTimeline();
-    tlRef.current = tl;
-
-    return () => {
-      tl?.kill();
-      tlRef.current = null;
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ease]);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
-  useLayoutEffect(() => {
-    const handleResize = () => {
-      if (!tlRef.current) return;
-
-      if (isExpanded) {
-        const newHeight = calculateHeight();
-        gsap.set(navRef.current, { height: newHeight });
-
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          newTl.progress(1);
-          tlRef.current = newTl;
-        }
+  useEffect(() => {
+    if (isExpanded) {
+      if (isMobile && contentRef.current) {
+        // Temporarily make it visible to measure height
+        const el = contentRef.current;
+        const prevVis = el.style.visibility;
+        el.style.visibility = 'hidden';
+        el.style.display = 'flex';
+        const height = el.scrollHeight;
+        el.style.display = '';
+        el.style.visibility = prevVis;
+        setNavHeight(60 + height + 16); // 60 top bar + content + padding
       } else {
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          tlRef.current = newTl;
-        }
+        setNavHeight(280); // Desktop height
       }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isExpanded]);
+    } else {
+      setNavHeight(60);
+    }
+  }, [isExpanded, isMobile]);
 
   const toggleMenu = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
-    if (!isExpanded) {
-      setIsHamburgerOpen(true);
-      setIsExpanded(true);
-      tl.play(0);
-    } else {
-      setIsHamburgerOpen(false);
-      tl.eventCallback('onReverseComplete', () => setIsExpanded(false));
-      tl.reverse();
-    }
-  };
-
-  const setCardRef = i => el => {
-    if (el) cardsRef.current[i] = el;
+    setIsExpanded(!isExpanded);
   };
 
   const handleSearchSubmit = (e) => {
@@ -196,12 +114,55 @@ const CardNav = ({
     }
   ];
 
+  // Calculate circular fan parameters based on index
+  const getCardAnimation = (idx, total) => {
+    if (isMobile) {
+      return {
+        initial: { opacity: 0, y: -20 },
+        animate: { opacity: 1, y: 0, rotate: 0, x: 0 },
+        exit: { opacity: 0, y: -20 },
+        transition: { delay: idx * 0.08, duration: 0.4, ease: [0.25, 1, 0.5, 1] }
+      };
+    }
+    
+    // Desktop circular fan effect
+    const mid = (total - 1) / 2;
+    const offset = idx - mid; // e.g., for 3 items: -1, 0, 1
+    const rotate = offset * 12; // -12deg, 0deg, 12deg
+    const yOffset = Math.abs(offset) * 15; // 15px for outer cards, 0px for middle
+    const xOffset = offset * 15; // spread them out slightly more horizontally
+
+    return {
+      initial: { opacity: 0, y: -40, rotate: 0, x: 0, scale: 0.95 },
+      animate: { 
+        opacity: 1, 
+        y: yOffset, 
+        rotate: rotate, 
+        x: xOffset,
+        scale: 1 
+      },
+      exit: { opacity: 0, y: -40, rotate: 0, x: 0, scale: 0.95 },
+      transition: { 
+        delay: idx * 0.06, 
+        type: 'spring', 
+        stiffness: 150, 
+        damping: 15, 
+        mass: 1 
+      }
+    };
+  };
+
   return (
     <div className={`card-nav-container ${isScrolled ? 'scrolled' : ''} ${className}`}>
-      <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`} style={{ backgroundColor: baseColor }}>
+      <motion.nav 
+        className={`card-nav ${isExpanded ? 'open' : ''}`} 
+        style={{ backgroundColor: baseColor }}
+        animate={{ height: navHeight }}
+        transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+      >
         <div className="card-nav-top">
           <div
-            className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
+            className={`hamburger-menu ${isExpanded ? 'open' : ''}`}
             onClick={toggleMenu}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -224,7 +185,6 @@ const CardNav = ({
           </div>
 
           <div className="card-nav-actions-right">
-            {/* Search Icon */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="action-btn"
@@ -233,7 +193,6 @@ const CardNav = ({
               <Search className="w-5 h-5 text-slate-700" />
             </button>
 
-            {/* Profile Icon */}
             <button
               onClick={onOpenProfile}
               className="action-btn hidden-mobile"
@@ -242,7 +201,6 @@ const CardNav = ({
               <User className="w-5 h-5 text-slate-700" />
             </button>
 
-            {/* Wishlist Icon */}
             <Link
               to="/wishlist"
               className="action-btn relative"
@@ -256,7 +214,6 @@ const CardNav = ({
               )}
             </Link>
 
-            {/* Cart Bag CTA Button */}
             <Link
               to="/cart"
               className="card-nav-cta-button"
@@ -275,75 +232,99 @@ const CardNav = ({
           </div>
         </div>
 
-        <div className="card-nav-content" aria-hidden={!isExpanded}>
-          {(items || []).slice(0, 3).map((item, idx) => (
-            <div
-              key={`${item.label}-${idx}`}
-              className="nav-card"
-              ref={setCardRef(idx)}
-              style={{ backgroundColor: item.bgColor, color: item.textColor }}
-            >
-              <div className="nav-card-label">{item.label}</div>
-              <div className="nav-card-links">
-                {item.links?.map((lnk, i) => {
-                  if (lnk.action) {
-                    return (
-                      <button
-                        key={`${lnk.label}-${i}`}
-                        className="nav-card-link text-left"
-                        onClick={() => {
-                          lnk.action();
-                          toggleMenu();
-                        }}
-                        aria-label={lnk.ariaLabel}
-                        style={{ background: 'transparent', border: 'none', padding: 0, color: 'inherit' }}
-                      >
-                        <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" />
-                        {lnk.label}
-                      </button>
-                    );
-                  }
-                  return (
-                    <Link
-                      key={`${lnk.label}-${i}`}
-                      className="nav-card-link"
-                      to={lnk.href}
-                      onClick={toggleMenu}
-                      aria-label={lnk.ariaLabel}
-                    >
-                      <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" />
-                      {lnk.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+        <div 
+          className="card-nav-content" 
+          aria-hidden={!isExpanded}
+          ref={contentRef}
+          style={{
+            visibility: isExpanded ? 'visible' : 'hidden',
+            pointerEvents: isExpanded ? 'auto' : 'none'
+          }}
+        >
+          <AnimatePresence>
+            {isExpanded && items.slice(0, 3).map((item, idx) => {
+              const animation = getCardAnimation(idx, Math.min(items.length, 3));
+              return (
+                <motion.div
+                  key={`${item.label}-${idx}`}
+                  className="nav-card shadow-xl"
+                  style={{ backgroundColor: item.bgColor, color: item.textColor, transformOrigin: 'bottom center' }}
+                  initial={animation.initial}
+                  animate={animation.animate}
+                  exit={animation.exit}
+                  transition={animation.transition}
+                >
+                  <div className="nav-card-label">{item.label}</div>
+                  <div className="nav-card-links">
+                    {item.links?.map((lnk, i) => {
+                      if (lnk.action) {
+                        return (
+                          <button
+                            key={`${lnk.label}-${i}`}
+                            className="nav-card-link text-left"
+                            onClick={() => {
+                              lnk.action();
+                              toggleMenu();
+                            }}
+                            aria-label={lnk.ariaLabel}
+                            style={{ background: 'transparent', border: 'none', padding: 0, color: 'inherit' }}
+                          >
+                            <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" />
+                            {lnk.label}
+                          </button>
+                        );
+                      }
+                      return (
+                        <Link
+                          key={`${lnk.label}-${i}`}
+                          className="nav-card-link"
+                          to={lnk.href}
+                          onClick={toggleMenu}
+                          aria-label={lnk.ariaLabel}
+                        >
+                          <ArrowUpRight className="nav-card-link-icon" aria-hidden="true" />
+                          {lnk.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Floating Search Bar Overlay */}
-      {isSearchOpen && (
-        <div className="card-nav-search-overlay">
-          <form onSubmit={handleSearchSubmit} className="search-form">
-            <Search className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search t-shirts, frocks, onesies, hoodies..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              autoFocus
-              className="search-input"
-            />
-            <button
-              type="submit"
-              className="search-submit"
-            >
-              Search
-            </button>
-          </form>
-        </div>
-      )}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div 
+            className="card-nav-search-overlay"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <form onSubmit={handleSearchSubmit} className="search-form">
+              <Search className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search t-shirts, frocks, onesies, hoodies..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                className="search-input"
+              />
+              <button
+                type="submit"
+                className="search-submit"
+              >
+                Search
+              </button>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

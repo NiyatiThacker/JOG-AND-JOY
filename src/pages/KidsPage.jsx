@@ -1,9 +1,18 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import KidsProductCard from '../components/ui/KidsProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
+import CustomDropdown from '../components/ui/CustomDropdown';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import ShopByAge from '../components/home/ShopByAge';
+
+const kidsSortOptions = [
+  { label: 'Recommended', value: 'Recommended' },
+  { label: 'Price: Low to High', value: 'Price: Low to High' },
+  { label: 'Price: High to Low', value: 'Price: High to Low' },
+  { label: 'Rating: High to Low', value: 'Rating: High to Low' },
+  { label: 'Newest Arrivals', value: 'Newest Arrivals' }
+];
 
 export default function KidsPage() {
   const [expandedSections, setExpandedSections] = useState({
@@ -202,23 +211,17 @@ export default function KidsPage() {
         </div>
 
         {/* Top Controls */}
-        <div ref={topControlsRef} className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-slate-100">
+        <div ref={topControlsRef} className="relative z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-slate-100">
           <div className="text-slate-700 font-black text-sm mb-4 sm:mb-0">
             Showing {filteredProducts.length} Products
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-slate-400 text-xs font-bold">Sort by:</span>
-            <select
+            <CustomDropdown
+              options={kidsSortOptions}
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent border border-slate-200 rounded-full px-4 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-slate-400 cursor-pointer"
-            >
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-              <option>Rating: High to Low</option>
-              <option>Newest Arrivals</option>
-              <option>Recommended</option>
-            </select>
+              onChange={setSortBy}
+              icon={SlidersHorizontal}
+            />
           </div>
         </div>
 

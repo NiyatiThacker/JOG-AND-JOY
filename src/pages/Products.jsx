@@ -3,8 +3,16 @@ import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
+import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
+import CustomDropdown from '../components/ui/CustomDropdown';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
+
+const sortOptions = [
+  { label: 'Sort by: Most Popular', value: 'popular' },
+  { label: 'Price: Low to High', value: 'low' },
+  { label: 'Price: High to Low', value: 'high' }
+];
 
 export default function Products({ pageCategory = null }) {
   const [searchParams] = useSearchParams();
@@ -80,7 +88,8 @@ export default function Products({ pageCategory = null }) {
   }, [combinedProducts, selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF8] via-[#FAF6F0] to-[#FFF8EC] pb-24 relative">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF8] via-[#FAF6F0] to-[#FFF8EC] pb-24 relative overflow-hidden">
+      <ClothDoodlesBackground />
       
       {/* Background Subtle Color Accents */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-[#FF5500]/5 rounded-full blur-3xl pointer-events-none"></div>
@@ -105,7 +114,7 @@ export default function Products({ pageCategory = null }) {
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-xl shadow-orange-950/5 border border-orange-100 mb-8 space-y-4">
+        <div className="relative z-30 bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-xl shadow-orange-950/5 border border-orange-100 mb-8 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
 
             {/* Search Input */}
@@ -138,17 +147,13 @@ export default function Products({ pageCategory = null }) {
             )}
 
             {/* Sort Select */}
-            <div className="md:col-span-3 flex items-center justify-end gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-orange-500" />
-              <select
+            <div className="md:col-span-3 flex items-center justify-end">
+              <CustomDropdown
+                options={sortOptions}
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-3 bg-[#FAF6F0] border border-orange-200/70 rounded-2xl text-xs font-black text-slate-800 focus:outline-none focus:border-[#EF4A45] focus:ring-2 focus:ring-[#EF4A45]/20 shadow-xs"
-              >
-                <option value="popular">Sort by: Most Popular</option>
-                <option value="low">Price: Low to High</option>
-                <option value="high">Price: High to Low</option>
-              </select>
+                onChange={setSortBy}
+                icon={SlidersHorizontal}
+              />
             </div>
 
             {/* Expandable Filter Menu */}

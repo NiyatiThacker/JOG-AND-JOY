@@ -50,17 +50,28 @@ export default function Footer() {
             backgroundPosition: 'center center'
           }}
         >
-          {/* Top Scallop Mask */}
-          <div className="absolute top-0 left-0 right-0 h-4 overflow-hidden z-10 select-none pointer-events-none">
-            <svg className="w-full h-full text-white fill-current" viewBox="0 0 1440 24" preserveAspectRatio="none">
-              <path d="M0,0 C30,20 60,20 90,0 C120,20 150,20 180,0 C210,20 240,20 270,0 C300,20 330,20 360,0 C390,20 420,20 450,0 C480,20 510,20 540,0 C570,20 600,20 630,0 C660,20 690,20 720,0 C750,20 780,20 810,0 C840,20 870,20 900,0 C930,20 960,20 990,0 C1020,20 1050,20 1080,0 C1110,20 1140,20 1170,0 C1200,20 1230,20 1260,0 C1290,20 1320,20 1350,0 C1380,20 1410,20 1440,0 L1440,24 L0,24 Z" />
+          {/* Multi-Layered Hand-Drawn Pastel Cloud Header Divider */}
+          <div className="absolute top-0 left-0 right-0 h-12 overflow-hidden z-10 select-none pointer-events-none">
+            {/* Back Cloud Layer: Soft Sky Blue & Lavender */}
+            <svg className="absolute inset-0 w-full h-full text-[#AEE6FF]/80 fill-current" viewBox="0 0 1440 48" preserveAspectRatio="none">
+              <path d="M0,0 C40,25 80,25 120,10 C160,32 200,32 240,12 C280,30 320,30 360,8 C400,28 440,28 480,10 C520,32 560,32 600,14 C640,30 680,30 720,8 C760,28 800,28 840,12 C880,32 920,32 960,10 C1000,30 1040,30 1080,8 C1120,28 1160,28 1200,12 C1240,32 1280,32 1320,10 C1360,30 1400,30 1440,5 L1440,0 L0,0 Z" />
+            </svg>
+
+            {/* Middle Cloud Layer: Soft Pastel Sunset Pink & Peach */}
+            <svg className="absolute inset-0 w-full h-full text-[#FFD6BA]/70 fill-current" viewBox="0 0 1440 48" preserveAspectRatio="none">
+              <path d="M0,0 C30,18 60,18 90,4 C130,24 170,24 210,6 C250,22 290,22 330,4 C370,24 410,24 450,6 C490,22 530,22 570,4 C610,24 650,24 690,6 C730,22 770,22 810,4 C850,24 890,24 930,6 C970,22 1010,22 1050,4 C1090,24 1130,24 1170,6 C1210,22 1250,22 1290,4 C1330,24 1370,24 1410,6 C1430,16 1440,16 1440,0 L1440,0 L0,0 Z" />
+            </svg>
+
+            {/* Front Cloud Layer: Crisp White Scalloped Clouds */}
+            <svg className="absolute inset-0 w-full h-full text-white fill-current" viewBox="0 0 1440 48" preserveAspectRatio="none">
+              <path d="M0,0 C20,12 40,12 60,0 C80,14 100,14 120,0 C140,14 160,14 180,0 C200,14 220,14 240,0 C260,14 280,14 300,0 C320,14 340,14 360,0 C380,14 400,14 420,0 C440,14 460,14 480,0 C500,14 520,14 540,0 C560,14 580,14 600,0 C620,14 640,14 660,0 C680,14 700,14 720,0 C740,14 760,14 780,0 C800,14 820,14 840,0 C860,14 880,14 900,0 C920,14 940,14 960,0 C980,14 1000,14 1020,0 C1040,14 1060,14 1080,0 C1100,14 1120,14 1140,0 C1160,14 1180,14 1200,0 C1220,14 1240,14 1260,0 C1280,14 1300,14 1320,0 C1340,14 1360,14 1380,0 C1400,14 1420,14 1440,0 L1440,0 L0,0 Z" />
             </svg>
           </div>
 
-          {/* Bottom Scallop Mask */}
-          <div className="absolute bottom-0 left-0 right-0 h-4 overflow-hidden z-10 select-none pointer-events-none">
-            <svg className="w-full h-full text-white fill-current" viewBox="0 0 1440 24" preserveAspectRatio="none">
-              <path d="M0,24 C30,4 60,4 90,24 C120,4 150,4 180,24 C210,4 240,4 270,24 C300,4 330,4 360,24 C390,4 420,4 450,24 C480,4 510,4 540,24 C570,4 600,4 630,24 C660,4 690,4 720,24 C750,4 780,4 810,24 C840,4 870,4 900,24 C930,4 960,4 990,24 C1020,4 1050,4 1080,24 C1110,4 1140,4 1170,24 C1200,4 1230,4 1260,24 C1290,4 1320,4 1350,24 C1380,4 1410,4 1440,24 L1440,0 L0,0 Z" />
+          {/* Multi-Layered Cloud Footer Divider (Bottom Scallop) */}
+          <div className="absolute bottom-0 left-0 right-0 h-10 overflow-hidden z-10 select-none pointer-events-none">
+            <svg className="w-full h-full text-white fill-current" viewBox="0 0 1440 36" preserveAspectRatio="none">
+              <path d="M0,36 C25,12 50,12 75,36 C100,12 125,12 150,36 C175,12 200,12 225,36 C250,12 275,12 300,36 C325,12 350,12 375,36 C400,12 425,12 450,36 C475,12 500,12 525,36 C550,12 575,12 600,36 C625,12 650,12 675,36 C700,12 725,12 750,36 C775,12 800,12 825,36 C850,12 875,12 900,36 C925,12 950,12 975,36 C1000,12 1025,12 1050,36 C1075,12 1100,12 1125,36 C1150,12 1175,12 1200,36 C1225,12 1250,12 1275,36 C1300,12 1325,12 1350,36 C1375,12 1400,12 1425,36 L1440,0 L0,0 Z" />
             </svg>
           </div>
 

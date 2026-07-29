@@ -4,10 +4,8 @@ import React from 'react';
 import ImageTrail from "./ImageTrail";
 
 const trailImages = [
+  "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=400&h=400&fit=crop&q=80",
   "https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1620138546344-7b2c08517efd?w=400&h=400&fit=crop&q=80",
   "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=400&h=400&fit=crop&q=80",
   "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop&q=80",
   "https://images.unsplash.com/photo-1471286174574-e9627710ee7e?w=400&h=400&fit=crop&q=80",

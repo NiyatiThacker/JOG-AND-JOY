@@ -4,6 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Input, Textarea } from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import CustomDropdown from '../components/ui/CustomDropdown';
+
+const inquiryOptions = [
+  { label: '🎈 General Inquiry', value: 'general' },
+  { label: '🛍️ Wholesale / Dealership', value: 'wholesale' },
+  { label: '📦 Order Support & Tracking', value: 'support' },
+  { label: '📏 Size & Fit Consultation', value: 'size' }
+];
 
 // --- PLAYFUL SVG DOODLE COMPONENTS ---
 const SparkleDoodle = ({ className = "w-6 h-6 text-amber-400" }) => (
@@ -81,6 +89,20 @@ export default function ContactUs() {
       name: "Rajesh Sharma",
       role: "Retail Chain Owner, Delhi",
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
+      stars: 5
+    },
+    {
+      quote: "The fabric is incredibly soft and breathable for active kids. After multiple washes, colors stay vibrant and shapes remain perfect!",
+      name: "Priya Mehta",
+      role: "Parent & Kids Blogger",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
+      stars: 5
+    },
+    {
+      quote: "Our sports club ordered custom athletic sets for 120 kids. Every single set fitted perfectly. Will definitely reorder next season!",
+      name: "David Miller",
+      role: "Youth Athletics Coordinator",
+      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop",
       stars: 5
     }
   ];
@@ -620,17 +642,13 @@ export default function ContactUs() {
                     <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1">
                       <span>Inquiry Type</span>
                     </label>
-                    <select
-                      name="inquiryType"
+                    <CustomDropdown
+                      options={inquiryOptions}
                       value={formData.inquiryType}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3.5 bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold text-sm focus:outline-none focus:border-[#FF5500] focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm cursor-pointer"
-                    >
-                      <option value="general">🎈 General Inquiry</option>
-                      <option value="wholesale">🛍️ Wholesale / Dealership</option>
-                      <option value="support">📦 Order Support & Tracking</option>
-                      <option value="size">📏 Size & Fit Consultation</option>
-                    </select>
+                      onChange={(val) => setFormData(prev => ({ ...prev, inquiryType: val }))}
+                      className="w-full"
+                      buttonClassName="w-full py-3.5 px-4 bg-white border-2 border-[#FFE0D6] rounded-2xl text-slate-900 font-extrabold text-sm hover:border-[#FF7A59]"
+                    />
                   </div>
                 </div>
 
@@ -686,23 +704,23 @@ export default function ContactUs() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* Left Tall Card: Head Office Flagship */}
-          <div className="lg:col-span-6 relative rounded-3xl overflow-hidden min-h-[420px] bg-[#FF5500] group shadow-xl border-4 border-white">
+          <div className="lg:col-span-6 relative rounded-3xl overflow-hidden min-h-[420px] bg-slate-900 group shadow-xl border-4 border-white">
             <img 
               src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop" 
               alt="Hoodie Collection Flagship Store" 
-              className="w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-700 mix-blend-multiply"
+              className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-orange-950/90 via-orange-950/30 to-transparent p-8 flex flex-col justify-end">
-              <span className="bg-white text-[#FF5500] text-xs font-black px-3 py-1 rounded-full w-max uppercase tracking-wider mb-3 shadow-sm">
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent p-8 flex flex-col justify-end">
+              <span className="bg-[#FF7A59] text-white text-xs font-black px-3.5 py-1.5 rounded-full w-max uppercase tracking-wider mb-3 shadow-md">
                 Flagship Office
               </span>
               <h3 className="text-3xl font-black text-white">Ahmedabad HQ & Showroom</h3>
-              <p className="text-orange-100 text-sm font-medium mt-2 max-w-md">
+              <p className="text-slate-200 text-sm font-medium mt-2 max-w-md">
                 Visit our experience center in Kalupur to feel the fabric quality, check color options, and consult with our production team.
               </p>
               <div className="mt-6 flex items-center gap-2 text-white text-sm font-bold group-hover:translate-x-2 transition-transform">
                 <span>View Directions</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-[#FF7A59]" />
               </div>
             </div>
           </div>
@@ -711,22 +729,23 @@ export default function ContactUs() {
           <div className="lg:col-span-6 grid grid-rows-2 gap-8">
             
             {/* Top Wide Card: Distributor Network */}
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#00A3E0] to-[#008CC3] p-8 flex flex-col justify-between shadow-xl text-white group">
+            <div className="relative rounded-3xl overflow-hidden bg-slate-900 p-8 flex flex-col justify-between shadow-xl text-white group">
               <img 
                 src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=800&auto=format&fit=crop" 
                 alt="Pants Collections" 
-                className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-105 transition-transform duration-700 mix-blend-overlay"
+                className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent z-0"></div>
               <div className="relative z-10">
-                <span className="bg-white/25 backdrop-blur-md text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                <span className="bg-[#AEE6FF] text-slate-900 text-xs font-black px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
                   Distributor Network
                 </span>
                 <h3 className="text-2xl font-black text-white mt-4">100+ Authorized Retail Partners</h3>
-                <p className="text-sky-100 text-xs sm:text-sm font-medium mt-1">Available across leading apparel stores in Gujarat, Maharashtra, Rajasthan, and MP.</p>
+                <p className="text-slate-200 text-xs sm:text-sm font-medium mt-1">Available across leading apparel stores in Gujarat, Maharashtra, Rajasthan, and MP.</p>
               </div>
               <div className="relative z-10 pt-4">
                 <span className="text-xs font-extrabold text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Explore Partnership <ChevronRight className="w-4 h-4" />
+                  Explore Partnership <ChevronRight className="w-4 h-4 text-[#AEE6FF]" />
                 </span>
               </div>
             </div>
@@ -754,96 +773,77 @@ export default function ContactUs() {
       </section>
 
 
-      {/* --- CUSTOMER TESTIMONIALS SECTION (Vibrant Warm Theme - Replaced Dark Black) --- */}
-      <section className="py-20 bg-gradient-to-b from-[#FFF5EC] via-[#FFEFE4] to-[#FFF8F2] border-y border-orange-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+      {/* --- CUSTOMER TESTIMONIALS SECTION (Infinite Marquee Carousel) --- */}
+      <section className="py-20 bg-gradient-to-b from-[#FFF5EC] via-[#FFEFE4] to-[#FFF8F2] border-y border-orange-200/60 overflow-hidden">
+        
+        {/* Inline CSS animation for smooth infinite marquee */}
+        <style>{`
+          @keyframes testimonial-marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-testimonial-marquee {
+            animation: testimonial-marquee 35s linear infinite;
+          }
+          .animate-testimonial-marquee:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div>
               <span className="text-xs font-extrabold uppercase tracking-widest text-[#FF5500]">Our Testimonials</span>
-              <h2 className="text-4xl font-black text-slate-900 mt-1">Our Satisfied Customer Reviews</h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-1">Our Satisfied Customer Reviews</h2>
               <p className="text-slate-500 font-medium text-sm mt-1">Real feedback from parents, academies, and retail partners.</p>
             </div>
 
-            {/* Slider Controls */}
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handlePrevTestimonial}
-                className="w-12 h-12 rounded-full bg-white border-2 border-orange-200 flex items-center justify-center text-slate-700 hover:text-[#FF5500] hover:border-[#FF5500] transition-all shadow-xs cursor-pointer"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button 
-                onClick={handleNextTestimonial}
-                className="w-12 h-12 rounded-full bg-[#FF5500] flex items-center justify-center text-white hover:bg-orange-600 transition-all shadow-md shadow-orange-500/30 cursor-pointer"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
+            {/* Marquee Status Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-orange-200 shadow-xs text-xs font-bold text-slate-700 select-none">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Live Reviews • Hover to Pause</span>
             </div>
           </div>
+        </div>
 
-          {/* Testimonial Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            {/* Active Testimonial Card */}
-            <AnimatePresence mode="wait">
-              <motion.div 
-                key={currentTestimonial}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.4 }}
-                className="bg-white p-8 sm:p-10 rounded-[2.5rem] border-2 border-orange-200/80 shadow-xl flex flex-col justify-between space-y-6 relative"
+        {/* Infinite Marquee Track */}
+        <div className="w-full overflow-hidden py-4 select-none">
+          <div className="flex space-x-6 w-max animate-testimonial-marquee">
+            {[...testimonials, ...testimonials, ...testimonials].map((item, idx) => (
+              <div 
+                key={idx}
+                className="w-[340px] sm:w-[440px] bg-white p-8 rounded-[2.5rem] border-2 border-orange-200/80 shadow-md hover:shadow-2xl hover:border-[#FF5500] transition-all duration-300 flex flex-col justify-between space-y-6 shrink-0 group text-left"
               >
-                <div className="text-5xl font-serif text-[#FF5500] opacity-80 leading-none">“</div>
-                
-                <p className="text-slate-800 text-lg sm:text-xl font-bold leading-relaxed">
-                  "{testimonials[currentTestimonial].quote}"
-                </p>
-
-                <div className="flex items-center gap-4 pt-4 border-t border-orange-100">
-                  <img 
-                    src={testimonials[currentTestimonial].avatar} 
-                    alt={testimonials[currentTestimonial].name} 
-                    className="w-14 h-14 rounded-full object-cover border-2 border-[#FF5500] shadow-sm"
-                  />
-                  <div>
-                    <h4 className="text-base font-black text-slate-900">{testimonials[currentTestimonial].name}</h4>
-                    <p className="text-xs text-slate-500 font-bold">{testimonials[currentTestimonial].role}</p>
-                  </div>
-                  <div className="ml-auto flex items-center gap-1 text-amber-400">
-                    {[...Array(testimonials[currentTestimonial].stars)].map((_, i) => (
+                <div className="flex items-center justify-between">
+                  <div className="text-4xl font-serif text-[#FF5500] opacity-80 leading-none group-hover:scale-110 transition-transform">“</div>
+                  <div className="flex items-center gap-1 text-amber-400">
+                    {[...Array(item.stars)].map((_, i) => (
                       <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
                 </div>
-              </motion.div>
-            </AnimatePresence>
+                
+                <p className="text-slate-800 text-base sm:text-lg font-bold leading-relaxed">
+                  "{item.quote}"
+                </p>
 
-            {/* Secondary Testimonial Preview */}
-            <div className="hidden md:flex bg-white/80 p-8 sm:p-10 rounded-[2.5rem] border-2 border-orange-100 flex-col justify-between space-y-6 relative opacity-75 shadow-md">
-              <div className="text-5xl font-serif text-slate-300 leading-none">“</div>
-              
-              <p className="text-slate-700 text-lg font-semibold leading-relaxed">
-                "{testimonials[(currentTestimonial + 1) % testimonials.length].quote}"
-              </p>
-
-              <div className="flex items-center gap-4 pt-4 border-t border-orange-100">
-                <img 
-                  src={testimonials[(currentTestimonial + 1) % testimonials.length].avatar} 
-                  alt={testimonials[(currentTestimonial + 1) % testimonials.length].name} 
-                  className="w-14 h-14 rounded-full object-cover border-2 border-slate-300"
-                />
-                <div>
-                  <h4 className="text-base font-black text-slate-800">{testimonials[(currentTestimonial + 1) % testimonials.length].name}</h4>
-                  <p className="text-xs text-slate-500 font-bold">{testimonials[(currentTestimonial + 1) % testimonials.length].role}</p>
+                <div className="flex items-center gap-4 pt-4 border-t border-orange-100">
+                  <img 
+                    src={item.avatar} 
+                    alt={item.name} 
+                    className="w-12 h-12 rounded-full object-cover border-2 border-[#FF5500] shadow-sm group-hover:scale-105 transition-transform"
+                    onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"; }}
+                  />
+                  <div className="text-left">
+                    <h4 className="text-base font-black text-slate-900">{item.name}</h4>
+                    <p className="text-xs text-slate-500 font-bold">{item.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-
+            ))}
           </div>
-
         </div>
+
       </section>
 
 

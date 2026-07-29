@@ -58,26 +58,27 @@
   --font-heading-secondary: 'Spicy Rice', cursive, sans-serif;
   --font-body: 'Quicksand', 'Fredoka', sans-serif;
   
-  /* Pastel Palette */
+  /* Logo Pastel Palette */
   --pastel-sky: #AEE6FF;
   --pastel-mint: #CFFFE5;
-  --pastel-peach: #FFD6BA;
+  --pastel-peach: #FFF3EE;
   --pastel-lavender: #E6D6FF;
   --pastel-cream: #FFF8EC;
+  --pastel-coral: #FF7A59;
   
   /* Vibrant Accents */
-  --coral-red: #EF4A45;
-  --sunny-yellow: #FFD800;
-  --aqua-blue: #00A3E0;
+  --coral-red: #FF7A59;
+  --sunny-yellow: #FFD5A1;
+  --aqua-blue: #AEE6FF;
   --text-dark: #1E293B;
   --bg-base: #FFF8EC;
   
-  --color-accent: var(--coral-red);
-  --color-yellow: var(--sunny-yellow);
-  --color-blue: var(--aqua-blue);
-  --color-green: #10B981;
-  --color-orange: #ED6B21;
-  --color-surface: #FAF6F0;
+  --color-accent: #FF7A59;
+  --color-yellow: #FFD5A1;
+  --color-blue: #AEE6FF;
+  --color-green: #8DD67C;
+  --color-orange: #FF7A59;
+  --color-surface: #FFFDF9;
 }
 
 body {
@@ -259,5 +260,45 @@ h1, h2, h3, h4, h5, h6 {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes floatMedium {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(-4deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: floatMedium 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.shadow-pastel-orange {
+  box-shadow: 0 14px 35px -5px rgba(255, 122, 89, 0.22);
+}
+
+.shadow-pastel-green {
+  box-shadow: 0 14px 35px -5px rgba(141, 214, 124, 0.22);
+}
+
+.shadow-pastel-blue {
+  box-shadow: 0 14px 35px -5px rgba(174, 230, 255, 0.25);
+}
+
 
 

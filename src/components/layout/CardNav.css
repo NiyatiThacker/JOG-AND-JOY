@@ -272,18 +272,6 @@
   border: 1px solid rgba(239, 74, 69, 0.15);
   border-radius: 1.25rem;
   box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .search-form {
