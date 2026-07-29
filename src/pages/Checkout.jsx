@@ -12,10 +12,12 @@ import {
   ShoppingBag,
   ArrowLeft
 } from 'lucide-react';
+import { useCreateOrder } from '../queries/useOrders';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { cart, cartSubtotal, discountAmount, shippingFee, cartGrandTotal, clearCart } = useCart();
+  const createOrder = useCreateOrder();
 
   const [step, setStep] = useState(1); // 1: Address | 2: Shipping | 3: Payment | 4: Order Confirmed
   const [formData, setFormData] = useState({
@@ -31,15 +33,109 @@ export default function Checkout() {
   });
 
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  const validateStep1 = () => {
+    const newErrors = {};
+    if (!formData.fullName.trim()) newErrors.fullName = 'Full Name is required';
+    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Valid Email is required';
+    if (!formData.phone.trim() || formData.phone.length < 10) newErrors.phone = 'Valid Phone is required';
+    if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.city.trim()) newErrors.city = 'City is required';
+    if (!formData.state.trim()) newErrors.state = 'State is required';
+    if (!formData.pincode.trim()) newErrors.pincode = 'Pincode is required';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleContinueToShipping = () => {
+    if (validateStep1()) {
+      setStep(2);
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    const orderPayload = {
+      orderNumber: `JJ-${Math.floor(Math.random() * 90000) + 10000}`,
+      createdAt: new Date().toISOString(),
+      status: 'PROCESSING',
+      paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'paid',
+      fulfillmentStatus: 'unfulfilled',
+      channel: 'Web Storefront',
+      riskLevel: 'low',
+      subtotal: cartSubtotal,
+      discountAmount: discountAmount,
+      shippingCost: shippingFee,
+      tax: 0,
+      total: cartGrandTotal,
+      items: cart.map(item => ({
+        id: item.id,
+        productId: item.id,
+        titleSnapshot: item.name,
+        unitPrice: item.price,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color
+      })),
+      shippingAddress: {
+        name: formData.fullName,
+        line1: formData.address,
+        city: formData.city,
+        state: formData.state,
+        postalCode: formData.pincode,
+        country: 'India'
+      },
+      statusHistory: [
+        { status: 'PROCESSING', timestamp: new Date().toISOString(), note: 'Order placed by customer' }
+      ]
+    };
+
+    const newOrder = await createOrder.mutateAsync(orderPayload);
+    const orderId = newOrder.orderNumber || newOrder.id;
+    setCreatedOrderId(orderId);
+
+    const localOrder = {
+      id: `#${orderId}`,
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      items: cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
+      total: `₹${cartGrandTotal}`,
+      status: 'Placed 📦'
+    };
+
+    const existingOrders = JSON.parse(localStorage.getItem('jj_orders') || '[]');
+    localStorage.setItem('jj_orders', JSON.stringify([localOrder, ...existingOrders]));
+
     setIsOrderPlaced(true);
     clearCart();
   };
+
+  if (!isOrderPlaced && cart.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#FFF8EC] py-16 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 text-center space-y-4 animate-in zoom-in-95">
+          <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto shadow-sm">
+            <ShoppingBag className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900">Your Cart is Empty</h2>
+          <p className="text-xs text-slate-500 font-semibold pb-4">
+            You need to add some products to your cart before you can checkout.
+          </p>
+          <Link
+            to="/products"
+            className="block w-full py-3.5 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md hover:bg-red-600 transition-colors"
+          >
+            Start Shopping
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (isOrderPlaced) {
     return (
@@ -50,7 +146,7 @@ export default function Checkout() {
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900">Order Confirmed! 🎉</h2>
           <p className="text-xs text-slate-600 font-bold leading-relaxed">
-            Thank you for shopping with Jog & Joy Kids! Order <strong>#JJ-94821</strong> has been placed successfully. A confirmation SMS & email have been sent to <strong>{formData.email}</strong>.
+            Thank you for shopping with Jog & Joy Kids! Order <strong>#{createdOrderId || 'JJ-94821'}</strong> has been placed successfully. A confirmation SMS & email have been sent to <strong>{formData.email}</strong>.
           </p>
           <div className="p-4 bg-amber-50 rounded-2xl text-xs font-semibold text-slate-700 text-left space-y-1 border border-amber-100">
             <div className="flex justify-between">
@@ -121,8 +217,9 @@ export default function Checkout() {
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:border-[#EF4A45]"
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.fullName ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
                     />
+                    {errors.fullName && <p className="text-red-500 text-[10px] mt-1">{errors.fullName}</p>}
                   </div>
                   <div>
                     <label className="block mb-1">Email Address</label>
@@ -131,8 +228,9 @@ export default function Checkout() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:border-[#EF4A45]"
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
                     />
+                    {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email}</p>}
                   </div>
                   <div>
                     <label className="block mb-1">Phone Number</label>
@@ -141,8 +239,9 @@ export default function Checkout() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:border-[#EF4A45]"
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
                     />
+                    {errors.phone && <p className="text-red-500 text-[10px] mt-1">{errors.phone}</p>}
                   </div>
                   <div>
                     <label className="block mb-1">Pincode</label>
@@ -151,8 +250,9 @@ export default function Checkout() {
                       name="pincode"
                       value={formData.pincode}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:border-[#EF4A45]"
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.pincode ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
                     />
+                    {errors.pincode && <p className="text-red-500 text-[10px] mt-1">{errors.pincode}</p>}
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block mb-1">Flat / House No / Street Address</label>
@@ -161,8 +261,9 @@ export default function Checkout() {
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:border-[#EF4A45]"
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.address ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
                     />
+                    {errors.address && <p className="text-red-500 text-[10px] mt-1">{errors.address}</p>}
                   </div>
                   <div>
                     <label className="block mb-1">City</label>
@@ -171,8 +272,9 @@ export default function Checkout() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:border-[#EF4A45]"
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.city ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
                     />
+                    {errors.city && <p className="text-red-500 text-[10px] mt-1">{errors.city}</p>}
                   </div>
                   <div>
                     <label className="block mb-1">State</label>
@@ -181,13 +283,14 @@ export default function Checkout() {
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:border-[#EF4A45]"
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.state ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
                     />
+                    {errors.state && <p className="text-red-500 text-[10px] mt-1">{errors.state}</p>}
                   </div>
                 </div>
 
                 <button
-                  onClick={() => setStep(2)}
+                  onClick={handleContinueToShipping}
                   className="w-full mt-4 py-3.5 rounded-full bg-[#EF4A45] text-white font-extrabold text-sm shadow-md hover:bg-red-600 transition-colors"
                 >
                   Continue To Shipping →

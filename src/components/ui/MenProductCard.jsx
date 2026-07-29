@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { flyToCart } from '../../utils/animations';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
@@ -13,7 +14,8 @@ export default function MenProductCard({ product }) {
   const handleQuickViewClick = (e) => {
     e.preventDefault();
     // Use the existing add to cart function as a quick action for this theme
-    addToCart(product, product.sizes?.[0] || 'M', product.colors?.[0]?.hex || '#000', e);
+    flyToCart(e, product.image);
+    addToCart(product, product.sizes?.[0] || 'M', product.colors?.[0]?.hex || '#000');
   };
 
   const handleWishlistClick = (e) => {

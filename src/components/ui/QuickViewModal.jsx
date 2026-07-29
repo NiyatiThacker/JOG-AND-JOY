@@ -16,7 +16,7 @@ export default function QuickViewModal({ product, onClose }) {
 
   if (!product) return null;
 
-  const isFavorited = isInWishlist(product.id);
+  const isFavorited = isInWishlist(product.id, selectedSize, selectedColor);
 
   const handleAddToCart = () => {
     addToCart(product, selectedSize, selectedColor);
@@ -54,7 +54,7 @@ export default function QuickViewModal({ product, onClose }) {
                 }}
               />
               <button
-                onClick={() => toggleWishlist(product.id)}
+                onClick={() => toggleWishlist(product.id, selectedSize, selectedColor)}
                 className={`absolute top-4 left-4 p-2.5 rounded-full backdrop-blur-md transition-all shadow-sm ${
                   isFavorited ? 'bg-rose-500 text-white' : 'bg-white/80 text-slate-700 hover:bg-white'
                 }`}

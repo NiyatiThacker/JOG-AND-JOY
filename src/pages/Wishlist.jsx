@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PRODUCTS } from '../data/productsData';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
@@ -8,9 +8,14 @@ import { Heart, Sparkles, ArrowRight, Trash2 } from 'lucide-react';
 
 export default function Wishlist() {
   const { wishlist, clearWishlist } = useWishlist();
+  const { combinedProducts } = useCombinedProducts();
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
-  const favoritedProducts = PRODUCTS.filter((p) => wishlist.includes(p.id));
+  const favoritedProducts = wishlist.map(w => {
+    const p = combinedProducts.find(cp => String(cp.id) === String(w.id));
+    if (!p) return null;
+    return { ...p, wishlistSize: w.size, wishlistColor: w.color };
+  }).filter(Boolean);
 
   return (
     <div className="min-h-screen bg-[#FFF8EC] py-10 pb-20">
@@ -42,8 +47,8 @@ export default function Wishlist() {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {favoritedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
+              {favoritedProducts.map((product, idx) => (
+                <ProductCard key={`${product.id}-${idx}`} product={product} onQuickView={setQuickViewProduct} />
               ))}
             </div>
           </div>

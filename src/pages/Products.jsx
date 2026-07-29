@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import WomenProductCard from '../components/ui/WomenProductCard';
+import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
-import { PRODUCTS } from '../data/productsData';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 
 export default function Products({ pageCategory = null }) {
@@ -20,24 +20,29 @@ export default function Products({ pageCategory = null }) {
   const [selectedItemFilter, setSelectedItemFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  const categories = ['All', 'Kids', 'Male'];
+  const categories = ['All', 'Kids', 'Male', 'Female'];
   const ageGroups = ['All', '0–2 Years', '3–5 Years', '6–8 Years', '9–12 Years'];
 
   React.useEffect(() => {
     setSelectedCategory(pageCategory || searchParams.get('category') || '');
     setSelectedItemFilter('');
+    setSearchQuery(searchParams.get('search') || '');
   }, [pageCategory, searchParams]);
 
+  const { combinedProducts, isLoading } = useCombinedProducts();
+
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return combinedProducts.filter((p) => {
       // Category Mapping Logic
       let matchCat = false;
       if (!selectedCategory || selectedCategory === 'All') {
         matchCat = true;
       } else if (selectedCategory === 'Kids') {
-        matchCat = ['Boys', 'Girls', 'Newborn'].includes(p.category);
+        matchCat = ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category);
       } else if (selectedCategory === 'Male') {
         matchCat = p.category === "Men's Collection";
+      } else if (selectedCategory === 'Female') {
+        matchCat = p.category === 'Girls';
       }
 
       // Item Filter Keyword Logic
@@ -72,7 +77,7 @@ export default function Products({ pageCategory = null }) {
       if (sortBy === 'high') return b.price - a.price;
       return b.rating - a.rating;
     });
-  }, [selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
+  }, [combinedProducts, selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFFDF8] via-[#FAF6F0] to-[#FFF8EC] pb-24 relative">
@@ -92,7 +97,7 @@ export default function Products({ pageCategory = null }) {
             <Sparkles className="w-4 h-4 text-[#FF5500]" /> Explore Collection
           </span>
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight capitalize">
-            {pageCategory === 'Kids' ? 'Kids Fashion' : pageCategory === 'Male' ? "Men's Fashion" : "All Products"} <span className="text-[#EF4A45]">Catalog</span>
+            {pageCategory === 'Kids' ? 'Kids Fashion' : pageCategory === 'Male' ? "Men's Fashion" : pageCategory === 'Female' ? "Women's Fashion" : "All Products"} <span className="text-[#EF4A45]">Catalog</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 font-bold">
             Browse our premium collection of bio-washed cotton apparel, ethnic wear, and activewear.
@@ -157,10 +162,10 @@ export default function Products({ pageCategory = null }) {
                     {categories.map((cat) => {
                       const isActive = selectedCategory === cat || (!selectedCategory && cat === 'All');
                       
-                      // Brand Color Mapping per Category Button
                       let activeStyle = 'bg-[#EF4A45] text-white shadow-md';
                       if (cat === 'Kids') activeStyle = 'bg-[#00A3E0] text-white shadow-md';
                       if (cat === 'Male') activeStyle = 'bg-[#ED6B21] text-white shadow-md';
+                      if (cat === 'Female') activeStyle = 'bg-[#EC4899] text-white shadow-md';
 
                       return (
                         <button
@@ -207,7 +212,7 @@ export default function Products({ pageCategory = null }) {
             )}
 
             {/* Sub-Item Filters */}
-            {(selectedCategory === 'Kids' || selectedCategory === 'Male') && (
+            {(selectedCategory === 'Kids' || selectedCategory === 'Male' || selectedCategory === 'Female') && (
               <div className="md:col-span-12 flex items-center gap-2 overflow-x-auto pt-3 border-t border-orange-100/80 no-scrollbar">
                 <span className="text-xs font-black text-[#ED6B21] uppercase tracking-wider shrink-0 mr-2">Filters:</span>
 
@@ -236,6 +241,19 @@ export default function Products({ pageCategory = null }) {
                     {item}
                   </button>
                 ))}
+
+                {selectedCategory === 'Female' && ['Girl Frocks'].map(item => (
+                  <button
+                    key={item}
+                    onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
+                    className={`px-3.5 py-2 rounded-xl font-black text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
+                        ? 'bg-[#EC4899] text-white border-[#EC4899] shadow-sm'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-pink-50 hover:border-pink-200'
+                      }`}
+                  >
+                    {item}
+                  </button>
+                ))}
               </div>
             )}
 
@@ -243,10 +261,14 @@ export default function Products({ pageCategory = null }) {
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-20 bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-md border border-orange-100 space-y-3">
+             <div className="text-slate-500 font-bold">Loading products...</div>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (
-              <WomenProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
+              <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
             ))}
           </div>
         ) : (

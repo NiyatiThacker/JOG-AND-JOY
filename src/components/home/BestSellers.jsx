@@ -1,10 +1,11 @@
 import React from 'react';
 import ProductCard from '../ui/ProductCard';
-import { PRODUCTS } from '../../data/productsData';
+import { useCombinedProducts } from '../../queries/useCombinedProducts';
 import { Sparkles, Flame } from 'lucide-react';
 
 export default function BestSellers({ onQuickView }) {
-  const bestSellers = PRODUCTS.filter((p) => p.isBestSeller);
+  const { combinedProducts } = useCombinedProducts();
+  const bestSellers = combinedProducts.filter((p) => p.isBestSeller);
 
   return (
     <section className="pt-6 pb-16 bg-white relative">

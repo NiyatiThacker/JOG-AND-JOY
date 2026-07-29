@@ -30,7 +30,6 @@ export function CartProvider({ children }) {
       setToastMessage(null);
     }, 3000);
   };
-
   const flyToCart = (event, imageUrl) => {
     if (!event || !imageUrl) return;
     try {
@@ -82,7 +81,7 @@ export function CartProvider({ children }) {
     }
   };
 
-  const addToCart = (product, selectedSize = '4Y-5Y', selectedColor = '#AEE6FF', event = null) => {
+  const addToCart = (product, selectedSize = '4Y-5Y', selectedColor = '#AEE6FF', event = null, quantityToAdd = 1, openDrawer = true) => {
     const rawPrice = product.price ?? 499;
     const numericPrice = typeof rawPrice === 'number'
       ? rawPrice
@@ -94,7 +93,7 @@ export function CartProvider({ children }) {
       );
       if (existingIdx > -1) {
         const updated = [...prev];
-        updated[existingIdx].quantity += 1;
+        updated[existingIdx].quantity += quantityToAdd;
         return updated;
       } else {
         return [
@@ -108,7 +107,7 @@ export function CartProvider({ children }) {
             image: product.image,
             size: selectedSize,
             color: selectedColor,
-            quantity: 1
+            quantity: quantityToAdd
           }
         ];
       }
@@ -118,7 +117,9 @@ export function CartProvider({ children }) {
       flyToCart(event, product.image);
     }
     showToast(`Added ${product.name} to bag!`);
-    setIsCartOpen(true);
+    if (openDrawer) {
+      setIsCartOpen(true);
+    }
   };
 
   const removeFromCart = (id, size, color) => {
@@ -138,6 +139,36 @@ export function CartProvider({ children }) {
   };
 
   const applyCoupon = (code) => {
+    try {
+      const rawPromotions = localStorage.getItem('jogjoy_admin_db_v1:promotions');
+      const promotions = rawPromotions ? JSON.parse(rawPromotions) : [];
+      
+      const promo = promotions.find(p => p.code === code.trim().toUpperCase() && p.active && p.method === 'code');
+      
+      if (promo) {
+        if (promo.discountType === 'percentage') {
+          setAppliedCoupon({ code: promo.code, discountPercent: promo.value });
+          showToast(`Coupon ${promo.code} applied! ${promo.value}% OFF`);
+          return { success: true, message: `${promo.value}% discount applied!` };
+        } else if (promo.discountType === 'flat') {
+          setAppliedCoupon({ code: promo.code, discountAmount: promo.value });
+          showToast(`Coupon ${promo.code} applied! ₹${promo.value} OFF`);
+          return { success: true, message: `₹${promo.value} discount applied!` };
+        } else if (promo.discountType === 'free_shipping') {
+          setAppliedCoupon({ code: promo.code, freeShipping: true });
+          showToast(`Free shipping coupon ${promo.code} applied!`);
+          return { success: true, message: 'Free shipping granted!' };
+        } else if (promo.discountType === 'buy_x_get_y') {
+          setAppliedCoupon({ code: promo.code, buyXGetY: true });
+          showToast(`Coupon ${promo.code} applied! Buy X Get Y`);
+          return { success: true, message: 'Buy X Get Y applied!' };
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Fallback for hardcoded coupons
     if (code.trim().toUpperCase() === 'KIDS20') {
       setAppliedCoupon({ code: 'KIDS20', discountPercent: 20 });
       showToast('Coupon KIDS20 applied! 20% OFF');
@@ -147,7 +178,7 @@ export function CartProvider({ children }) {
       showToast('Free shipping coupon applied!');
       return { success: true, message: 'Free shipping granted!' };
     } else {
-      return { success: false, message: 'Invalid coupon code. Try KIDS20!' };
+      return { success: false, message: 'Invalid coupon code.' };
     }
   };
 
@@ -182,7 +213,8 @@ export function CartProvider({ children }) {
         appliedCoupon,
         applyCoupon,
         removeCoupon,
-        toastMessage
+        toastMessage,
+        showToast
       }}
     >
       {children}
