@@ -17,7 +17,7 @@ export default function Products({ pageCategory = null }) {
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'low' | 'high'
   const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const [selectedItemFilter, setSelectedItemFilter] = useState('');
+  const [selectedItemFilter, setSelectedItemFilter] = useState(searchParams.get('item') || '');
   const [showFilters, setShowFilters] = useState(false);
 
   const categories = ['All', 'Kids', 'Male', 'Female'];
@@ -25,7 +25,7 @@ export default function Products({ pageCategory = null }) {
 
   React.useEffect(() => {
     setSelectedCategory(pageCategory || searchParams.get('category') || '');
-    setSelectedItemFilter('');
+    setSelectedItemFilter(searchParams.get('item') || '');
     setSearchQuery(searchParams.get('search') || '');
   }, [pageCategory, searchParams]);
 
@@ -33,16 +33,15 @@ export default function Products({ pageCategory = null }) {
 
   const filteredProducts = useMemo(() => {
     return combinedProducts.filter((p) => {
-      // Category Mapping Logic
       let matchCat = false;
       if (!selectedCategory || selectedCategory === 'All') {
         matchCat = true;
       } else if (selectedCategory === 'Kids') {
         matchCat = ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category);
       } else if (selectedCategory === 'Male') {
-        matchCat = p.category === "Men's Collection";
+        matchCat = p.category === "Men's Collection" || p.category === 'Men';
       } else if (selectedCategory === 'Female') {
-        matchCat = p.category === 'Girls';
+        matchCat = p.category === 'Girls' || p.category === "Women's Collection" || p.category === 'Women';
       }
 
       // Item Filter Keyword Logic

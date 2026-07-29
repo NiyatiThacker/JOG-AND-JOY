@@ -2,6 +2,61 @@
 
 import React from 'react';
 import ImageTrail from "./ImageTrail";
+import denimBg from "../../assets/hero-bg-denim.jpg";
+import denimBgMobile from "../../assets/hero-bg-denim-mobile.jpg";
+import tshirt from "../../assets/cutout-tshirt.png";
+import shorts from "../../assets/cutout-shorts.png";
+import sun from "../../assets/cutout-sun.png";
+import cloud from "../../assets/cutout-cloud.png";
+import star from "../../assets/cutout-star.png";
+
+const cutouts = [
+  {
+    src: sun,
+    className: "top-[6%] left-[4%] w-16 sm:w-20 md:w-36 z-[2]",
+    rotDeg: -10,
+    fromX: "-80px",
+    fromY: "-60px",
+    delay: "0s",
+    label: "Smiling sun",
+  },
+  {
+    src: cloud,
+    className: "top-[10%] right-[6%] w-16 sm:w-24 md:w-44 z-[2]",
+    rotDeg: 8,
+    fromX: "90px",
+    fromY: "-70px",
+    delay: "0.15s",
+    label: "Happy cloud",
+  },
+  {
+    src: tshirt,
+    className: "bottom-[14%] sm:bottom-[10%] left-[4%] sm:left-[6%] w-20 sm:w-24 md:w-40 z-[2]",
+    rotDeg: -14,
+    fromX: "-90px",
+    fromY: "90px",
+    delay: "0.30s",
+    label: "Striped t-shirt",
+  },
+  {
+    src: shorts,
+    className: "bottom-[14%] sm:bottom-[10%] right-[4%] sm:right-[6%] w-20 sm:w-24 md:w-40 z-[2]",
+    rotDeg: 12,
+    fromX: "90px",
+    fromY: "90px",
+    delay: "0.45s",
+    label: "Yellow shorts",
+  },
+  {
+    src: star,
+    className: "top-[38%] sm:top-[44%] right-[4%] w-12 sm:w-14 md:w-24 z-[2]",
+    rotDeg: 18,
+    fromX: "100px",
+    fromY: "0px",
+    delay: "0.60s",
+    label: "Cheerful star",
+  },
+];
 
 const trailImages = [
   "https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=400&h=400&fit=crop&q=80",
@@ -19,7 +74,6 @@ export default function HeroSection() {
     <section style={{
       position: "relative",
       height: "calc(100vh - 70px)",
-      backgroundColor: "#FAF6F0", // Warm cream/sand background matching the logo layout
       color: "#1a1a1a",
       overflow: "hidden",
       display: "flex",
@@ -27,6 +81,19 @@ export default function HeroSection() {
       justifyContent: "center",
       cursor: "crosshair"
     }}>
+      {/* Desktop Background */}
+      <div className="absolute inset-0 max-md:hidden -z-10" style={{
+        backgroundImage: `url(${denimBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }} />
+
+      {/* Mobile Background */}
+      <div className="absolute inset-0 md:hidden -z-10" style={{
+        backgroundImage: `url(${denimBgMobile})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }} />
       {/* Background Subtle Grid Pattern */}
       <div style={{
         position: "absolute",
@@ -38,7 +105,7 @@ export default function HeroSection() {
       }} />
 
       {/* Image Trail interactive overlay */}
-      <div style={{
+      <div className="max-md:hidden" style={{
         position: "absolute",
         inset: 0,
         zIndex: 1,
@@ -46,6 +113,32 @@ export default function HeroSection() {
       }}>
         <ImageTrail items={trailImages} variant={1} />
       </div>
+
+      {/* Floating Animated Cutouts */}
+      {cutouts.map((c, i) => (
+        <div
+          key={i}
+          className={`absolute ${c.className} group cursor-pointer transition-transform duration-200 ease-out hover:scale-110 hover:-translate-y-1 focus-visible:scale-110 focus-visible:-translate-y-1 focus-visible:outline-none`}
+          tabIndex={0}
+          role="img"
+          aria-label={c.label}
+        >
+          <img
+            src={c.src}
+            alt=""
+            className="animate-cutout-shake drop-shadow-xl group-hover:drop-shadow-2xl transition-[filter] duration-200 pointer-events-none select-none w-full h-full"
+            style={
+              {
+                "--rot-deg": c.rotDeg,
+                "--from-x": c.fromX,
+                "--from-y": c.fromY,
+                animationDelay: c.delay,
+                transformOrigin: "center",
+              }
+            }
+          />
+        </div>
+      ))}
 
       {/* Main Tagline Layout Container */}
       <div className="container" style={{
@@ -286,7 +379,7 @@ export default function HeroSection() {
       </div>
 
       {/* Interactive mouse trail hint in corner */}
-      <div style={{
+      <div className="max-md:hidden" style={{
         position: "absolute",
         bottom: "30px",
         right: "30px",

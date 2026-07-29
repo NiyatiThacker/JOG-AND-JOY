@@ -1,11 +1,12 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Grid, Heart, ShoppingBag, User } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
 export default function BottomNav({ onOpenProfile }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { cartTotalCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
 

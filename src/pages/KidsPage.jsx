@@ -1,11 +1,14 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import KidsProductCard from '../components/ui/KidsProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import ShopByAge from '../components/home/ShopByAge';
 
 export default function KidsPage() {
+  const [searchParams] = useSearchParams();
+  const initialGender = searchParams.get('gender');
   const [expandedSections, setExpandedSections] = useState({
     productType: true,
     price: true,
@@ -19,12 +22,18 @@ export default function KidsPage() {
   const [filters, setFilters] = useState({
     types: [],
     prices: [],
-    genders: [],
+    genders: initialGender ? [initialGender] : [],
     sizes: [],
     colors: [],
     fabrics: [],
     patterns: []
   });
+
+  useEffect(() => {
+    const gender = searchParams.get('gender');
+    setFilters(prev => ({ ...prev, genders: gender ? [gender] : [] }));
+    setCurrentPage(1);
+  }, [searchParams]);
 
   const [sortBy, setSortBy] = useState('Recommended');
   const [currentPage, setCurrentPage] = useState(1);

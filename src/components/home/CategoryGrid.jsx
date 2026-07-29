@@ -2,13 +2,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { Link } from "react-router-dom";
 
 const categories = [
-  { label: 'KIDS T-SHIRTS', href: '/kids/t-shirts', image: 'https://images.unsplash.com/photo-1519241047957-be31d7379a5d?auto=format&fit=crop&w=300&q=80' },
-  { label: 'KIDS JOGGERS & TRACK PANTS', href: '/kids/joggers', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=300&q=80' },
-  { label: 'KIDS SHORTS & BERMUDAS', href: '/kids/shorts', image: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?auto=format&fit=crop&w=300&q=80' },
-  { label: 'KIDS NIGHT & PAJAMA SUITS', href: '/kids/nightwear', image: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=300&q=80' },
-  { label: 'GIRLS\' FROCKS', href: '/girls/frocks', image: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=300&q=80' }
+  { label: 'KIDS T-SHIRTS', href: '/products?category=Kids&item=Kids+T-Shirt', image: 'https://images.unsplash.com/photo-1519241047957-be31d7379a5d?auto=format&fit=crop&w=300&q=80' },
+  { label: 'KIDS JOGGERS & TRACK PANTS', href: '/products?category=Kids&item=Kids+Joggers+%26+Tracks', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=300&q=80' },
+  { label: 'KIDS SHORTS & BERMUDAS', href: '/products?category=Kids&item=Kids+Shorts+%26+Bermudas', image: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?auto=format&fit=crop&w=300&q=80' },
+  { label: 'KIDS NIGHT & PAJAMA SUITS', href: '/products?category=Kids&item=Kids+Night+Suits', image: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=300&q=80' },
+  { label: 'GIRLS\' FROCKS', href: '/products?category=Female&item=Girl+Frocks', image: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=300&q=80' }
 ];
 
 const categorySection = {
@@ -298,8 +299,8 @@ export default function CategoryGrid() {
                   className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0"
                   style={{ opacity: 0 }} // Pre-hidden to avoid initial flash of unstyled content
                 >
-                  <a
-                    href={cat.href}
+                  <Link
+                    to={cat.href}
                     style={{
                       display: "block",
                       border: "1.5px solid #222222",
@@ -360,7 +361,7 @@ export default function CategoryGrid() {
                     }}>
                       {cat.label}
                     </div>
-                  </a>
+                  </Link>
                 </div>
               );
             })}

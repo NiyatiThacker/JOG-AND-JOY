@@ -32,8 +32,10 @@ export default function FeaturedCollections() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {CATEGORIES.filter(cat => cat.id !== 'mens').map((cat) => {
             let path = '/products';
-            if (cat.id === 'boys' || cat.id === 'girls' || cat.id === 'newborn') path = '/kids';
-            if (cat.id === 'mens') path = '/men';
+            if (cat.id === 'boys') path = '/kids?gender=Boys';
+            else if (cat.id === 'girls') path = '/kids?gender=Girls';
+            else if (cat.id === 'newborn') path = '/kids';
+            else if (cat.id === 'mens') path = '/products?category=Male';
             
             return (
             <Link
