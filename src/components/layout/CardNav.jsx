@@ -129,26 +129,20 @@ const CardNav = ({
     };
   }, [items]);
 
-  useLayoutEffect(() => {
-    const handleResize = () => {
-      if (!tlRef.current) return;
-
-      if (isExpanded) {
-        const newHeight = calculateHeight();
-        gsap.set(navRef.current, { height: newHeight });
-
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          newTl.progress(1);
-          tlRef.current = newTl;
-        }
+  useEffect(() => {
+    if (isExpanded) {
+      if (isMobile && contentRef.current) {
+        // Temporarily make it visible to measure height
+        const el = contentRef.current;
+        const prevVis = el.style.visibility;
+        el.style.visibility = 'hidden';
+        el.style.display = 'flex';
+        const height = el.scrollHeight;
+        el.style.display = '';
+        el.style.visibility = prevVis;
+        setNavHeight(60 + height + 16); // 60 top bar + content + padding
       } else {
-        tlRef.current.kill();
-        const newTl = createTimeline();
-        if (newTl) {
-          tlRef.current = newTl;
-        }
+        setNavHeight(280); // Desktop height
       }
     };
 
@@ -268,6 +262,44 @@ const CardNav = ({
 
   const setCardRef = i => el => {
     if (el) cardsRef.current[i] = el;
+  };
+
+  // Calculate circular fan parameters based on index
+  const getCardAnimation = (idx, total) => {
+    if (isMobile) {
+      return {
+        initial: { opacity: 0, y: -20 },
+        animate: { opacity: 1, y: 0, rotate: 0, x: 0 },
+        exit: { opacity: 0, y: -20 },
+        transition: { delay: idx * 0.08, duration: 0.4, ease: [0.25, 1, 0.5, 1] }
+      };
+    }
+    
+    // Desktop circular fan effect
+    const mid = (total - 1) / 2;
+    const offset = idx - mid; // e.g., for 3 items: -1, 0, 1
+    const rotate = offset * 12; // -12deg, 0deg, 12deg
+    const yOffset = Math.abs(offset) * 15; // 15px for outer cards, 0px for middle
+    const xOffset = offset * 15; // spread them out slightly more horizontally
+
+    return {
+      initial: { opacity: 0, y: -40, rotate: 0, x: 0, scale: 0.95 },
+      animate: { 
+        opacity: 1, 
+        y: yOffset, 
+        rotate: rotate, 
+        x: xOffset,
+        scale: 1 
+      },
+      exit: { opacity: 0, y: -40, rotate: 0, x: 0, scale: 0.95 },
+      transition: { 
+        delay: idx * 0.06, 
+        type: 'spring', 
+        stiffness: 150, 
+        damping: 15, 
+        mass: 1 
+      }
+    };
   };
 
   return (
@@ -409,7 +441,7 @@ const CardNav = ({
             </div>
           ))}
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Floating Search Bar Overlay */}
       {isSearchOpen && (
