@@ -1,10 +1,23 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import KidsProductCard from '../components/ui/KidsProductCard';
-import { PRODUCTS } from '../data/productsData';
+import QuickViewModal from '../components/ui/QuickViewModal';
+import CustomDropdown from '../components/ui/CustomDropdown';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import ShopByAge from '../components/home/ShopByAge';
 
+const kidsSortOptions = [
+  { label: 'Recommended', value: 'Recommended' },
+  { label: 'Price: Low to High', value: 'Price: Low to High' },
+  { label: 'Price: High to Low', value: 'Price: High to Low' },
+  { label: 'Rating: High to Low', value: 'Rating: High to Low' },
+  { label: 'Newest Arrivals', value: 'Newest Arrivals' }
+];
+
 export default function KidsPage() {
+  const [searchParams] = useSearchParams();
+  const initialGender = searchParams.get('gender');
   const [expandedSections, setExpandedSections] = useState({
     productType: true,
     price: true,
@@ -18,15 +31,22 @@ export default function KidsPage() {
   const [filters, setFilters] = useState({
     types: [],
     prices: [],
-    genders: [],
+    genders: initialGender ? [initialGender] : [],
     sizes: [],
     colors: [],
     fabrics: [],
     patterns: []
   });
 
+  useEffect(() => {
+    const gender = searchParams.get('gender');
+    setFilters(prev => ({ ...prev, genders: gender ? [gender] : [] }));
+    setCurrentPage(1);
+  }, [searchParams]);
+
   const [sortBy, setSortBy] = useState('Recommended');
   const [currentPage, setCurrentPage] = useState(1);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const productsPerPage = 12;
   const topControlsRef = useRef(null);
 
@@ -54,9 +74,11 @@ export default function KidsPage() {
     setCurrentPage(1); // Reset page on filter change
   };
 
+  const { combinedProducts, isLoading } = useCombinedProducts();
+
   const kidsProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => ['Boys', 'Girls', 'Newborn'].includes(p.category));
-  }, []);
+    return combinedProducts.filter((p) => ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category));
+  }, [combinedProducts]);
 
   const filteredProducts = useMemo(() => {
     let result = kidsProducts.filter((p) => {
@@ -86,6 +108,7 @@ export default function KidsPage() {
         if (filters.genders.includes('Boys') && p.category === 'Boys') matchGender = true;
         if (filters.genders.includes('Girls') && p.category === 'Girls') matchGender = true;
         if (filters.genders.includes('Newborn') && p.category === 'Newborn') matchGender = true;
+        if (filters.genders.includes('Unisex') && p.category === 'Unisex') matchGender = true;
       }
 
       // Size Filter (mock)
@@ -166,7 +189,8 @@ export default function KidsPage() {
   const genderOptions = [
     { id: 'Boys', label: 'Boys' },
     { id: 'Girls', label: 'Girls' },
-    { id: 'Newborn', label: 'Newborn' }
+    { id: 'Newborn', label: 'Newborn' },
+    { id: 'Unisex', label: 'Unisex' }
   ];
 
   const sizeOptions = ['XS', 'S', 'M', 'L', 'XL'];
@@ -196,23 +220,17 @@ export default function KidsPage() {
         </div>
 
         {/* Top Controls */}
-        <div ref={topControlsRef} className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-slate-100">
+        <div ref={topControlsRef} className="relative z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-slate-100">
           <div className="text-slate-700 font-black text-sm mb-4 sm:mb-0">
             Showing {filteredProducts.length} Products
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-slate-400 text-xs font-bold">Sort by:</span>
-            <select
+            <CustomDropdown
+              options={kidsSortOptions}
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent border border-slate-200 rounded-full px-4 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-slate-400 cursor-pointer"
-            >
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-              <option>Rating: High to Low</option>
-              <option>Newest Arrivals</option>
-              <option>Recommended</option>
-            </select>
+              onChange={setSortBy}
+              icon={SlidersHorizontal}
+            />
           </div>
         </div>
 
@@ -417,11 +435,13 @@ export default function KidsPage() {
 
           {/* Right Product Grid */}
           <div className="lg:col-span-4">
-            {currentProducts.length > 0 ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20 text-slate-400 font-bold">Loading kids collection...</div>
+            ) : currentProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
                   {currentProducts.map((product) => (
-                    <KidsProductCard key={product.id} product={product} />
+                    <KidsProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
                   ))}
                 </div>
 
@@ -470,6 +490,11 @@ export default function KidsPage() {
 
         </div>
       </div>
+      
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   );
 }

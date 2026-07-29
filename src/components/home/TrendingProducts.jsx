@@ -1,10 +1,11 @@
 import React from 'react';
 import ProductCard from '../ui/ProductCard';
-import { PRODUCTS } from '../../data/productsData';
+import { useCombinedProducts } from '../../queries/useCombinedProducts';
 import { TrendingUp, Sparkles } from 'lucide-react';
 
 export default function TrendingProducts({ onQuickView }) {
-  const trending = PRODUCTS.filter((p) => p.isTrending);
+  const { combinedProducts } = useCombinedProducts();
+  const trending = combinedProducts.filter((p) => p.isTrending);
 
   return (
     <section className="py-16 bg-[#FFF8EC] relative">

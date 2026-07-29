@@ -22,11 +22,10 @@ export default function ColorSwatches({ selectedColor, onSelectColor, colors = d
               onClick={() => onSelectColor && onSelectColor(c.hex)}
               title={c.name}
               style={{ backgroundColor: c.hex }}
-              className={`w-6 h-6 rounded-full transition-transform border-2 ${
-                isSelected
+              className={`w-6 h-6 rounded-full transition-transform border-2 ${isSelected
                   ? 'border-slate-800 scale-125 shadow-md'
                   : 'border-white hover:scale-110 shadow-sm'
-              }`}
+                }`}
             />
           );
         })}

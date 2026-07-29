@@ -9,13 +9,8 @@ export default function CategoryCircles() {
       image: "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop"
     },
     {
-      name: "Women",
-      path: "/women",
-      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop"
-    },
-    {
       name: "Men",
-      path: "/men",
+      path: "/products?category=Male",
       image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=600&auto=format&fit=crop"
     }
   ];

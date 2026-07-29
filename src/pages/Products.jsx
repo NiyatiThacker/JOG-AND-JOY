@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
-import { PRODUCTS } from '../data/productsData';
+import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 
 export default function Products({ pageCategory = null }) {
@@ -11,14 +11,13 @@ export default function Products({ pageCategory = null }) {
   const categoryFilterParam = pageCategory || searchParams.get('category') || '';
   const ageFilterParam = searchParams.get('age') || '';
   const searchParam = searchParams.get('search') || '';
-  const itemFilterParam = searchParams.get('itemFilter') || '';
 
   const [selectedCategory, setSelectedCategory] = useState(categoryFilterParam);
   const [selectedAge, setSelectedAge] = useState(ageFilterParam);
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'low' | 'high'
   const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const [selectedItemFilter, setSelectedItemFilter] = useState(itemFilterParam);
+  const [selectedItemFilter, setSelectedItemFilter] = useState(searchParams.get('item') || '');
   const [showFilters, setShowFilters] = useState(false);
 
   const categories = ['All', 'Kids', 'Male', 'Female'];
@@ -26,22 +25,23 @@ export default function Products({ pageCategory = null }) {
 
   React.useEffect(() => {
     setSelectedCategory(pageCategory || searchParams.get('category') || '');
-    setSelectedItemFilter(searchParams.get('itemFilter') || '');
+    setSelectedItemFilter(searchParams.get('item') || '');
     setSearchQuery(searchParams.get('search') || '');
   }, [pageCategory, searchParams]);
 
+  const { combinedProducts, isLoading } = useCombinedProducts();
+
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => {
-      // Category Mapping Logic
+    return combinedProducts.filter((p) => {
       let matchCat = false;
       if (!selectedCategory || selectedCategory === 'All') {
         matchCat = true;
       } else if (selectedCategory === 'Kids') {
-        matchCat = ['Boys', 'Girls', 'Newborn'].includes(p.category);
+        matchCat = ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category);
       } else if (selectedCategory === 'Male') {
-        matchCat = p.category === "Men's Collection";
+        matchCat = p.category === "Men's Collection" || p.category === 'Men';
       } else if (selectedCategory === 'Female') {
-        matchCat = p.category === "Women's Collection";
+        matchCat = p.category === 'Girls' || p.category === "Women's Collection" || p.category === 'Women';
       }
 
       // Item Filter Keyword Logic
@@ -50,7 +50,7 @@ export default function Products({ pageCategory = null }) {
         const nameLower = p.name.toLowerCase();
 
         if (selectedItemFilter === 'Kids T-Shirt') {
-          matchItem = nameLower.includes('tee') || nameLower.includes('t-shirt') || nameLower.includes('shirt');
+          matchItem = nameLower.includes('tee') || nameLower.includes('t-shirt');
         } else if (selectedItemFilter.includes('Joggers') || selectedItemFilter.includes('Tracks')) {
           matchItem = nameLower.includes('track') || nameLower.includes('jogger');
         } else if (selectedItemFilter.includes('Shorts') || selectedItemFilter.includes('Bermuda')) {
@@ -61,12 +61,6 @@ export default function Products({ pageCategory = null }) {
           matchItem = nameLower.includes('boxer');
         } else if (selectedItemFilter === 'Girl Frocks') {
           matchItem = nameLower.includes('frock');
-        } else if (selectedItemFilter === 'Dresses') {
-          matchItem = nameLower.includes('dress');
-        } else if (selectedItemFilter === 'Tops & Shirts') {
-          matchItem = nameLower.includes('shirt') || nameLower.includes('blouse') || nameLower.includes('turtleneck');
-        } else if (selectedItemFilter === 'Bottoms') {
-          matchItem = nameLower.includes('trouser') || nameLower.includes('skirt') || nameLower.includes('pants');
         }
       }
 
@@ -208,7 +202,7 @@ export default function Products({ pageCategory = null }) {
               <div className="md:col-span-12 flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 no-scrollbar">
                 <span className="text-xs font-black text-slate-400 uppercase tracking-wider shrink-0 mr-2">Filters:</span>
 
-                {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits', 'Girl Frocks'].map(item => (
+                {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits'].map(item => (
                   <button
                     key={item}
                     onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
@@ -234,7 +228,7 @@ export default function Products({ pageCategory = null }) {
                   </button>
                 ))}
 
-                {selectedCategory === 'Female' && ['Dresses', 'Tops & Shirts', 'Bottoms'].map(item => (
+                {selectedCategory === 'Female' && ['Girl Frocks'].map(item => (
                   <button
                     key={item}
                     onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
@@ -253,7 +247,11 @@ export default function Products({ pageCategory = null }) {
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-20 bg-white rounded-3xl p-8 shadow-md border border-slate-100 space-y-3">
+             <div className="text-slate-400 font-bold">Loading products...</div>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
