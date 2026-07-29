@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import KidsProductCard from '../components/ui/KidsProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';

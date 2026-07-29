@@ -9,7 +9,8 @@ const categories = [
   { label: 'KIDS JOGGERS & TRACK PANTS', href: '/products?category=Kids&item=Kids+Joggers+%26+Tracks', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=300&q=80' },
   { label: 'KIDS SHORTS & BERMUDAS', href: '/products?category=Kids&item=Kids+Shorts+%26+Bermudas', image: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?auto=format&fit=crop&w=300&q=80' },
   { label: 'KIDS NIGHT & PAJAMA SUITS', href: '/products?category=Kids&item=Kids+Night+Suits', image: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=300&q=80' },
-  { label: 'GIRLS\' FROCKS', href: '/products?category=Female&item=Girl+Frocks', image: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=300&q=80' }
+  { label: 'GIRLS\' FROCKS', href: '/products?category=Female&item=Girl+Frocks', image: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=300&q=80' },
+  { label: 'MEN\'S COLLECTION', href: '/products?category=Male', image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=300&q=80', color: '#FEF08A', textColor: '#222222' }
 ];
 
 const categorySection = {
@@ -289,7 +290,7 @@ export default function CategoryGrid() {
           >
             {categories.map((cat, idx) => {
               const cardBg = cat.color || brandColors[idx % brandColors.length];
-              const textInk = cat.textColor || "#ffffff";
+              const textInk = cat.textColor || "#222222";
 
               return (
                 <div

@@ -34,7 +34,7 @@ export default function FeaturedCollections() {
             let path = '/products';
             if (cat.id === 'boys') path = '/kids?gender=Boys';
             else if (cat.id === 'girls') path = '/kids?gender=Girls';
-            else if (cat.id === 'newborn') path = '/kids';
+            else if (cat.id === 'newborn') path = '/kids?gender=Newborn';
             else if (cat.id === 'mens') path = '/products?category=Male';
             
             return (

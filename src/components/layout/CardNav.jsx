@@ -129,26 +129,7 @@ const CardNav = ({
     };
   }, [items]);
 
-  useEffect(() => {
-    if (isExpanded) {
-      if (isMobile && contentRef.current) {
-        // Temporarily make it visible to measure height
-        const el = contentRef.current;
-        const prevVis = el.style.visibility;
-        el.style.visibility = 'hidden';
-        el.style.display = 'flex';
-        const height = el.scrollHeight;
-        el.style.display = '';
-        el.style.visibility = prevVis;
-        setNavHeight(60 + height + 16); // 60 top bar + content + padding
-      } else {
-        setNavHeight(280); // Desktop height
-      }
-    };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isExpanded]);
 
 
   // StaggeredMenu Header Animations
@@ -441,7 +422,7 @@ const CardNav = ({
             </div>
           ))}
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Floating Search Bar Overlay */}
       {isSearchOpen && (
