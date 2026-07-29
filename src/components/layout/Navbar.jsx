@@ -1,7 +1,8 @@
 import React from 'react';
 import StaggeredMenu from './StaggeredMenu';
-
+import { useAuth } from '../../context/AuthContext';
 export default function Navbar({ onOpenProfile }) {
+  const { user } = useAuth();
   const menuItems = [
     { label: "Home", link: "/" },
     { label: "Products", link: "/products" },
@@ -11,8 +12,11 @@ export default function Navbar({ onOpenProfile }) {
     { label: "Why Choose Us", link: "/why-us" },
     { label: "Contact Us", link: "/contact-us" },
     { label: "Distributors", link: "/distributor-network" },
-    { label: "Admin Dashboard", link: "/admin" }
   ];
+
+  if (user?.role === 'ADMIN') {
+    menuItems.push({ label: "Admin Dashboard", link: "/admin" });
+  }
 
   const socialItems = [
     { label: 'Instagram', link: 'https://instagram.com/jognjoy' },

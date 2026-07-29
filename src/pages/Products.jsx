@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
-import { PRODUCTS } from '../data/productsData';
+import { useProductsList } from '../queries/useProducts';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 
 export default function Products({ pageCategory = null }) {
@@ -29,6 +29,9 @@ export default function Products({ pageCategory = null }) {
     setSearchQuery(searchParams.get('search') || '');
   }, [pageCategory, searchParams]);
 
+  const { data: productsData, isLoading } = useProductsList();
+  const PRODUCTS = productsData?.data || [];
+
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter((p) => {
       // Category Mapping Logic
@@ -36,17 +39,17 @@ export default function Products({ pageCategory = null }) {
       if (!selectedCategory || selectedCategory === 'All') {
         matchCat = true;
       } else if (selectedCategory === 'Kids') {
-        matchCat = ['Boys', 'Girls', 'Newborn'].includes(p.category);
+        matchCat = ['Boys', 'Girls', 'Newborn'].includes(p.categoryId);
       } else if (selectedCategory === 'Male') {
-        matchCat = p.category === "Men's Collection";
+        matchCat = p.categoryId === "Men's Collection";
       } else if (selectedCategory === 'Female') {
-        matchCat = p.category === 'Girls';
+        matchCat = p.categoryId === 'Girls';
       }
 
       // Item Filter Keyword Logic
       let matchItem = true;
       if (selectedItemFilter) {
-        const nameLower = p.name.toLowerCase();
+        const nameLower = p.title?.toLowerCase() || '';
 
         if (selectedItemFilter === 'Kids T-Shirt') {
           matchItem = nameLower.includes('tee') || nameLower.includes('t-shirt');
@@ -63,17 +66,17 @@ export default function Products({ pageCategory = null }) {
         }
       }
 
-      const matchAge = !selectedAge || selectedAge === 'All' || p.ageGroup === selectedAge;
+      const matchAge = !selectedAge || selectedAge === 'All' || p.variants?.ageGroup === selectedAge || p.seoDescription?.includes(selectedAge);
       const matchSearch =
         !searchQuery ||
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase());
+        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.categoryId?.toLowerCase().includes(searchQuery.toLowerCase());
 
       return matchCat && matchAge && matchSearch && matchItem;
     }).sort((a, b) => {
-      if (sortBy === 'low') return a.price - b.price;
-      if (sortBy === 'high') return b.price - a.price;
-      return b.rating - a.rating;
+      if (sortBy === 'low') return a.basePrice - b.basePrice;
+      if (sortBy === 'high') return b.basePrice - a.basePrice;
+      return (b.variants?.rating || 0) - (a.variants?.rating || 0);
     });
   }, [selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
 
@@ -246,7 +249,12 @@ export default function Products({ pageCategory = null }) {
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        <div className="flex-1 min-h-125">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <div className="w-8 h-8 border-4 border-slate-200 border-t-[#EF4A45] rounded-full animate-spin"></div>
+            </div>
+          ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
@@ -270,6 +278,7 @@ export default function Products({ pageCategory = null }) {
             </button>
           </div>
         )}
+        </div>
 
       </div>
 

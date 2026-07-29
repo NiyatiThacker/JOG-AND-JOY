@@ -1,7 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CATEGORIES } from '../../data/productsData';
+
 import { ArrowUpRight, Sparkles } from 'lucide-react';
+
+const CATEGORIES = [
+  { id: 'boys', name: 'Boys Collection', image: 'https://images.unsplash.com/photo-1594833215682-1437149a0aee?q=80&w=600&auto=format&fit=crop', color: '#AEE6FF', count: '120+ Styles' },
+  { id: 'girls', name: 'Girls Collection', image: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?q=80&w=600&auto=format&fit=crop', color: '#FFD6BA', count: '150+ Styles' },
+  { id: 'newborn', name: 'Newborn Essentials', image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=600&auto=format&fit=crop', color: '#CFFFE5', count: '50+ Styles' }
+];
 
 export default function FeaturedCollections() {
   return (
@@ -58,7 +64,7 @@ export default function FeaturedCollections() {
               </div>
 
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
 
               {/* Card Footer Info */}
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white space-y-1">

@@ -1,21 +1,42 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useCart } from './CartContext';
+import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
 
 const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
+  const { user } = useAuth();
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem('kids_wishlist');
-      return saved ? JSON.parse(saved) : ['prod-1', 'prod-2'];
+      const saved = localStorage.getItem('jog_n_joy_wishlist');
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return ['prod-1', 'prod-2'];
+      return [];
     }
   });
 
+  // Load wishlist from Supabase when user logs in
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!user?.id) return;
+      const { data, error } = await supabase
+        .from('users')
+        .select('wishlist')
+        .eq('id', user.id)
+        .single();
+        
+      if (!error && data?.wishlist) {
+         setWishlist(data.wishlist);
+         localStorage.setItem('jog_n_joy_wishlist', JSON.stringify(data.wishlist));
+      }
+    };
+    fetchWishlist();
+  }, [user]);
+
   useEffect(() => {
     try {
-      localStorage.setItem('kids_wishlist', JSON.stringify(wishlist));
+      localStorage.setItem('jog_n_joy_wishlist', JSON.stringify(wishlist));
     } catch {
       // ignore
     }
@@ -23,19 +44,31 @@ export function WishlistProvider({ children }) {
 
   const { showToast } = useCart();
 
-  const toggleWishlist = (productId) => {
+  const toggleWishlist = async (productId) => {
+    let newWishlist = [];
     setWishlist((prev) => {
       if (prev.includes(productId)) {
         showToast && showToast('Removed from Wishlist 💔');
-        return prev.filter((id) => id !== productId);
+        newWishlist = prev.filter((id) => id !== productId);
       } else {
         showToast && showToast('Added to Wishlist 💖');
-        return [...prev, productId];
+        newWishlist = [...prev, productId];
       }
+      return newWishlist;
     });
+
+    // Sync to DB
+    if (user?.id) {
+       await supabase.from('users').update({ wishlist: newWishlist }).eq('id', user.id);
+    }
   };
 
-  const clearWishlist = () => setWishlist([]);
+  const clearWishlist = async () => {
+    setWishlist([]);
+    if (user?.id) {
+       await supabase.from('users').update({ wishlist: [] }).eq('id', user.id);
+    }
+  };
 
   const isInWishlist = (productId) => wishlist.includes(productId);
 

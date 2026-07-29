@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAdmin } from '../../context/AdminContext';
+import { useAuth as useAdmin } from '../../context/AuthContext';
 import { ShieldCheck, Lock, Mail, User, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,10 +28,10 @@ export default function AdminLogin() {
 
     let success = false;
     if (isLogin) {
-      success = login(formData.email, formData.password);
+      success = await login(formData.email, formData.password);
       if (!success) setError('Invalid credentials. Please try again.');
     } else {
-      success = register(formData.name, formData.email, formData.password);
+      success = await register(formData.name, formData.email, formData.password, 'ADMIN');
       if (!success) setError('Registration failed. Please try again.');
     }
     

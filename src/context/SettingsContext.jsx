@@ -11,7 +11,7 @@ export function SettingsProvider({ children }) {
     if (isLoading || !settings) return `₹${amount}`;
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: settings.currency,
+      currency: settings.currency || 'INR',
       minimumFractionDigits: 2,
     }).format(amount);
   };

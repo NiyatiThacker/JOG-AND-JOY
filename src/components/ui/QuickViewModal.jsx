@@ -43,7 +43,7 @@ export default function QuickViewModal({ product, onClose }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-8">
             {/* Image Container */}
-            <div className="relative h-80 sm:h-full min-h-[300px] rounded-2xl overflow-hidden bg-[#FFF8F0]">
+            <div className="relative h-80 sm:h-full min-h-75 rounded-2xl overflow-hidden bg-[#FFF8F0]">
               <img
                 src={product.image}
                 alt={product.name}

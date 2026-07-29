@@ -64,7 +64,7 @@ export default function DistributorNetworkPage() {
             { img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop", tw: "rotate-[3deg] h-40 sm:h-56 md:h-72 lg:h-80 w-16 sm:w-24 md:w-32 lg:w-48 rounded-lg lg:rounded-2xl" },
             { img: "https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?q=80&w=800&auto=format&fit=crop", tw: "rotate-[7deg] h-32 sm:h-48 md:h-64 lg:h-72 w-16 sm:w-24 md:w-32 lg:w-48 rounded-r-[1.5rem] rounded-l-lg lg:rounded-r-[3rem] lg:rounded-l-2xl" },
           ].map((item, i) => (
-            <div key={i} className={`flex-shrink-0 overflow-hidden shadow-md transition-transform duration-500 hover:scale-105 ${item.tw}`}>
+            <div key={i} className={`shrink-0 overflow-hidden shadow-md transition-transform duration-500 hover:scale-105 ${item.tw}`}>
               <img src={item.img} alt={`Gallery ${i}`} className="w-full h-full object-cover" />
             </div>
           ))}

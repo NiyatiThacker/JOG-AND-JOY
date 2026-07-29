@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { usePromotionsList } from '../queries/usePromotions';
 
 const CartContext = createContext();
 
@@ -86,18 +87,29 @@ export function CartProvider({ children }) {
     );
   };
 
+  const { data: promosData } = usePromotionsList();
+  
   const applyCoupon = (code) => {
-    if (code.trim().toUpperCase() === 'KIDS20') {
-      setAppliedCoupon({ code: 'KIDS20', discountPercent: 20 });
-      showToast('Coupon KIDS20 applied! 20% OFF');
-      return { success: true, message: '20% discount applied!' };
-    } else if (code.trim().toUpperCase() === 'FREESHIP') {
-      setAppliedCoupon({ code: 'FREESHIP', discountPercent: 0, freeShipping: true });
-      showToast('Free shipping coupon applied!');
-      return { success: true, message: 'Free shipping granted!' };
-    } else {
-      return { success: false, message: 'Invalid coupon code. Try KIDS20!' };
+    const promos = promosData?.data || [];
+    const matchedPromo = promos.find(p => p.code?.toUpperCase() === code.trim().toUpperCase() && p.active === true);
+
+    if (matchedPromo) {
+      if (matchedPromo.discountType === 'percentage') {
+        setAppliedCoupon({ code: matchedPromo.code, discountPercent: matchedPromo.value });
+        showToast(`Coupon ${matchedPromo.code} applied! ${matchedPromo.value}% OFF`);
+        return { success: true, message: `${matchedPromo.value}% discount applied!` };
+      } else if (matchedPromo.discountType === 'fixed') {
+        setAppliedCoupon({ code: matchedPromo.code, discountFixed: matchedPromo.value });
+        showToast(`Coupon ${matchedPromo.code} applied! ₹${matchedPromo.value} OFF`);
+        return { success: true, message: `₹${matchedPromo.value} discount applied!` };
+      } else if (matchedPromo.discountType === 'free_shipping') {
+        setAppliedCoupon({ code: matchedPromo.code, discountPercent: 0, freeShipping: true });
+        showToast('Free shipping coupon applied!');
+        return { success: true, message: 'Free shipping granted!' };
+      }
     }
+
+    return { success: false, message: 'Invalid or expired coupon code.' };
   };
 
   const removeCoupon = () => {
@@ -109,7 +121,14 @@ export function CartProvider({ children }) {
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = cart.reduce((sum, item) => sum + item.numericPrice * item.quantity, 0);
   
-  const discountAmount = appliedCoupon ? Math.round((cartSubtotal * (appliedCoupon.discountPercent || 0)) / 100) : 0;
+  let discountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discountPercent) {
+      discountAmount = cartSubtotal * (appliedCoupon.discountPercent / 100);
+    } else if (appliedCoupon.discountFixed) {
+      discountAmount = Math.min(cartSubtotal, appliedCoupon.discountFixed);
+    }
+  }
   const shippingFee = cartSubtotal >= 999 || appliedCoupon?.freeShipping ? 0 : (cartSubtotal > 0 ? 99 : 0);
   const cartGrandTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
 

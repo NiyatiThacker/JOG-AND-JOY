@@ -17,7 +17,7 @@ export default function BrandIntro() {
                 alt="Jog & Joy Garment Craftsmanship"
                 className="w-full h-[450px] object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+              <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-transparent opacity-80" />
               
               <div className="absolute bottom-6 left-6 right-6 p-6 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-slate-700/80">
                 <div className="flex items-center gap-4">

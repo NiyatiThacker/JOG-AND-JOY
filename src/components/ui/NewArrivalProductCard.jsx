@@ -17,11 +17,11 @@ export default function NewArrivalProductCard({ product }) {
   return (
     <div className="flex flex-col group cursor-pointer w-full font-sans">
       {/* Image Block */}
-      <div className="relative aspect-[4/5] w-full bg-[#f4f4f4] rounded-2xl overflow-hidden mb-4 border border-slate-100">
+      <div className="relative aspect-4/5 w-full bg-[#f4f4f4] rounded-2xl overflow-hidden mb-4 border border-slate-100">
         <Link to={`/product/${product.id}`} className="absolute inset-0">
           <img
-            src={product.image}
-            alt={product.name}
+            src={product.image || 'https://images.unsplash.com/photo-1519238263530-99bea67b5115?auto=format&fit=crop&q=80&w=600'}
+            alt={product.title}
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
           />
         </Link>
@@ -43,15 +43,15 @@ export default function NewArrivalProductCard({ product }) {
       {/* Details (Women's Theme Influence: Minimalist) */}
       <div className="px-1 text-left space-y-1">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          {product.category}
+          {product.categoryId}
         </p>
         <Link to={`/product/${product.id}`}>
           <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-1 hover:underline">
-            {product.name}
+            {product.title}
           </h3>
         </Link>
         <div className="flex items-baseline gap-2 pt-0.5">
-          <span className="text-sm font-black text-slate-900">₹{product.price}</span>
+          <span className="text-sm font-black text-slate-900">₹{product.basePrice}</span>
         </div>
       </div>
     </div>

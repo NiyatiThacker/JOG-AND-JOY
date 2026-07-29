@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProductCard from '../ui/ProductCard';
-import { PRODUCTS } from '../../data/productsData';
+import { useProductsList } from '../../queries/useProducts';
 import { Sun, Snowflake, Sparkles, PartyPopper } from 'lucide-react';
 
 export default function SeasonalCollection({ onQuickView }) {
@@ -13,7 +13,9 @@ export default function SeasonalCollection({ onQuickView }) {
     { name: 'Birthday Collection', icon: PartyPopper, color: '#CFFFE5' }
   ];
 
-  const filtered = PRODUCTS.filter((p) => p.season === activeTab);
+  const { data: productsResponse, isLoading } = useProductsList();
+  const PRODUCTS = productsResponse?.data || [];
+  const filtered = PRODUCTS.filter((p) => p.productType === activeTab || p.variants?.season === activeTab);
 
   return (
     <section className="py-16 bg-white relative">
@@ -53,11 +55,15 @@ export default function SeasonalCollection({ onQuickView }) {
         </div>
 
         {/* Tab Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {(filtered.length > 0 ? filtered : PRODUCTS.slice(0, 4)).map((product) => (
-            <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-slate-200 border-t-[#EF4A45] rounded-full animate-spin"></div></div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(filtered.length > 0 ? filtered : PRODUCTS.slice(0, 4)).map((product) => (
+              <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
+            ))}
+          </div>
+        )}
 
       </div>
     </section>

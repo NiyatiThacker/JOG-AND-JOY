@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Input, Textarea } from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
+import { useCreateMessage } from '../queries/useMessages';
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -17,12 +18,16 @@ export default function ContactUs() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === 'name') value = value.replace(/[^A-Za-z\s]/g, '');
+    if (name === 'mobile') value = value.replace(/[^0-9]/g, '');
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const createMessage = useCreateMessage();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
@@ -36,7 +41,19 @@ export default function ContactUs() {
       return;
     }
 
-    setIsModalOpen(true);
+    try {
+      await createMessage.mutateAsync({
+        customerName: formData.name,
+        customerEmail: formData.email,
+        subject: `New Inquiry from ${formData.name}`,
+        body: `Phone: ${formData.mobile}\n\n${formData.comment}`,
+        status: 'open',
+        date: new Date().toISOString()
+      });
+      setIsModalOpen(true);
+    } catch (err) {
+      console.error('Failed to submit message:', err);
+    }
   };
 
   return (
@@ -111,22 +128,22 @@ export default function ContactUs() {
           </div>
 
           {/* Center Column (Visuals - Arch & Person) */}
-          <div className="lg:col-span-5 relative flex justify-center items-end h-[600px]">
+          <div className="lg:col-span-5 relative flex justify-center items-end h-150">
             {/* The Arch Shape */}
-            <div className="absolute bottom-0 w-[320px] h-[480px] bg-[#89A894] rounded-t-[200px] z-0"></div>
+            <div className="absolute bottom-0 w-[320px] h-120 bg-[#89A894] rounded-t-[200px] z-0"></div>
 
             {/* The Person (Using an image inside the arch container if cutout isn't available, but we'll use a cutout-style portrait) */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="relative z-10 w-full max-w-[400px] flex justify-center pb-0"
+              className="relative z-10 w-full max-w-100 flex justify-center pb-0"
             >
               {/* Note: In a real environment we'd use a transparent PNG. We use a high-quality portrait here. */}
               <img
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop"
                 alt="Support Agent"
-                className="w-[300px] h-[400px] object-cover object-top rounded-t-[150px] rounded-b-2xl shadow-xl border-4 border-white/20"
+                className="w-75 h-100 object-cover object-top rounded-t-[150px] rounded-b-2xl shadow-xl border-4 border-white/20"
               />
             </motion.div>
 
@@ -150,7 +167,7 @@ export default function ContactUs() {
             <motion.div
               animate={{ y: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
-              className="absolute top-1/2 -left-10 z-20 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-slate-100 min-w-[140px]"
+              className="absolute top-1/2 -left-10 z-20 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-slate-100 min-w-35"
             >
               <p className="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Avg Response</p>
               <p className="text-lg font-black text-slate-900">&lt; 5 mins</p>
@@ -239,6 +256,8 @@ export default function ContactUs() {
                 value={formData.name}
                 onChange={handleChange}
                 error={errors.name}
+                pattern="^[A-Za-z\s]+$"
+                title="Name can only contain letters and spaces"
               />
               <Input
                 label="Mobile Number"
@@ -248,6 +267,9 @@ export default function ContactUs() {
                 value={formData.mobile}
                 onChange={handleChange}
                 error={errors.mobile}
+                pattern="^[0-9]{10}$"
+                maxLength={10}
+                title="Phone number must be exactly 10 digits"
               />
             </div>
 

@@ -1,7 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AGE_GROUPS } from '../../data/productsData';
+
 import { ArrowRight, Sparkles } from 'lucide-react';
+
+const AGE_GROUPS = [
+  { label: '0–2 Years', sub: 'Infants & Toddlers', badge: 'Soft & Safe', color: '#E8F5E9' },
+  { label: '3–5 Years', sub: 'Preschoolers', badge: 'Play Ready', color: '#E3F2FD' },
+  { label: '6–8 Years', sub: 'Kids', badge: 'Active Wear', color: '#FFF3E0' },
+  { label: '9–12 Years', sub: 'Pre-teens', badge: 'Trendy', color: '#F3E5F5' }
+];
 
 export default function ShopByAge() {
   return (

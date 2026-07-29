@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import KidsProductCard from '../components/ui/KidsProductCard';
-import { PRODUCTS } from '../data/productsData';
+import { useProductsList } from '../queries/useProducts';
 import ShopByAge from '../components/home/ShopByAge';
 
 export default function KidsPage() {
@@ -54,13 +54,15 @@ export default function KidsPage() {
     setCurrentPage(1); // Reset page on filter change
   };
 
+  const { data: productsResponse } = useProductsList();
+  const PRODUCTS = productsResponse?.data || [];
   const kidsProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => ['Boys', 'Girls', 'Newborn'].includes(p.category));
-  }, []);
+    return PRODUCTS.filter((p) => ['Boys', 'Girls', 'Newborn'].includes(p.categoryId));
+  }, [PRODUCTS]);
 
   const filteredProducts = useMemo(() => {
     let result = kidsProducts.filter((p) => {
-      const nameLower = p.name.toLowerCase();
+      const nameLower = p.title?.toLowerCase() || '';
 
       // Type Filter
       let matchType = filters.types.length === 0;
@@ -75,17 +77,17 @@ export default function KidsPage() {
       // Price Filter
       let matchPrice = filters.prices.length === 0;
       if (!matchPrice) {
-        if (filters.prices.includes('low') && p.price < 500) matchPrice = true;
-        if (filters.prices.includes('mid') && p.price >= 500 && p.price <= 999) matchPrice = true;
-        if (filters.prices.includes('high') && p.price > 999) matchPrice = true;
+        if (filters.prices.includes('low') && p.basePrice < 500) matchPrice = true;
+        if (filters.prices.includes('mid') && p.basePrice >= 500 && p.basePrice <= 999) matchPrice = true;
+        if (filters.prices.includes('high') && p.basePrice > 999) matchPrice = true;
       }
 
       // Gender Filter (maps to category)
       let matchGender = filters.genders.length === 0;
       if (!matchGender) {
-        if (filters.genders.includes('Boys') && p.category === 'Boys') matchGender = true;
-        if (filters.genders.includes('Girls') && p.category === 'Girls') matchGender = true;
-        if (filters.genders.includes('Newborn') && p.category === 'Newborn') matchGender = true;
+        if (filters.genders.includes('Boys') && p.categoryId === 'Boys') matchGender = true;
+        if (filters.genders.includes('Girls') && p.categoryId === 'Girls') matchGender = true;
+        if (filters.genders.includes('Newborn') && p.categoryId === 'Newborn') matchGender = true;
       }
 
       // Size Filter (mock)
@@ -117,11 +119,11 @@ export default function KidsPage() {
 
     // Sort Logic
     if (sortBy === 'Price: Low to High') {
-      result.sort((a, b) => a.price - b.price);
+      result.sort((a, b) => a.basePrice - b.basePrice);
     } else if (sortBy === 'Price: High to Low') {
-      result.sort((a, b) => b.price - a.price);
+      result.sort((a, b) => b.basePrice - a.basePrice);
     } else if (sortBy === 'Newest Arrivals') {
-      result.sort((a, b) => (a.isNew === b.isNew ? 0 : a.isNew ? -1 : 1));
+      result.sort((a, b) => (new Date(b.createdAt) - new Date(a.createdAt)));
     } else if (sortBy === 'Rating: High to Low') {
       // Mock sorting: just reverse the ID or mock rating
       result.sort((a, b) => b.id.localeCompare(a.id));
@@ -156,11 +158,11 @@ export default function KidsPage() {
   };
 
   const productTypes = [
-    { id: 'T-Shirts', label: 'T-Shirts', count: kidsProducts.filter(p => p.name.toLowerCase().includes('tee') || p.name.toLowerCase().includes('t-shirt')).length },
-    { id: 'Joggers', label: 'Joggers & Tracks', count: kidsProducts.filter(p => p.name.toLowerCase().includes('track') || p.name.toLowerCase().includes('jogger')).length },
-    { id: 'Shorts', label: 'Shorts & Bermudas', count: kidsProducts.filter(p => p.name.toLowerCase().includes('short') || p.name.toLowerCase().includes('bermuda') || p.name.toLowerCase().includes('dungaree')).length },
-    { id: 'Suits', label: 'Night Suits', count: kidsProducts.filter(p => p.name.toLowerCase().includes('suit') || p.name.toLowerCase().includes('kurta') || p.name.toLowerCase().includes('set')).length },
-    { id: 'Frocks', label: 'Frocks & Dresses', count: kidsProducts.filter(p => p.name.toLowerCase().includes('frock') || p.name.toLowerCase().includes('dress')).length },
+    { id: 'T-Shirts', label: 'T-Shirts', count: kidsProducts.filter(p => p.title?.toLowerCase().includes('tee') || p.title?.toLowerCase().includes('t-shirt')).length },
+    { id: 'Joggers', label: 'Joggers & Tracks', count: kidsProducts.filter(p => p.title?.toLowerCase().includes('track') || p.title?.toLowerCase().includes('jogger')).length },
+    { id: 'Shorts', label: 'Shorts & Bermudas', count: kidsProducts.filter(p => p.title?.toLowerCase().includes('short') || p.title?.toLowerCase().includes('bermuda') || p.title?.toLowerCase().includes('dungaree')).length },
+    { id: 'Suits', label: 'Night Suits', count: kidsProducts.filter(p => p.title?.toLowerCase().includes('suit') || p.title?.toLowerCase().includes('kurta') || p.title?.toLowerCase().includes('set')).length },
+    { id: 'Frocks', label: 'Frocks & Dresses', count: kidsProducts.filter(p => p.title?.toLowerCase().includes('frock') || p.title?.toLowerCase().includes('dress')).length },
   ];
 
   const genderOptions = [
@@ -179,7 +181,7 @@ export default function KidsPage() {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 xl:px-8 pt-8">
 
         {/* Video Hero Section */}
-        <div className="w-full max-w-5xl mx-auto rounded-[2rem] overflow-hidden mb-8 shadow-sm relative aspect-video bg-slate-100 flex items-center justify-center">
+        <div className="w-full max-w-5xl mx-auto rounded-4xl overflow-hidden mb-8 shadow-sm relative aspect-video bg-slate-100 flex items-center justify-center">
           <video
             src="/videos/kids wear hero.mp4"
             autoPlay

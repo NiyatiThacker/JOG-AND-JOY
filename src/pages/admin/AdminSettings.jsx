@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Save, Store, MapPin, ShoppingCart, Truck, Receipt, Bell, CreditCard, Users, FileText, Globe } from 'lucide-react';
+import { Save, Store, ShoppingCart, Truck, Receipt, Bell, CreditCard, FileText, Globe } from 'lucide-react';
 import { useSettings, useUpdateSettings } from '../../queries/useSettings';
 import { useUIContext } from '../../context/UIContext';
 
@@ -27,13 +27,11 @@ export default function AdminSettings() {
 
   const tabs = [
     { id: 'general', icon: <Store className="w-4 h-4" />, label: 'General Details' },
-    { id: 'locations', icon: <MapPin className="w-4 h-4" />, label: 'Locations' },
     { id: 'checkout', icon: <ShoppingCart className="w-4 h-4" />, label: 'Checkout & Accounts' },
     { id: 'shipping', icon: <Truck className="w-4 h-4" />, label: 'Shipping & Delivery' },
     { id: 'taxes', icon: <Receipt className="w-4 h-4" />, label: 'Taxes & Duties' },
-    { id: 'notifications', icon: <Bell className="w-4 h-4" />, label: 'Notifications' },
     { id: 'payments', icon: <CreditCard className="w-4 h-4" />, label: 'Payments' },
-    { id: 'users', icon: <Users className="w-4 h-4" />, label: 'Users & Permissions' },
+    { id: 'notifications', icon: <Bell className="w-4 h-4" />, label: 'Notifications' },
     { id: 'policies', icon: <FileText className="w-4 h-4" />, label: 'Legal Policies' },
   ];
 
@@ -140,10 +138,6 @@ export default function AdminSettings() {
                   <section className="space-y-4">
                     <h3 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest border-b border-border pb-2">Admin Automation</h3>
                     <label className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" checked={formData.autoApproveProducts || false} onChange={e => setFormData({...formData, autoApproveProducts: e.target.checked})} className="w-4 h-4 rounded text-accent-green focus:ring-accent-green" />
-                      <span className="text-sm font-bold text-text-secondary">Auto-Approve Products (Skip pending review state)</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
                       <input type="checkbox" checked={formData.autoApproveReviews || false} onChange={e => setFormData({...formData, autoApproveReviews: e.target.checked})} className="w-4 h-4 rounded text-accent-green focus:ring-accent-green" />
                       <span className="text-sm font-bold text-text-secondary">Auto-Approve Reviews</span>
                     </label>
@@ -202,7 +196,7 @@ export default function AdminSettings() {
                 </div>
               )}
 
-              {['locations', 'shipping', 'notifications', 'payments', 'users', 'policies'].includes(activeTab) && (
+              {['shipping', 'notifications', 'payments', 'policies'].includes(activeTab) && (
                 <div className="py-12 text-center text-zinc-400">
                   <Globe className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <h3 className="text-lg font-bold text-primary-dark mb-1">Configuration Section Placeholder</h3>

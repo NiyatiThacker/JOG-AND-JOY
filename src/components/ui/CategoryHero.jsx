@@ -84,7 +84,7 @@ export default function CategoryHero() {
             >
               <button
                 onClick={() => window.scrollBy({ top: 600, behavior: 'smooth' })}
-                className="w-full sm:w-auto px-8 py-3 rounded-full bg-gradient-to-r from-[#EF4A45] to-orange-500 text-white font-extrabold text-sm shadow-xl shadow-red-500/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-8 py-3 rounded-full bg-linear-to-r from-[#EF4A45] to-orange-500 text-white font-extrabold text-sm shadow-xl shadow-red-500/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>Shop Kids Collection</span>

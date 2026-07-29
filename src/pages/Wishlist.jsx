@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PRODUCTS } from '../data/productsData';
+import { useProductsList } from '../queries/useProducts';
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
@@ -10,6 +10,8 @@ export default function Wishlist() {
   const { wishlist, clearWishlist } = useWishlist();
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
+  const { data: productsResponse } = useProductsList();
+  const PRODUCTS = productsResponse?.data || [];
   const favoritedProducts = PRODUCTS.filter((p) => wishlist.includes(p.id));
 
   return (

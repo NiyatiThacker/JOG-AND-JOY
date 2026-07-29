@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Search, Eye, X, MapPin, Calendar, CreditCard, Package, AlertCircle, ArrowLeft, MoreHorizontal, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Eye, X, MapPin, Calendar, CreditCard, Package, AlertCircle, ArrowLeft, MoreHorizontal, ShieldAlert, FileText, CheckCircle2, Check } from 'lucide-react';
 import { useOrdersList, useUpdateOrder } from '../../queries/useOrders';
 import { useSettingsContext } from '../../context/SettingsContext';
+
+import { useSearchParams } from 'react-router-dom';
 
 export default function AdminOrders() {
   const [activeTab, setActiveTab] = useState('unfulfilled');
@@ -10,8 +12,34 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [draftData, setDraftData] = useState({ customerEmail: '', items: [] });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [searchParams] = useSearchParams();
   
   const { formatCurrency, formatDate } = useSettingsContext();
+
+  const { data, isLoading } = useOrdersList({ pageSize: 1000 });
+  
+  useEffect(() => {
+    const orderIdParam = searchParams.get('orderId');
+    if (orderIdParam && data?.data && view === 'list') {
+      const target = data.data.find(o => o.id === orderIdParam || o.orderNumber === orderIdParam);
+      if (target) {
+        setSelectedOrder(target);
+        setView('detail');
+      }
+    }
+  }, [searchParams, data, view]);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   const filters = {};
   if (activeTab === 'unfulfilled') filters.fulfillmentStatus = 'unfulfilled';
@@ -20,8 +48,19 @@ export default function AdminOrders() {
   }
   if (search) filters.search = search;
   
-  const { data, isLoading } = useOrdersList(filters);
   let orders = data?.data || [];
+  if (Object.keys(filters).length > 0) {
+    orders = orders.filter(o => {
+      let matches = true;
+      if (filters.fulfillmentStatus && o.fulfillmentStatus !== filters.fulfillmentStatus) matches = false;
+      if (filters.status && o.status !== filters.status) matches = false;
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        if (!JSON.stringify(o).toLowerCase().includes(q)) matches = false;
+      }
+      return matches;
+    });
+  }
 
   if (activeTab === 'returns') {
     orders = []; // Mock Returns/RMA tab
@@ -34,6 +73,8 @@ export default function AdminOrders() {
     setView('detail');
   };
 
+  const showToast = (msg) => setToastMessage(msg);
+
   const handleStatusChange = (newStatus) => {
     if (selectedOrder) {
       const historyEntry = { status: newStatus, timestamp: new Date().toISOString(), note: 'Status updated by admin' };
@@ -45,13 +86,17 @@ export default function AdminOrders() {
           statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
         } 
       }, {
-        onSuccess: (updated) => setSelectedOrder(updated)
+        onSuccess: (updated) => {
+          setSelectedOrder(updated);
+          setIsMenuOpen(false);
+          showToast(`Order marked as ${newStatus}`);
+        }
       });
     }
   };
 
-  const handleRefund = () => {
-    if (selectedOrder && window.confirm('Are you sure you want to refund this order?')) {
+  const executeRefund = () => {
+    if (selectedOrder) {
       const historyEntry = { status: 'REFUNDED', timestamp: new Date().toISOString(), note: 'Order refunded by admin' };
       updateMut.mutate({
         id: selectedOrder.id,
@@ -61,7 +106,11 @@ export default function AdminOrders() {
           statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
         }
       }, {
-        onSuccess: (updated) => setSelectedOrder(updated)
+        onSuccess: (updated) => {
+          setSelectedOrder(updated);
+          setShowRefundModal(false);
+          showToast('Order refunded successfully');
+        }
       });
     }
   };
@@ -77,10 +126,35 @@ export default function AdminOrders() {
           statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
         }
       }, {
-        onSuccess: (updated) => setSelectedOrder(updated)
+        onSuccess: (updated) => {
+          setSelectedOrder(updated);
+          showToast('Items fulfilled successfully');
+        }
       });
     }
   };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    if (selectedOrder) {
+      updateMut.mutate({
+        id: selectedOrder.id,
+        patch: {
+          shippingAddress: {
+            ...selectedOrder.shippingAddress,
+            ...editFormData
+          }
+        }
+      }, {
+        onSuccess: (updated) => {
+          setSelectedOrder(updated);
+          setShowEditModal(false);
+          showToast('Order details updated');
+        }
+      });
+    }
+  };
+
 
   const handleTagAdd = (e) => {
     if (e.key === 'Enter' && e.target.value.trim() !== '') {
@@ -126,21 +200,37 @@ export default function AdminOrders() {
             <p className="text-sm text-text-secondary mt-1">{formatDate(o.createdAt)} from {o.channel?.replace('_', ' ')}</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <button onClick={handleRefund} className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Refund</button>
-            <button className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Edit</button>
-            <div className="relative group">
-              <button className="p-2 bg-primary-dark text-white rounded-xl shadow-sm hover:bg-primary-hover">
+            <button onClick={() => setShowRefundModal(true)} className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Refund</button>
+            <button 
+              onClick={() => {
+                setEditFormData(o.shippingAddress || {});
+                setShowEditModal(true);
+              }} 
+              className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50"
+            >
+              Edit
+            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                className="p-2 bg-primary-dark text-white rounded-xl shadow-sm hover:bg-primary-hover"
+              >
                 <MoreHorizontal className="w-5 h-5" />
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                <div className="p-1">
-                  {['PROCESSING', 'ON_HOLD', 'CANCELLED'].map(st => (
-                    <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
-                      Mark as {st.replace('_', ' ')}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {isMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20">
+                    <div className="p-1">
+                      {['PROCESSING', 'ON_HOLD', 'CANCELLED'].map(st => (
+                        <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
+                          Mark as {st.replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -244,6 +334,73 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
+
+
+        {/* Edit Modal */}
+        {showEditModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95">
+              <div className="flex justify-between items-center p-6 border-b border-border">
+                <h2 className="text-xl font-bold text-primary-dark">Edit Order Details</h2>
+                <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-zinc-100 rounded-full transition-colors"><X className="w-5 h-5 text-text-secondary" /></button>
+              </div>
+              <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1">Customer Name</label>
+                  <input required type="text" value={editFormData.name || ''} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1">Address</label>
+                  <input required type="text" value={editFormData.line1 || ''} onChange={e => setEditFormData({...editFormData, line1: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-text-secondary mb-1">City</label>
+                    <input required type="text" value={editFormData.city || ''} onChange={e => setEditFormData({...editFormData, city: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-text-secondary mb-1">State</label>
+                    <input required type="text" value={editFormData.state || ''} onChange={e => setEditFormData({...editFormData, state: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1">Pincode</label>
+                  <input required type="text" value={editFormData.postalCode || ''} onChange={e => setEditFormData({...editFormData, postalCode: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                </div>
+                <div className="pt-4 flex gap-3">
+                  <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 py-2.5 border border-border text-primary-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
+                  <button type="submit" className="flex-1 py-2.5 bg-primary-dark text-white font-bold rounded-xl hover:bg-primary-hover">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Refund Modal */}
+        {showRefundModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 p-6 text-center">
+              <div className="w-12 h-12 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-bold text-primary-dark mb-2">Process Refund?</h2>
+              <p className="text-sm text-text-secondary mb-6">Are you sure you want to refund this order? This action cannot be undone and will mark the order as cancelled.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowRefundModal(false)} className="flex-1 py-2.5 border border-border text-primary-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
+                <button onClick={executeRefund} className="flex-1 py-2.5 bg-error text-white font-bold rounded-xl hover:bg-red-600">Refund</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Toast */}
+        {toastMessage && (
+          <div className="fixed bottom-4 right-4 bg-primary-dark text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-5 z-50">
+            <CheckCircle2 className="w-5 h-5 text-accent-green" />
+            <p className="text-sm font-bold">{toastMessage}</p>
+          </div>
+        )}
+
       </div>
     );
   }
@@ -257,9 +414,7 @@ export default function AdminOrders() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Orders</h1>
           <p className="text-xs text-text-secondary mt-1">Lifecycle, fulfillment, and returns</p>
         </div>
-        <button onClick={() => setShowDraftModal(true)} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-border text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
-          Create draft order
-        </button>
+
       </div>
 
       <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">

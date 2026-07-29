@@ -21,8 +21,8 @@ export default function ProductCard({ product, onQuickView }) {
       <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#FFF8EC] rounded-t-2xl">
         <Link to={`/product/${product.id}`}>
           <img
-            src={product.image}
-            alt={product.name}
+            src={product.image || 'https://images.unsplash.com/photo-1519238263530-99bea67b5115?auto=format&fit=crop&q=80&w=600'}
+            alt={product.title}
             className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
           />
         </Link>
@@ -67,7 +67,7 @@ export default function ProductCard({ product, onQuickView }) {
       </div>
 
       {/* Card Details Body */}
-      <div className="p-5 flex-grow flex flex-col justify-between space-y-3">
+      <div className="p-5 grow flex flex-col justify-between space-y-3">
         
         <div>
           {/* Category & Rating */}
@@ -80,28 +80,28 @@ export default function ProductCard({ product, onQuickView }) {
                 draggable={false}
               />
               <span className="font-extrabold text-purple-700 uppercase tracking-wider text-[10px] bg-[#E6D6FF]/40 px-2 py-0.5 rounded-full">
-                {product.category}
+                {product.categoryId}
               </span>
             </div>
 
             <div className="flex items-center gap-1 text-amber-500 font-black">
               <Star className="w-3.5 h-3.5 fill-amber-400" />
-              <span>{product.rating}</span>
+              <span>{product.rating || 4.8}</span>
             </div>
           </div>
 
           {/* Product Name */}
           <Link to={`/product/${product.id}`}>
             <h3 className="font-extrabold text-slate-900 text-sm sm:text-base line-clamp-1 group-hover:text-[#EF4A45] transition-colors mt-1">
-              {product.name}
+              {product.title}
             </h3>
           </Link>
 
           {/* Price & Savings */}
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-lg font-black text-slate-900">₹{product.price}</span>
-            {product.originalPrice && (
-              <span className="text-xs font-bold text-slate-400 line-through">₹{product.originalPrice}</span>
+            <span className="text-lg font-black text-slate-900">₹{product.basePrice}</span>
+            {product.compareAtPrice && (
+              <span className="text-xs font-bold text-slate-400 line-through">₹{product.compareAtPrice}</span>
             )}
           </div>
         </div>

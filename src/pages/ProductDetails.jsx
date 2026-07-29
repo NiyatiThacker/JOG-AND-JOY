@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { PRODUCTS } from '../data/productsData';
+
 import ProductCard from '../components/ui/ProductCard';
 import SizeGuideModal from '../components/ui/SizeGuideModal';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import { flyToCart } from '../utils/animations';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useCreateReview } from '../queries/useReviews';
+import { useProductsList } from '../queries/useProducts';
+import { useOrdersList } from '../queries/useOrders';
 import {
   Star,
   Heart,
@@ -27,27 +30,65 @@ export default function ProductDetails() {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
+  const { data: productsData, isLoading } = useProductsList();
+  const PRODUCTS = productsData?.data || [];
+  
+  const { data: unfulfilledOrdersData } = useOrdersList({ fulfillmentStatus: 'unfulfilled' });
+  const unfulfilledOrders = unfulfilledOrdersData?.data || [];
+
   const product = PRODUCTS.find((p) => p.id === id) || PRODUCTS[0];
 
-  const [activeImage, setActiveImage] = useState(product.image);
-  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || '4Y-5Y');
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.hex || '#AEE6FF');
+  const [activeImage, setActiveImage] = useState(product?.image);
+  const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || '4Y-5Y');
+  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]?.hex || '#AEE6FF');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ name: '', rating: 5, comment: '' });
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const createReview = useCreateReview();
 
   useEffect(() => {
-    setActiveImage(product.image);
-    setSelectedSize(product.sizes?.[0] || '4Y-5Y');
-    setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
-    setQuantity(1);
-    window.scrollTo(0, 0);
+    if (product) {
+      setActiveImage(product.image);
+      setSelectedSize(product.sizes?.[0] || '4Y-5Y');
+      setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
+      setQuantity(1);
+      window.scrollTo(0, 0);
+    }
   }, [product]);
+
+  if (isLoading || !product) {
+    return <div className="min-h-screen bg-[#FFF8EC] py-24 text-center font-bold text-slate-500">Loading Product...</div>;
+  }
+
+  // Stock Validation Math
+  // 1. Find the current variant based on size/color selection (fallback to first variant if none match exactly)
+  const currentVariant = product.variants?.find(v => v.size === selectedSize && v.color === selectedColor) || product.variants?.[0];
+  const stockOnHand = currentVariant?.stock || 0;
+  
+  // 2. Calculate Reserved
+  let reservedCount = 0;
+  unfulfilledOrders.forEach(order => {
+    order.items?.forEach(item => {
+      if (item.id === product.id && item.sku === currentVariant?.sku) {
+        reservedCount += item.quantity;
+      }
+    });
+  });
+  
+  const availableStock = Math.max(0, stockOnHand - reservedCount);
 
   const isFavorited = isInWishlist(product.id);
 
   const handleAddToCart = (e = null) => {
+    if (quantity > availableStock && product.trackQuantity !== false) {
+      alert(`Sorry, only ${availableStock} units available.`);
+      return;
+    }
     if (e) {
       flyToCart(e, product.image);
     }
@@ -59,6 +100,23 @@ export default function ProductDetails() {
   const handleBuyNow = () => {
     handleAddToCart();
     navigate('/checkout');
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewForm.name || !reviewForm.comment) return;
+    
+    await createReview.mutateAsync({
+      productId: product.id,
+      productName: product.name,
+      customerName: reviewForm.name,
+      rating: reviewForm.rating,
+      comment: reviewForm.comment,
+      status: 'pending',
+      date: new Date().toISOString()
+    });
+    setReviewSubmitted(true);
+    setShowReviewForm(false);
   };
 
   const galleryImages = product.gallery || [product.image];
@@ -84,7 +142,7 @@ export default function ProductDetails() {
           <div className="lg:col-span-6 space-y-4">
             
             {/* Main Active Image Viewport with Zoom */}
-            <div className="relative h-96 sm:h-[450px] rounded-2xl overflow-hidden bg-[#FFF8EC] border border-slate-100 group">
+            <div className="relative h-96 sm:h-112.5 rounded-2xl overflow-hidden bg-[#FFF8EC] border border-slate-100 group">
               <img
                 src={activeImage}
                 alt={product.name}
@@ -138,36 +196,39 @@ export default function ProductDetails() {
             
             <div>
               <span className="px-3 py-1 rounded-full bg-[#AEE6FF]/50 text-sky-900 text-xs font-black uppercase tracking-wider">
-                {product.category} • {product.ageGroup}
+                {product.categoryId} • {product.ageGroup}
               </span>
 
-              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
-                {product.name}
+              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
+                {product.title}
               </h1>
 
               {/* Rating & Stock */}
               <div className="flex items-center gap-4 mt-2 text-xs font-bold">
                 <div className="flex items-center gap-1 text-amber-500 font-black">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400" />
-                  ))}
-                  <span className="text-slate-800 ml-1">{product.rating} ({product.reviewsCount} reviews)</span>
+                  <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                  <span className="font-extrabold text-slate-900 ml-1">{product.variants?.rating || 4.8}</span>
+                  <span className="text-slate-500 font-medium underline decoration-slate-300 underline-offset-4 cursor-pointer hover:text-slate-900 transition-colors">
+                    {product.variants?.reviews || 124} Reviews
+                  </span>
                 </div>
                 <span className="text-emerald-600 font-extrabold flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" /> In Stock ({product.stock} units)
+                  <CheckCircle2 className="w-4 h-4" /> In Stock ({availableStock} units)
                 </span>
               </div>
             </div>
 
             {/* Pricing Section */}
             <div className="flex items-baseline gap-3 p-4 bg-[#FFF8EC] rounded-2xl border border-amber-100">
-              <span className="text-3xl font-black text-slate-900">₹{product.price}</span>
-              {product.originalPrice && (
-                <span className="text-base font-bold text-slate-400 line-through">₹{product.originalPrice}</span>
+              <span className="text-3xl font-black text-slate-900">₹{product.basePrice}</span>
+              {product.compareAtPrice && (
+                <>
+                  <span className="text-lg font-bold text-slate-400 line-through">₹{product.compareAtPrice}</span>
+                  <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-black uppercase tracking-wider rounded-full">
+                    Save ₹{product.compareAtPrice - product.basePrice}
+                  </span>
+                </>
               )}
-              <span className="text-xs font-black text-[#EF4A45] bg-red-100 px-2.5 py-1 rounded-full ml-auto">
-                Save ₹{(product.originalPrice || 0) - product.price}
-              </span>
             </div>
 
             {/* Color Swatch Selector */}
@@ -221,43 +282,39 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* Quantity Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-700 uppercase tracking-wider block">
-                Quantity:
-              </label>
-              <div className="inline-flex items-center bg-slate-100 rounded-2xl p-1 font-black text-sm text-slate-800 border border-slate-200">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-9 h-9 rounded-xl hover:bg-white flex items-center justify-center transition-colors"
-                >
-                  -
-                </button>
-                <span className="w-12 text-center">{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="w-9 h-9 rounded-xl hover:bg-white flex items-center justify-center transition-colors"
-                >
-                  +
-                </button>
+            {/* Quantity & Actions */}
+            <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
+              <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-full px-4 py-3 sm:w-32 shrink-0">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-2xl font-black text-slate-400 hover:text-slate-900 transition-colors">−</button>
+                <span className="font-extrabold text-slate-900 text-lg">{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} className="text-2xl font-black text-slate-400 hover:text-slate-900 transition-colors">+</button>
               </div>
-            </div>
-
-            {/* Primary Action Buttons */}
-            <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                onClick={handleAddToCart}
-                className="py-4 rounded-full bg-[#EF4A45] hover:bg-red-600 text-white font-extrabold text-sm shadow-xl hover:shadow-2xl hover:scale-102 transition-all flex items-center justify-center gap-2"
-              >
-                <ShoppingBag className="w-5 h-5" /> Add To Bag
-              </button>
-
-              <button
-                onClick={handleBuyNow}
-                className="py-4 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm shadow-xl hover:scale-102 transition-all flex items-center justify-center gap-2"
-              >
-                Buy Now ⚡
-              </button>
+              
+              <div className="flex-1 space-y-3">
+                {product.trackQuantity !== false && availableStock <= 5 && availableStock > 0 && (
+                  <div className="text-xs font-bold text-[#EF4A45]">Only {availableStock} left in stock - order soon.</div>
+                )}
+                {product.trackQuantity !== false && availableStock <= 0 && !product.allowBackorder && (
+                  <div className="text-xs font-bold text-[#EF4A45]">Currently Out of Stock.</div>
+                )}
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={product.trackQuantity !== false && availableStock <= 0 && !product.allowBackorder}
+                    className="flex-1 py-4 rounded-full bg-slate-900 text-white font-extrabold text-sm shadow-xl shadow-slate-900/20 hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ShoppingBag className="w-5 h-5" /> Add To Bag
+                  </button>
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={product.trackQuantity !== false && availableStock <= 0 && !product.allowBackorder}
+                    className="flex-1 py-4 rounded-full bg-[#EF4A45] text-white font-extrabold text-sm shadow-xl shadow-[#EF4A45]/20 hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Buy It Now
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Guarantees Box */}
@@ -323,10 +380,45 @@ export default function ProductDetails() {
                       <p className="text-xs text-slate-500 font-bold">Based on {product.reviewsCount} reviews</p>
                     </div>
                   </div>
-                  <button className="px-6 py-2.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition-colors">
+                  <button 
+                    onClick={() => setShowReviewForm(!showReviewForm)}
+                    className="px-6 py-2.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition-colors"
+                  >
                     Write a Review
                   </button>
                 </div>
+                
+                {showReviewForm && !reviewSubmitted && (
+                  <form onSubmit={handleReviewSubmit} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                    <h4 className="font-bold text-slate-900">Write your review</h4>
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 mb-1 block">Your Name</label>
+                      <input type="text" required value={reviewForm.name} onChange={e => setReviewForm({...reviewForm, name: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 mb-1 block">Rating</label>
+                      <select value={reviewForm.rating} onChange={e => setReviewForm({...reviewForm, rating: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-xl outline-none">
+                        <option value={5}>5 Stars</option>
+                        <option value={4}>4 Stars</option>
+                        <option value={3}>3 Stars</option>
+                        <option value={2}>2 Stars</option>
+                        <option value={1}>1 Star</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 mb-1 block">Review</label>
+                      <textarea required value={reviewForm.comment} onChange={e => setReviewForm({...reviewForm, comment: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl outline-none h-24" />
+                    </div>
+                    <button type="submit" className="px-6 py-2 bg-sky-500 text-white font-bold rounded-xl text-sm">Submit Review</button>
+                  </form>
+                )}
+                
+                {reviewSubmitted && (
+                  <div className="p-4 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 text-sm font-bold flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5" />
+                    Your review has been submitted and is pending moderation.
+                  </div>
+                )}
                 
                 <div className="space-y-4">
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -388,7 +480,7 @@ export default function ProductDetails() {
         </div>
         <button
           onClick={handleAddToCart}
-          className="flex-grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5"
+          className="grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5"
         >
           <ShoppingBag className="w-4 h-4" /> Add To Bag
         </button>

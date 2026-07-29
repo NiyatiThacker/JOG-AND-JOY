@@ -1,19 +1,24 @@
 import React from 'react';
 import { ShoppingBag, Users, IndianRupee, AlertTriangle, TrendingUp, Package, MessageSquare, Clock, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useRevenueSummary } from '../../queries/useFinancials';
+import { useRevenueSummary, useSalesSeries } from '../../queries/useFinancials';
 import { useOrdersList } from '../../queries/useOrders';
 import { useSettingsContext } from '../../context/SettingsContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useProductsList } from '../../queries/useProducts';
+import { useRecentActivity } from '../../queries/useRecentActivity';
+import { useMessagesList } from '../../queries/useMessages';
 
 export default function AdminDashboard() {
   const { formatCurrency } = useSettingsContext();
   const { data: summary, isLoading: isLoadingSummary } = useRevenueSummary();
   const { data: ordersData } = useOrdersList({ fulfillmentStatus: 'unfulfilled' });
   const { data: productsData } = useProductsList();
+  const { data: messagesData } = useMessagesList({ status: 'unread' });
+  const { activities } = useRecentActivity(); // Force HMR reload
   
   const pendingOrdersCount = ordersData?.data?.length || 0;
+  const unreadMessagesCount = messagesData?.data?.length || 0;
   
   // Calculate low stock items
   let lowStockCount = 0;
@@ -26,14 +31,17 @@ export default function AdminDashboard() {
     });
   }
 
-  const mockChartData = [
-    { name: 'Mon', sales: 4000 },
-    { name: 'Tue', sales: 3000 },
-    { name: 'Wed', sales: 2000 },
-    { name: 'Thu', sales: 2780 },
-    { name: 'Fri', sales: 1890 },
-    { name: 'Sat', sales: 2390 },
-    { name: 'Sun', sales: 3490 },
+  const { data: salesSeries = [] } = useSalesSeries({ granularity: 'day' });
+
+  // Fallback to empty chart if no data yet
+  const chartData = salesSeries.length > 0 ? salesSeries : [
+    { name: 'Mon', sales: 0 },
+    { name: 'Tue', sales: 0 },
+    { name: 'Wed', sales: 0 },
+    { name: 'Thu', sales: 0 },
+    { name: 'Fri', sales: 0 },
+    { name: 'Sat', sales: 0 },
+    { name: 'Sun', sales: 0 },
   ];
 
   return (
@@ -73,8 +81,8 @@ export default function AdminDashboard() {
             <div className="p-1.5 bg-zinc-100 rounded-lg text-zinc-500 group-hover:bg-accent-green/10 group-hover:text-accent-green transition-colors"><Users className="w-4 h-4" /></div>
           </div>
           <div className="flex items-end gap-3 mt-4">
-            <p className="text-2xl font-black text-primary-dark">2,543</p>
-            <span className="text-xs font-bold text-success mb-1">+8%</span>
+            <p className="text-2xl font-black text-primary-dark">0</p>
+            <span className="text-xs font-bold text-slate-400 mb-1">0%</span>
           </div>
         </div>
 
@@ -97,8 +105,8 @@ export default function AdminDashboard() {
             <div className="p-1.5 bg-zinc-100 rounded-lg text-zinc-500 group-hover:bg-accent-green/10 group-hover:text-accent-green transition-colors"><TrendingUp className="w-4 h-4" /></div>
           </div>
           <div className="flex items-end gap-3 mt-4">
-            <p className="text-2xl font-black text-primary-dark">2.4%</p>
-            <span className="text-xs font-bold text-success mb-1">+0.5%</span>
+            <p className="text-2xl font-black text-primary-dark">0%</p>
+            <span className="text-xs font-bold text-slate-400 mb-1">0%</span>
           </div>
         </div>
       </div>
@@ -144,18 +152,29 @@ export default function AdminDashboard() {
                   <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-accent-green transition-colors" />
                 </Link>
               )}
-              <Link to="/admin/messages" className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-error/10 text-error flex items-center justify-center shrink-0">
-                    <MessageSquare className="w-5 h-5" />
+              {unreadMessagesCount > 0 && (
+                <Link to="/admin/messages" className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-error/10 text-error flex items-center justify-center shrink-0">
+                      <MessageSquare className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-primary-dark group-hover:text-accent-green transition-colors">{unreadMessagesCount} unresolved ticket{unreadMessagesCount !== 1 && 's'}</p>
+                      <p className="text-xs text-text-secondary">Customer messages waiting for reply.</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-primary-dark group-hover:text-accent-green transition-colors">2 unresolved tickets</p>
-                    <p className="text-xs text-text-secondary">Customer messages waiting for reply.</p>
+                  <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-accent-green transition-colors" />
+                </Link>
+              )}
+              {pendingOrdersCount === 0 && lowStockCount === 0 && unreadMessagesCount === 0 && (
+                <div className="p-8 text-center">
+                  <div className="w-12 h-12 bg-success/10 text-success-dark rounded-full flex items-center justify-center mx-auto mb-3">
+                    <AlertTriangle className="w-6 h-6" />
                   </div>
+                  <p className="text-sm font-bold text-primary-dark">You're all caught up!</p>
+                  <p className="text-xs text-text-secondary mt-1">No pending actions required.</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-accent-green transition-colors" />
-              </Link>
+              )}
             </div>
           </div>
 
@@ -169,7 +188,7 @@ export default function AdminDashboard() {
             </div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={mockChartData}>
+                <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} dx={-10} tickFormatter={(value) => `₹${value}`} />
@@ -191,31 +210,20 @@ export default function AdminDashboard() {
           <div className="p-4 flex-1 overflow-y-auto space-y-6">
             
             <div className="relative pl-4 border-l border-zinc-200 space-y-6">
-              <div className="relative">
-                <span className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-accent-green ring-4 ring-white"></span>
-                <p className="text-sm font-bold text-primary-dark">Order #JJ-10023 placed</p>
-                <p className="text-xs text-text-secondary mt-1">₹1,299 • 12 mins ago</p>
-              </div>
-              <div className="relative">
-                <span className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-info-dark ring-4 ring-white"></span>
-                <p className="text-sm font-bold text-primary-dark">Order #JJ-10015 shipped</p>
-                <p className="text-xs text-text-secondary mt-1">Delhivery AWB1234 • 1 hr ago</p>
-              </div>
-              <div className="relative">
-                <span className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-zinc-400 ring-4 ring-white"></span>
-                <p className="text-sm font-bold text-primary-dark">Inventory updated</p>
-                <p className="text-xs text-text-secondary mt-1">Kids T-Shirt stock adjusted • 2 hrs ago</p>
-              </div>
-              <div className="relative">
-                <span className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-accent-green ring-4 ring-white"></span>
-                <p className="text-sm font-bold text-primary-dark">New customer registered</p>
-                <p className="text-xs text-text-secondary mt-1">Amit Kumar • 3 hrs ago</p>
-              </div>
-              <div className="relative">
-                <span className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-error ring-4 ring-white"></span>
-                <p className="text-sm font-bold text-primary-dark">Payment failed</p>
-                <p className="text-xs text-text-secondary mt-1">Order #JJ-10022 • 5 hrs ago</p>
-              </div>
+              {activities.map((act) => (
+                <Link key={act.id} to={`/admin/orders?orderId=${act.sourceId}`} className="relative block group">
+                  <span className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-white ${
+                    act.type === 'success' ? 'bg-success-dark' :
+                    act.type === 'error' ? 'bg-error' :
+                    act.type === 'warning' ? 'bg-warning-dark' : 'bg-info-dark'
+                  }`}></span>
+                  <p className="text-sm font-bold text-primary-dark group-hover:text-accent-green transition-colors">{act.title}</p>
+                  <p className="text-xs text-text-secondary mt-1">{act.time}</p>
+                </Link>
+              ))}
+              {activities.length === 0 && (
+                <p className="text-sm text-text-secondary">No recent activity.</p>
+              )}
             </div>
 
           </div>

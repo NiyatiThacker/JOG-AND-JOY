@@ -25,8 +25,8 @@ export default function KidsProductCard({ product }) {
         onMouseLeave={() => setIsHovered(false)}
       >
         <img
-          src={isHovered && product.gallery?.[1] ? product.gallery[1] : product.image}
-          alt={product.name}
+          src={isHovered && product.gallery?.[1] ? product.gallery[1] : (product.image || 'https://images.unsplash.com/photo-1519238263530-99bea67b5115?auto=format&fit=crop&q=80&w=600')}
+          alt={product.title}
           className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -40,10 +40,10 @@ export default function KidsProductCard({ product }) {
       </div>
 
       {/* Content Block */}
-      <div className="flex flex-col items-center text-center space-y-2 flex-grow">
+      <div className="flex flex-col items-center text-center space-y-2 grow">
         {/* Title */}
         <h3 className="text-sm font-black text-slate-900 tracking-tight line-clamp-1">
-          {product.name}
+          {product.title}
         </h3>
 
         {/* Star Rating */}
@@ -51,14 +51,14 @@ export default function KidsProductCard({ product }) {
           {[...Array(5)].map((_, i) => (
             <Star 
               key={i} 
-              className={`w-3.5 h-3.5 ${i < Math.floor(product.rating) ? 'fill-[#FF8A00] text-[#FF8A00]' : 'fill-slate-200 text-slate-200'}`} 
+              className={`w-3.5 h-3.5 ${i < Math.floor(product.variants?.rating || 4.8) ? 'fill-[#FF8A00] text-[#FF8A00]' : 'fill-slate-200 text-slate-200'}`} 
             />
           ))}
         </div>
 
         {/* Price */}
         <div className="text-base font-black text-slate-900 pt-1">
-          ₹{product.price.toLocaleString('en-IN')}
+          ₹{product.basePrice?.toLocaleString('en-IN') || product.basePrice}
         </div>
 
         {/* Add to Cart Button */}

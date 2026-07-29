@@ -123,7 +123,7 @@ export default function AboutUs() {
                 "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
                 "https://images.unsplash.com/photo-1519238396255-81b670474ed5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
               ].map((src, idx) => (
-                <div key={idx} className="h-[140px] w-[120px] md:h-[200px] md:w-[160px] rounded-[2rem] overflow-hidden flex-shrink-0 group shadow-lg border-4 border-white transform hover:-translate-y-2 hover:scale-105 transition-all duration-300">
+                <div key={idx} className="h-[140px] w-[120px] md:h-[200px] md:w-[160px] rounded-4xl overflow-hidden shrink-0 group shadow-lg border-4 border-white transform hover:-translate-y-2 hover:scale-105 transition-all duration-300">
                   <img
                     src={src}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -177,7 +177,7 @@ export default function AboutUs() {
             {/* Background Blob decoration */}
             <div className="absolute top-4 -left-4 w-full h-full bg-[#AEE6FF] rounded-[3rem] rotate-3" />
 
-            <div className="relative rounded-[3rem] overflow-hidden aspect-[4/5] sm:aspect-square lg:aspect-[4/5] shadow-xl border-4 border-white">
+            <div className="relative rounded-[3rem] overflow-hidden aspect-4/5 sm:aspect-square lg:aspect-4/5 shadow-xl border-4 border-white">
               <img
                 src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt="Jog and Joy Manufacturing"
@@ -198,7 +198,7 @@ export default function AboutUs() {
           <div className="lg:pl-12 space-y-6">
             <span className="px-3 py-1 bg-[#FFD800]/20 text-slate-800 rounded-lg text-xs font-black uppercase tracking-widest font-poppins">Who We Are</span>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight font-heading-primary">
-              Activewear is about <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00A3E0] to-[#EF4A45]">freedom</span>, not just fabric.
+              Activewear is about <span className="text-transparent bg-clip-text bg-linear-to-r from-[#00A3E0] to-[#EF4A45]">freedom</span>, not just fabric.
             </h2>
             <p className="text-slate-600 text-base font-semibold leading-relaxed font-poppins">
               We started our journey in 1996 with a singular focus on perfect knitting and stitching. Today, Jog&Joy brings vibrant, durable, and extremely comfortable activewear directly to the next generation of kids and men.
@@ -226,7 +226,7 @@ export default function AboutUs() {
             </div>
 
             <div className="pt-6">
-              <Link to="/products" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#EF4A45] to-orange-500 hover:from-orange-500 hover:to-[#EF4A45] text-white font-extrabold rounded-full shadow-lg shadow-red-500/20 hover:shadow-xl hover:scale-105 hover:-translate-y-0.5 transition-all">
+              <Link to="/products" className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-[#EF4A45] to-orange-500 hover:from-orange-500 hover:to-[#EF4A45] text-white font-extrabold rounded-full shadow-lg shadow-red-500/20 hover:shadow-xl hover:scale-105 hover:-translate-y-0.5 transition-all">
                 Discover More <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
@@ -259,7 +259,7 @@ export default function AboutUs() {
 
       {/* 4. Vibrant CTA Section */}
       <section className="relative py-32 md:py-48 mt-12 bg-[url('https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80')] bg-fixed bg-cover bg-center rounded-3xl mx-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#EF4A45]/90 via-[#D32F2F]/80 to-[#00A3E0]/90" />
+        <div className="absolute inset-0 bg-linear-to-r from-[#EF4A45]/90 via-[#D32F2F]/80 to-[#00A3E0]/90" />
         <div className="relative z-10 max-w-4xl mx-auto text-center px-4 text-white space-y-6">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 border border-white/30 text-white text-xs font-extrabold uppercase tracking-widest backdrop-blur-sm shadow-sm font-poppins">
             Partner With Us
@@ -271,7 +271,7 @@ export default function AboutUs() {
             Join our rapidly expanding network of wholesale distributors. Enjoy high margins, dedicated brand support, and a product that sells itself.
           </p>
           <div className="pt-8">
-            <Link to="/distributor-network" className="inline-block px-10 py-5 bg-gradient-to-r from-[#FFD800] to-amber-500 hover:from-amber-500 hover:to-[#FFD800] text-slate-950 font-black rounded-full shadow-lg shadow-amber-500/25 hover:shadow-2xl hover:scale-105 hover:-translate-y-0.5 transition-all font-poppins">
+            <Link to="/distributor-network" className="inline-block px-10 py-5 bg-linear-to-r from-[#FFD800] to-amber-500 hover:from-amber-500 hover:to-[#FFD800] text-slate-950 font-black rounded-full shadow-lg shadow-amber-500/25 hover:shadow-2xl hover:scale-105 hover:-translate-y-0.5 transition-all font-poppins">
               Become a Distributor
             </Link>
           </div>
@@ -322,7 +322,7 @@ export default function AboutUs() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-3xl mx-auto">
             {teamMembers.map((member, idx) => (
               <div key={idx} className="bg-white rounded-[2.5rem] shadow-lg hover:shadow-xl transition-all group overflow-hidden border border-slate-100 p-4">
-                <div className="aspect-square bg-slate-100 rounded-[2rem] overflow-hidden">
+                <div className="aspect-square bg-slate-100 rounded-4xl overflow-hidden">
                   <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-6 text-center">
@@ -355,7 +355,7 @@ export default function AboutUs() {
 
           <div className="flex-1 w-full overflow-hidden relative">
             {/* Gradient masks for smooth fading edges on marquee */}
-            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 left-0 w-16 bg-linear-to-r from-white to-transparent z-10 pointer-events-none"></div>
             <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
             <motion.div
