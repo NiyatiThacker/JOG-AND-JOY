@@ -9,12 +9,13 @@ export default function Navbar({ onOpenProfile }) {
       textColor: "#0f172a",
       links: [
         { label: "New Arrivals", href: "/new-arrivals", ariaLabel: "New Arrivals" },
+        { label: "All Products", href: "/products", ariaLabel: "All Products" },
         { label: "Kids Wear", href: "/kids", ariaLabel: "Kids Wear" },
         { label: "Best Sellers", href: "/products", ariaLabel: "Best Sellers" }
       ]
     },
     {
-      label: "Explore", 
+      label: "Explore",
       bgColor: "#AEE6FF",
       textColor: "#0f172a",
       links: [
@@ -25,7 +26,7 @@ export default function Navbar({ onOpenProfile }) {
     },
     {
       label: "Business",
-      bgColor: "#EF4A45", 
+      bgColor: "#EF4A45",
       textColor: "#ffffff",
       links: [
         { label: "Distributors", href: "/distributor-network", ariaLabel: "Distributors" }
@@ -34,7 +35,7 @@ export default function Navbar({ onOpenProfile }) {
   ];
 
   return (
-    <div className="relative w-full h-[96px] md:h-[96px] max-md:h-[72px] bg-[#FFF8EC] block select-none z-40">
+    <div className="sticky top-0 w-full h-[96px] md:h-[96px] max-md:h-[72px] bg-[#FFF8EC] block select-none z-50 shadow-sm">
       <CardNav
         items={navItems}
         baseColor="transparent"

@@ -5,6 +5,7 @@ import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
+import CustomDropdown from '../components/ui/CustomDropdown';
 
 export default function Products({ pageCategory = null }) {
   const [searchParams] = useSearchParams();
@@ -134,16 +135,16 @@ export default function Products({ pageCategory = null }) {
 
             {/* Sort Select */}
             <div className="md:col-span-3 flex items-center justify-end gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-slate-400" />
-              <select
+              <CustomDropdown
+                options={[
+                  { label: 'Sort by: Most Popular', value: 'popular' },
+                  { label: 'Price: Low to High', value: 'low' },
+                  { label: 'Price: High to Low', value: 'high' }
+                ]}
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-extrabold text-slate-800 focus:outline-none focus:border-[#EF4A45]"
-              >
-                <option value="popular">Sort by: Most Popular</option>
-                <option value="low">Price: Low to High</option>
-                <option value="high">Price: High to Low</option>
-              </select>
+                onChange={setSortBy}
+                icon={SlidersHorizontal}
+              />
             </div>
 
             {/* Expandable Filter Menu */}

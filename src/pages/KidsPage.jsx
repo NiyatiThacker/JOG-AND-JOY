@@ -200,19 +200,129 @@ export default function KidsPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 xl:px-8 pt-8">
 
-        {/* Video Hero Section */}
-        <div className="w-full max-w-5xl mx-auto rounded-[2rem] overflow-hidden mb-8 shadow-sm relative aspect-video bg-slate-100 flex items-center justify-center">
-          <video
-            src="/videos/kids wear hero.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-contain"
-          />
+      {/* Full-Screen Video Hero Section */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        height: 'calc(100vh - 70px)',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '0'
+      }}>
+        {/* Background Video */}
+        <video
+          src="/videos/kids-hero-new.mp4"
+          autoPlay
+          muted
+          playsInline
+          onCanPlay={(e) => { e.currentTarget.playbackRate = 2; }}
+          onEnded={() => {
+            const target = document.getElementById('kids-products');
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0
+          }}
+        />
+
+        {/* Dark Dull Overlay — same style as home page */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.30) 60%, rgba(0,0,0,0.55) 100%)',
+          zIndex: 1
+        }} />
+
+        {/* Hero Content */}
+        <div style={{
+          position: 'relative',
+          zIndex: 2,
+          textAlign: 'center',
+          padding: '0 20px',
+          maxWidth: '800px'
+        }}>
+          <span style={{
+            display: 'inline-block',
+            backgroundColor: '#FFD800',
+            color: '#1a1a1a',
+            fontWeight: 800,
+            fontSize: '0.78rem',
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            padding: '6px 18px',
+            borderRadius: '30px',
+            border: '1.5px solid #222222',
+            boxShadow: '0 3px 0 #222222',
+            marginBottom: '20px'
+          }}>
+            🎨 Kids Collection
+          </span>
+
+          <h1 style={{
+            fontSize: 'clamp(2.2rem, 5vw, 4rem)',
+            fontWeight: 900,
+            color: '#ffffff',
+            lineHeight: 1.2,
+            margin: '0 0 20px',
+            textShadow: '0 2px 20px rgba(0,0,0,0.4)'
+          }}>
+            Little Ones,{' '}
+            <span style={{ color: '#FFD800' }}>Big Style</span>
+          </h1>
+
+          <p style={{
+            fontSize: 'clamp(0.95rem, 1.4vw, 1.15rem)',
+            color: 'rgba(255,255,255,0.88)',
+            marginBottom: '36px',
+            fontWeight: 500,
+            lineHeight: 1.6
+          }}>
+            Premium kids wear — comfortable, colourful & built to play.
+          </p>
+
+          <a
+            href="#kids-products"
+            style={{
+              display: 'inline-block',
+              backgroundColor: '#EF4A45',
+              color: '#ffffff',
+              padding: '14px 38px',
+              borderRadius: '30px',
+              fontWeight: 700,
+              fontSize: '1rem',
+              textDecoration: 'none',
+              border: '1.5px solid #222222',
+              boxShadow: '0 4px 0 #222222',
+              transition: 'transform 0.15s, box-shadow 0.15s'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 6px 0 #222222';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 0 #222222';
+            }}
+          >
+            Shop Kids Wear →
+          </a>
         </div>
+
+
+      </div>
+
+      {/* Products Section Anchor */}
+      <div id="kids-products" className="max-w-[1600px] mx-auto px-4 sm:px-6 xl:px-8 pt-8">
 
         {/* Shop By Age Filter Section */}
         <div className="mb-6">
