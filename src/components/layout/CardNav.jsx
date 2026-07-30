@@ -360,7 +360,7 @@ const CardNav = ({
 
             <Link
               to="/wishlist"
-              className="action-btn relative"
+              className="action-btn relative hidden-mobile"
               title="Wishlist"
               onClick={() => {
                 if (isExpanded) closeMenu();

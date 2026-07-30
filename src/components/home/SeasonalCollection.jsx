@@ -31,7 +31,7 @@ export default function SeasonalCollection({ onQuickView }) {
         </div>
 
         {/* Interactive Tabs */}
-        <div className="flex items-center justify-center gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar">
+        <div className="flex items-center sm:justify-center justify-start gap-2.5 sm:gap-3 overflow-x-auto pb-4 px-2 mb-8 no-scrollbar w-full">
           {tabs.map((t) => {
             const Icon = t.icon;
             const isSelected = activeTab === t.name;
@@ -40,7 +40,7 @@ export default function SeasonalCollection({ onQuickView }) {
               <button
                 key={t.name}
                 onClick={() => setActiveTab(t.name)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full font-black text-xs sm:text-sm transition-all duration-300 whitespace-nowrap border ${
+                className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full font-black text-xs sm:text-sm transition-all duration-300 whitespace-nowrap border shrink-0 ${
                   isSelected
                     ? 'bg-slate-900 text-white shadow-xl scale-105 border-slate-900'
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'

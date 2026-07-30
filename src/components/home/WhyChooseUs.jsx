@@ -7,12 +7,12 @@ export default function WhyChooseUs() {
     <section className="py-20 bg-[#FAF8F5] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Coral Banner Card Container (#EF4A45) */}
-        <div className="rounded-[40px] bg-[#EF4A45] p-8 sm:p-14 text-white overflow-hidden relative shadow-2xl border-4 border-white/30">
+        {/* Banner Card Container using #A5B890 Sage Green */}
+        <div className="rounded-[40px] bg-[#A5B890] p-8 sm:p-14 text-slate-900 overflow-hidden relative shadow-2xl border-4 border-white/50">
           
-          {/* Subtle Background Glows */}
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#FFD800]/20 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#00A3E0]/20 rounded-full blur-3xl pointer-events-none"></div>
+          {/* Subtle Ambient Glow Effects */}
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/25 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#062019]/10 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
             
@@ -20,7 +20,7 @@ export default function WhyChooseUs() {
             <div className="lg:col-span-5 relative">
               <motion.div 
                 whileHover={{ scale: 1.02, rotate: -1 }}
-                className="relative rounded-3xl overflow-hidden bg-[#F7B633] p-3 shadow-xl border-2 border-white/40"
+                className="relative rounded-3xl overflow-hidden bg-white/40 p-3 shadow-xl border-2 border-white/80 backdrop-blur-md"
               >
                 <img
                   src="https://images.unsplash.com/photo-1543332164-6e82f355badc?q=80&w=1000&auto=format&fit=crop"
@@ -45,7 +45,7 @@ export default function WhyChooseUs() {
               
               {/* Animated Header with Original Logo & Glowing Aura */}
               <div className="flex flex-wrap items-center gap-4">
-                <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+                <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#062019] leading-tight">
                   Why Choose
                 </h2>
 
@@ -62,7 +62,7 @@ export default function WhyChooseUs() {
                     className="absolute -inset-2 bg-gradient-to-r from-[#FFD800] via-[#FF5500] to-[#00A3E0] rounded-2xl blur-md opacity-90 pointer-events-none"
                   ></motion.div>
 
-                  {/* Logo Image & Sparkles Wrapper (No white background) */}
+                  {/* Logo Image & Sparkles Wrapper */}
                   <div className="relative flex items-center justify-center p-1">
                     
                     {/* Floating Sparkles around Logo */}
@@ -109,53 +109,53 @@ export default function WhyChooseUs() {
                 
                 <motion.div 
                   whileHover={{ x: 6 }}
-                  className="flex items-start gap-3 bg-white/10 p-3 rounded-2xl backdrop-blur-xs border border-white/20"
+                  className="flex items-start gap-3 bg-white/70 backdrop-blur-md p-3.5 rounded-2xl border border-white/80 shadow-xs"
                 >
-                  <div className="w-7 h-7 rounded-full bg-white text-[#EF4A45] flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
+                  <div className="w-7 h-7 rounded-full bg-[#062019] text-white flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-base font-extrabold text-white">Inclusive & Ergonomic Sizing</h4>
-                    <p className="text-xs sm:text-sm text-white/90 font-medium">Standardized fit calibrated for growing active kids and men.</p>
+                    <h4 className="text-base font-extrabold text-[#062019]">Inclusive & Ergonomic Sizing</h4>
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium">Standardized fit calibrated for growing active kids and men.</p>
                   </div>
                 </motion.div>
 
                 <motion.div 
                   whileHover={{ x: 6 }}
-                  className="flex items-start gap-3 bg-white/10 p-3 rounded-2xl backdrop-blur-xs border border-white/20"
+                  className="flex items-start gap-3 bg-white/70 backdrop-blur-md p-3.5 rounded-2xl border border-white/80 shadow-xs"
                 >
-                  <div className="w-7 h-7 rounded-full bg-white text-[#EF4A45] flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
+                  <div className="w-7 h-7 rounded-full bg-[#062019] text-white flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-base font-extrabold text-white">Trendy and Modern Styles</h4>
-                    <p className="text-xs sm:text-sm text-white/90 font-medium">Vibrant colorways and street fashion activewear designed to empower confidence.</p>
+                    <h4 className="text-base font-extrabold text-[#062019]">Trendy and Modern Styles</h4>
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium">Vibrant colorways and street fashion activewear designed to empower confidence.</p>
                   </div>
                 </motion.div>
 
                 <motion.div 
                   whileHover={{ x: 6 }}
-                  className="flex items-start gap-3 bg-white/10 p-3 rounded-2xl backdrop-blur-xs border border-white/20"
+                  className="flex items-start gap-3 bg-white/70 backdrop-blur-md p-3.5 rounded-2xl border border-white/80 shadow-xs"
                 >
-                  <div className="w-7 h-7 rounded-full bg-white text-[#EF4A45] flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
+                  <div className="w-7 h-7 rounded-full bg-[#062019] text-white flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-base font-extrabold text-white">High-Quality Non-Toxic Fabrics</h4>
-                    <p className="text-xs sm:text-sm text-white/90 font-medium">100% bio-washed combed cotton with zero fabric shrinkage and multi-needle flatlock stitching.</p>
+                    <h4 className="text-base font-extrabold text-[#062019]">High-Quality Non-Toxic Fabrics</h4>
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium">100% bio-washed combed cotton with zero fabric shrinkage and multi-needle flatlock stitching.</p>
                   </div>
                 </motion.div>
 
                 <motion.div 
                   whileHover={{ x: 6 }}
-                  className="flex items-start gap-3 bg-white/10 p-3 rounded-2xl backdrop-blur-xs border border-white/20"
+                  className="flex items-start gap-3 bg-white/70 backdrop-blur-md p-3.5 rounded-2xl border border-white/80 shadow-xs"
                 >
-                  <div className="w-7 h-7 rounded-full bg-white text-[#EF4A45] flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
+                  <div className="w-7 h-7 rounded-full bg-[#062019] text-white flex items-center justify-center font-black shrink-0 mt-0.5 shadow-md">
                     ✓
                   </div>
                   <div>
-                    <h4 className="text-base font-extrabold text-white">Supporting Active Play</h4>
-                    <p className="text-xs sm:text-sm text-white/90 font-medium">Built to withstand non-stop playground activity, sports, and daily washing.</p>
+                    <h4 className="text-base font-extrabold text-[#062019]">Supporting Active Play</h4>
+                    <p className="text-xs sm:text-sm text-slate-700 font-medium">Built to withstand non-stop playground activity, sports, and daily washing.</p>
                   </div>
                 </motion.div>
 
