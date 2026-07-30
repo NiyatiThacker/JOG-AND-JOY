@@ -7,9 +7,9 @@ import { Link } from 'react-router-dom';
 
 export default function NewArrivalsPage() {
   const spotlightRef = useRef(null);
-  
+
   const { combinedProducts, isLoading } = useCombinedProducts();
-  
+
   const newProducts = useMemo(() => {
     return combinedProducts.filter((p) => p.isNew);
   }, [combinedProducts]);
@@ -34,7 +34,7 @@ export default function NewArrivalsPage() {
 
   return (
     <div className="min-h-screen bg-white pb-24 font-sans">
-      
+
       {/* Inline styles for marquee animation */}
       <style>{`
         @keyframes marquee-fast {
@@ -51,7 +51,7 @@ export default function NewArrivalsPage() {
 
         {/* TOP BANNER: Headline + Spinning Video Badge + Avatar Stack */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
-          
+
           {/* Left: Spinning Badge */}
           <div className="hidden lg:flex items-center gap-3">
             <div className="relative w-24 h-24 flex items-center justify-center select-none">
@@ -72,7 +72,7 @@ export default function NewArrivalsPage() {
           {/* Center Headline */}
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-[#FFF3EE] via-[#FFF9E6] to-[#EBF7FF] border border-[#FFE0D6] text-[#FF7A59] font-black text-xs uppercase tracking-wider mb-5 shadow-xs">
-              <Sparkles className="w-4 h-4 text-[#FF7A59] animate-pulse" /> 
+              <Sparkles className="w-4 h-4 text-[#FF7A59] animate-pulse" />
               <span>Just Dropped • Season 2026 🌈</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.08] font-heading-primary">
@@ -104,13 +104,13 @@ export default function NewArrivalsPage() {
 
         {/* DYNAMIC STAGGERED KIDS GALLERY GRID (Inspired by Reference Layout) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center mb-12">
-          
+
           {/* Card 1 & 2 Column (Left Stack) */}
           <div className="space-y-4 flex flex-col justify-between h-full">
             <div className="relative aspect-[4/5] w-full rounded-[28px] overflow-hidden bg-[#FF7A59] p-3 shadow-md group">
-              <img 
-                src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop" 
-                alt="Playful Orange Hoodie" 
+              <img
+                src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop"
+                alt="Playful Orange Hoodie"
                 className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop"; }}
               />
@@ -121,9 +121,9 @@ export default function NewArrivalsPage() {
             </div>
 
             <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-[#FFD5A1] p-3 shadow-sm group">
-              <img 
-                src="https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop" 
-                alt="Kids Summer Polo" 
+              <img
+                src="https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop"
+                alt="Kids Summer Polo"
                 className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop"; }}
               />
@@ -135,9 +135,9 @@ export default function NewArrivalsPage() {
 
           {/* Card 3 (Center Left - Tall Pastel Mint Card) */}
           <div className="relative aspect-[3/4] sm:aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#CFFFE5] p-3 shadow-md group">
-            <img 
-              src="https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop" 
-              alt="Kids Emerald Fashion" 
+            <img
+              src="https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop"
+              alt="Kids Emerald Fashion"
               className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
               onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop"; }}
             />
@@ -149,9 +149,9 @@ export default function NewArrivalsPage() {
           {/* Card 4 (Center - Featured Sunshine Yellow Card with CTA Button) */}
           <div className="relative aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#FFF3EE] border-2 border-[#FFE0D6] p-4 shadow-xl flex flex-col justify-between text-center group">
             <div className="relative h-[270px] w-full rounded-2xl overflow-hidden mb-3">
-              <img 
-                src="https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?q=80&w=600&auto=format&fit=crop" 
-                alt="Featured New Arrival" 
+              <img
+                src="https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?q=80&w=600&auto=format&fit=crop"
+                alt="Featured New Arrival"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop"; }}
               />
@@ -160,7 +160,7 @@ export default function NewArrivalsPage() {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={() => {
                 if (spotlightRef.current) {
                   const y = spotlightRef.current.getBoundingClientRect().top + window.scrollY - 100;
@@ -176,9 +176,9 @@ export default function NewArrivalsPage() {
 
           {/* Card 5 (Center Right - Tall Pastel Sky Blue Card) */}
           <div className="relative aspect-[3/4] sm:aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#AEE6FF] p-3 shadow-md group">
-            <img 
-              src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=600&auto=format&fit=crop" 
-              alt="Kids Sky Blue Fashion" 
+            <img
+              src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=600&auto=format&fit=crop"
+              alt="Kids Sky Blue Fashion"
               className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
               onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?q=80&w=600&auto=format&fit=crop"; }}
             />
@@ -190,9 +190,9 @@ export default function NewArrivalsPage() {
           {/* Card 6 & 7 Column (Right Stack) */}
           <div className="space-y-4 flex flex-col justify-between h-full">
             <div className="relative aspect-[4/5] w-full rounded-[28px] overflow-hidden bg-[#E6D6FF] p-3 shadow-md group">
-              <img 
-                src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=600&auto=format&fit=crop" 
-                alt="Pastel Lavender Dress" 
+              <img
+                src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=600&auto=format&fit=crop"
+                alt="Pastel Lavender Dress"
                 className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=600&auto=format&fit=crop"; }}
               />
@@ -202,9 +202,9 @@ export default function NewArrivalsPage() {
             </div>
 
             <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-[#FFE0D6] p-3 shadow-sm group">
-              <img 
-                src="https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=600&auto=format&fit=crop" 
-                alt="Kids Loungewear Set" 
+              <img
+                src="https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=600&auto=format&fit=crop"
+                alt="Kids Loungewear Set"
                 className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=600&auto=format&fit=crop"; }}
               />
@@ -215,7 +215,7 @@ export default function NewArrivalsPage() {
 
         {/* BOTTOM FEATURE BAR: Review Quote + Lifestyle Header */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-100 text-left">
-          
+
           {/* Left Testimonial */}
           <div className="flex items-start gap-3 max-w-md">
             <span className="text-4xl leading-none text-[#FF7A59] font-serif font-black">“</span>
@@ -273,12 +273,12 @@ export default function NewArrivalsPage() {
               Curated collections for everyday comfort & play
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
+
             {/* Card 1: Kids Collection (Pastel Peach) */}
-            <Link 
-              to="/kids" 
+            <Link
+              to="/kids"
               className="lg:col-span-6 relative group overflow-hidden rounded-[2.5rem] bg-[#FFF3EE] border-2 border-[#FFE0D6] p-6 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-[340px]"
             >
               <div className="relative z-10 text-left max-w-sm">
@@ -299,9 +299,9 @@ export default function NewArrivalsPage() {
 
               {/* Card Image */}
               <div className="absolute -bottom-4 -right-4 w-48 sm:w-60 h-48 sm:h-60 rounded-3xl overflow-hidden border-4 border-white shadow-xl rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500">
-                <img 
-                  src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop" 
-                  alt="Kids Collection" 
+                <img
+                  src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop"
+                  alt="Kids Collection"
                   className="w-full h-full object-cover"
                   onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=800&auto=format&fit=crop"; }}
                 />
@@ -309,8 +309,8 @@ export default function NewArrivalsPage() {
             </Link>
 
             {/* Card 2: Men's Collection (Pastel Sky Blue) */}
-            <Link 
-              to="/men" 
+            <Link
+              to="/products?category=Male"
               className="lg:col-span-6 relative group overflow-hidden rounded-[2.5rem] bg-[#EBF7FF] border-2 border-[#AEE6FF] p-6 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-[340px]"
             >
               <div className="relative z-10 text-left max-w-sm">
@@ -331,9 +331,9 @@ export default function NewArrivalsPage() {
 
               {/* Card Image */}
               <div className="absolute -bottom-4 -right-4 w-48 sm:w-60 h-48 sm:h-60 rounded-3xl overflow-hidden border-4 border-white shadow-xl -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500">
-                <img 
-                  src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800&auto=format&fit=crop" 
-                  alt="Men's Collection" 
+                <img
+                  src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800&auto=format&fit=crop"
+                  alt="Men's Collection"
                   className="w-full h-full object-cover"
                   onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop"; }}
                 />
@@ -369,37 +369,34 @@ export default function NewArrivalsPage() {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`w-10 h-10 flex items-center justify-center rounded-xl font-bold text-sm transition-all ${
-                    currentPage === 1
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'bg-white text-slate-700 hover:bg-slate-50 shadow-sm border border-slate-200'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-xl font-bold text-sm transition-all ${currentPage === 1
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-white text-slate-700 hover:bg-slate-50 shadow-sm border border-slate-200'
+                    }`}
                 >
                   &lt;
                 </button>
-                
+
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
                   <button
                     key={num}
                     onClick={() => handlePageChange(num)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-xl font-bold text-sm transition-all shadow-sm ${
-                      currentPage === num
-                        ? 'bg-[#1C2C28] text-[#E5F778] shadow-md'
-                        : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
-                    }`}
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl font-bold text-sm transition-all shadow-sm ${currentPage === num
+                      ? 'bg-[#1C2C28] text-[#E5F778] shadow-md'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                      }`}
                   >
                     {num}
                   </button>
                 ))}
-                
+
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`w-10 h-10 flex items-center justify-center rounded-xl font-bold text-sm transition-all ${
-                    currentPage === totalPages
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'bg-white text-slate-700 hover:bg-slate-50 shadow-sm border border-slate-200'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-xl font-bold text-sm transition-all ${currentPage === totalPages
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-white text-slate-700 hover:bg-slate-50 shadow-sm border border-slate-200'
+                    }`}
                 >
                   &gt;
                 </button>
@@ -413,7 +410,7 @@ export default function NewArrivalsPage() {
         )}
 
       </div>
-      
+
       {/* Quick View Modal */}
       {quickViewProduct && (
         <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />

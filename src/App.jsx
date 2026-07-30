@@ -114,11 +114,11 @@ export default function App() {
             <Route element={<StoreLayout isLiveChatOpen={isLiveChatOpen} setIsLiveChatOpen={setIsLiveChatOpen} isProfileOpen={isProfileOpen} setIsProfileOpen={setIsProfileOpen} />}>
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<Products />} />
-              <Route path="/cart" element={<CartPage />} />
               <Route path="/kids" element={<KidsPage />} />
               <Route path="/new-arrivals" element={<NewArrivalsPage />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/about-us" element={<AboutUs />} />

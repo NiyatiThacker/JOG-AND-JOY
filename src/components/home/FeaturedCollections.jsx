@@ -7,7 +7,7 @@ export default function FeaturedCollections() {
   return (
     <section className="py-16 bg-[#FFF8EC] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
@@ -36,46 +36,46 @@ export default function FeaturedCollections() {
             else if (cat.id === 'girls') path = '/kids?gender=Girls';
             else if (cat.id === 'newborn') path = '/kids?gender=Newborn';
             else if (cat.id === 'mens') path = '/products?category=Male';
-            
+
             return (
-            <Link
-              key={cat.id}
-              to={path}
-              className="group relative h-96 rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-100"
-            >
-              <img
-                src={cat.image}
-                alt={cat.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-
-              {/* Brand Favicon Watermark / Authenticity Seal */}
-              <div className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/95 rounded-full p-1.5 border border-slate-200/40 shadow-md group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+              <Link
+                key={cat.id}
+                to={path}
+                className="group relative h-96 rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-100"
+              >
                 <img
-                  src="/images/logo.png"
-                  alt="Jog & Joy Seal"
-                  className="w-full h-full object-contain"
-                  draggable={false}
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-              </div>
 
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
+                {/* Brand Favicon Watermark / Authenticity Seal */}
+                <div className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/95 rounded-full p-1.5 border border-slate-200/40 shadow-md group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+                  <img
+                    src="/images/logo.png"
+                    alt="Jog & Joy Seal"
+                    className="w-full h-full object-contain"
+                    draggable={false}
+                  />
+                </div>
 
-              {/* Card Footer Info */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white space-y-1">
-                <span
-                  className="px-3 py-1 rounded-full text-[11px] font-black text-slate-900 inline-block mb-1 shadow-sm"
-                  style={{ backgroundColor: cat.color }}
-                >
-                  {cat.count}
-                </span>
-                <h3 className="text-2xl font-black tracking-tight">{cat.name}</h3>
-                <span className="inline-flex items-center gap-1 text-xs font-extrabold text-white/90 group-hover:text-[#AEE6FF] transition-colors">
-                  Explore Wardrobe →
-                </span>
-              </div>
-            </Link>
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
+
+                {/* Card Footer Info */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white space-y-1">
+                  <span
+                    className="px-3 py-1 rounded-full text-[11px] font-black text-slate-900 inline-block mb-1 shadow-sm"
+                    style={{ backgroundColor: cat.color }}
+                  >
+                    {cat.count}
+                  </span>
+                  <h3 className="text-2xl font-black tracking-tight">{cat.name}</h3>
+                  <span className="inline-flex items-center gap-1 text-xs font-extrabold text-white/90 group-hover:text-[#AEE6FF] transition-colors">
+                    Explore Wardrobe →
+                  </span>
+                </div>
+              </Link>
             );
           })}
         </div>
