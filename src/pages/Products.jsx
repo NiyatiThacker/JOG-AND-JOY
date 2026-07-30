@@ -134,17 +134,20 @@ export default function Products({ pageCategory = null }) {
               )}
 
             {/* Sort Select */}
-            <div className="md:col-span-3 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-0 flex items-center justify-end">
               <CustomDropdown
                 options={[
-                  { label: 'Sort by: Most Popular', value: 'popular' },
+                  { label: 'Sort: Most Popular', value: 'popular' },
                   { label: 'Price: Low to High', value: 'low' },
                   { label: 'Price: High to Low', value: 'high' }
                 ]}
                 value={sortBy}
                 onChange={setSortBy}
                 icon={SlidersHorizontal}
+                className="w-full max-w-[200px] sm:max-w-none sm:w-auto"
+                buttonClassName="!px-3 sm:!px-4"
               />
+            </div>
             </div>
 
             {/* Expandable Filter Menu */}

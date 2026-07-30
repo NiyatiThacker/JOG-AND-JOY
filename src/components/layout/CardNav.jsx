@@ -92,7 +92,8 @@ const CardNav = ({
       contentEl.style.position = wasPosition;
       contentEl.style.height = wasHeight;
 
-      return topBar + contentHeight + padding;
+      const totalHeight = topBar + contentHeight + padding;
+      return Math.min(totalHeight, window.innerHeight);
     }
     return 96;
   };
