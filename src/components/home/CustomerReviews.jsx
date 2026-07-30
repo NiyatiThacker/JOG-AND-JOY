@@ -1,14 +1,7 @@
 import React from 'react';
-
+import { REVIEWS } from '../../data/productsData';
 import { Star, CheckCircle2, Quote, Sparkles } from 'lucide-react';
 import SpotlightCard from '../ui/SpotlightCard';
-
-const REVIEWS = [
-  { id: 1, name: "Priya S.", rating: 5, date: "2 days ago", comment: "The material is so soft, my son refuses to take off his dinosaur tee!", product: "Dino Print T-Shirt", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100" },
-  { id: 2, name: "Rahul M.", rating: 5, date: "1 week ago", comment: "Finally found joggers that survive playground slides. Excellent quality.", product: "Active Joggers", avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=100" },
-  { id: 3, name: "Sneha R.", rating: 4, date: "3 weeks ago", comment: "Vibrant colors that don't fade after washing. Very impressed.", product: "Floral Summer Frock", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100" },
-  { id: 4, name: "Vikram K.", rating: 5, date: "1 month ago", comment: "The night suit is incredibly comfortable. Will buy more soon.", product: "Starry Night Suit", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100" }
-];
 
 export default function CustomerReviews() {
   return (
@@ -49,7 +42,7 @@ export default function CustomerReviews() {
               return (
                 <SpotlightCard
                   key={index}
-                  className="kids-card p-6 border border-slate-100 flex flex-col justify-between space-y-4 bg-white w-87.5 shrink-0 transform hover:-translate-y-2 hover:shadow-2xl hover:border-slate-200 transition-all duration-300"
+                  className="kids-card p-6 border border-slate-100 flex flex-col justify-between space-y-4 bg-white w-[350px] flex-shrink-0 transform hover:-translate-y-2 hover:shadow-2xl hover:border-slate-200 transition-all duration-300"
                   spotlightColor={spotlightColors[index % spotlightColors.length]}
                 >
                   <div className="space-y-3">

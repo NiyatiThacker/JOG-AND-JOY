@@ -1,15 +1,11 @@
 import React from 'react';
 import ProductCard from '../ui/ProductCard';
-import { useProductsList } from '../../queries/useProducts';
+import { useCombinedProducts } from '../../queries/useCombinedProducts';
 import { TrendingUp, Sparkles } from 'lucide-react';
 
 export default function TrendingProducts({ onQuickView }) {
-  const { data: productsResponse, isLoading } = useProductsList();
-  const PRODUCTS = productsResponse?.data || [];
-  let trending = PRODUCTS.filter((p) => p.productType === 'Trending').slice(0, 4);
-  if (trending.length === 0 && PRODUCTS.length > 0) {
-    trending = PRODUCTS.slice(0, 4).reverse();
-  }
+  const { combinedProducts } = useCombinedProducts();
+  const trending = combinedProducts.filter((p) => p.isTrending);
 
   return (
     <section className="py-16 bg-[#FFF8EC] relative">
@@ -28,15 +24,11 @@ export default function TrendingProducts({ onQuickView }) {
         </div>
 
         {/* Product Grid */}
-        {isLoading ? (
-          <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-slate-200 border-t-[#EF4A45] rounded-full animate-spin"></div></div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trending.map((product) => (
-              <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {trending.map((product) => (
+            <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
+          ))}
+        </div>
 
       </div>
     </section>

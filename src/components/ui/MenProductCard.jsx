@@ -35,16 +35,23 @@ export default function MenProductCard({ product }) {
           <img
             src={product.image}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-contain p-8 mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=600&auto=format&fit=crop";
+            }}
           />
         </Link>
 
         {/* Hover Wishlist Button */}
         <button
           onClick={handleWishlistClick}
-          className={`absolute top-4 left-4 w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center transition-opacity duration-300 z-10 hover:bg-slate-50 ${isWished ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+          aria-label="Toggle Wishlist"
+          className={`absolute top-4 left-4 w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center transition-opacity duration-300 z-10 hover:bg-slate-50 cursor-pointer ${isWished ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
         >
-          <Heart className={`w-4 h-4 transition-all duration-300 ${isWished ? 'text-red-500 fill-red-500' : 'text-slate-600 hover:text-red-500'} ${animateHeart ? 'scale-[1.75]' : 'scale-100'}`} />
+          <Heart className={`w-4 h-4 transition-all duration-300 ${isWished ? 'text-[#FF7A59] fill-[#FF7A59]' : 'text-slate-600 hover:text-[#FF7A59]'} ${animateHeart ? 'scale-[1.75]' : 'scale-100'}`} />
         </button>
 
         {/* Sale Badge */}
@@ -80,7 +87,7 @@ export default function MenProductCard({ product }) {
           </h3>
         </Link>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-          JOY&KRIMA
+          JOG & JOY
         </p>
         <div className="flex items-baseline gap-2 pt-1">
           <span className="text-sm font-black text-[#1f2923]">₹{product.price}</span>

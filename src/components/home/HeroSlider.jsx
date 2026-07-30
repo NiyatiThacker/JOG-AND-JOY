@@ -57,8 +57,8 @@ export default function HeroSlider() {
             idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
-          <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-950/80 to-transparent z-10" />
-          <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-slate-950/60 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60 z-10" />
           
           <img
             src={slide.bgImage}
