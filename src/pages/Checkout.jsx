@@ -69,6 +69,7 @@ export default function Checkout() {
       createdAt: new Date().toISOString(),
       status: 'PROCESSING',
       paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'paid',
+      paymentMethod: formData.paymentMethod,
       fulfillmentStatus: 'unfulfilled',
       channel: 'Web Storefront',
       subtotal: cartSubtotal,

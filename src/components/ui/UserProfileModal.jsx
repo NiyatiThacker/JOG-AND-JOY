@@ -31,6 +31,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
         carrier: o.carrier,
         shippingAddress: o.shippingAddress,
         paymentStatus: o.paymentStatus || 'paid',
+        paymentMethod: o.paymentMethod || 'online',
       }));
       setOrders(formattedOrders);
     }
@@ -201,10 +202,47 @@ export default function UserProfileModal({ isOpen, onClose }) {
                        </div>
                        <div>
                           <p className="font-black text-slate-400 uppercase text-[9px] tracking-widest mb-1.5 flex items-center gap-1"><Package className="w-3 h-3"/> Payment</p>
-                          <p className="font-bold text-slate-800 capitalize">{order.paymentStatus}</p>
+                          <p className="font-bold text-slate-800">
+                            {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online'} 
+                            <span className="text-slate-400 font-medium ml-1 capitalize">({order.paymentStatus})</span>
+                          </p>
                        </div>
                     </div>
                     
+                    {/* Order Status Timeline */}
+                    <div className="mt-2 pt-4 border-t border-amber-200/50">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Order Status</p>
+                      <div className="relative flex items-center justify-between px-2">
+                        {/* Connecting Line */}
+                        <div className="absolute left-4 right-4 top-[7px] h-0.5 bg-amber-100 z-0"></div>
+                        <div className="absolute left-4 right-4 top-[7px] h-0.5 bg-[#EF4A45] z-0 transition-all duration-500" style={{ width: order.status === 'DELIVERED' ? '100%' : order.status === 'SHIPPED' ? '50%' : '0%' }}></div>
+                        
+                        {/* Processing Node */}
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                          <span className={`text-[10px] font-black ${['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) ? 'text-slate-800' : 'text-slate-400'}`}>Processing</span>
+                        </div>
+                        
+                        {/* Shipped Node */}
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${['SHIPPED', 'DELIVERED'].includes(order.status) ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                          <span className={`text-[10px] font-black ${['SHIPPED', 'DELIVERED'].includes(order.status) ? 'text-slate-800' : 'text-slate-400'}`}>Shipped</span>
+                        </div>
+                        
+                        {/* Delivered Node */}
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${order.status === 'DELIVERED' ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                          <span className={`text-[10px] font-black ${order.status === 'DELIVERED' ? 'text-slate-800' : 'text-slate-400'}`}>Delivered</span>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Tracking Info */}
                     {(order.trackingId || order.status === 'SHIPPED' || order.status === 'DELIVERED') && (
                       <div className="bg-white border border-amber-200 rounded-xl p-3 flex items-center gap-3 mt-1">
