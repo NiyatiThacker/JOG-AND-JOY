@@ -29,6 +29,8 @@ export default function KidsProductCard({ product }) {
           <img
             src={isHovered && product.gallery?.[1] ? product.gallery[1] : product.image}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover p-3 transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
               e.target.onerror = null;

@@ -35,6 +35,8 @@ export default function MenProductCard({ product }) {
           <img
             src={product.image}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-contain p-8 mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
             onError={(e) => {
               e.target.onerror = null;

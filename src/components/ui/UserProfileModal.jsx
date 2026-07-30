@@ -337,42 +337,42 @@ export default function UserProfileModal({ isOpen, onClose }) {
           className="relative w-full sm:w-[760px] md:w-[820px] bg-[#FFFDF9] rounded-t-3xl sm:rounded-[24px] overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-[#ECECEC]"
         >
           {/* Header Section (Sticky) */}
-          <div className="sticky top-0 bg-[#FFFDF9]/95 backdrop-blur-md z-20 px-6 sm:px-8 pt-8 pb-5 border-b border-[#ECECEC]">
+          <div className="sticky top-0 bg-[#FFFDF9]/95 backdrop-blur-md z-20 px-4 sm:px-8 pt-5 sm:pt-8 pb-4 border-b border-[#ECECEC]">
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-100/80 hover:bg-[#FFF3EE] text-slate-600 flex items-center justify-center transition-all duration-200 hover:rotate-90 hover:scale-105 hover:text-[#FF7A59]"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100/90 hover:bg-[#FFF3EE] text-slate-600 flex items-center justify-center transition-all duration-200 hover:rotate-90 hover:scale-105 hover:text-[#FF7A59] z-30"
               aria-label="Close modal"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             {/* Profile Avatar & Details Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-5">
-                <div className="relative group">
-                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-[#FF7A59] to-[#FFD5A1] flex items-center justify-center border-4 border-white shadow-md transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(255,122,89,0.4)] group-hover:scale-105">
-                    <User className="w-10 h-10 text-white" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pr-10 sm:pr-12">
+              <div className="flex items-center gap-3.5 sm:gap-5 min-w-0 flex-1">
+                <div className="relative group shrink-0">
+                  <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-[#FF7A59] to-[#FFD5A1] flex items-center justify-center border-2 sm:border-4 border-white shadow-md transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(255,122,89,0.4)] group-hover:scale-105">
+                    <User className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
                   </div>
                 </div>
                 
-                <div>
-                  <h2 className="text-[26px] sm:text-[28px] font-bold text-slate-900 tracking-tight leading-tight">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg sm:text-2xl lg:text-[28px] font-bold text-slate-900 tracking-tight leading-tight truncate">
                     {profileData.fullName}
                   </h2>
-                  <p className="text-sm sm:text-base font-semibold text-slate-500 mt-0.5">Welcome back 👋</p>
+                  <p className="text-xs sm:text-base font-semibold text-slate-500 mt-0.5">Welcome back 👋</p>
                   
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-2 text-[13px] sm:text-[14px] text-slate-500 font-medium">
-                    <span className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-slate-400" /> {profileData.email}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1.5 text-xs sm:text-[14px] text-slate-500 font-medium truncate">
+                    <span className="flex items-center gap-1.5 truncate"><Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {profileData.email}</span>
                     <span className="hidden sm:inline text-slate-300">•</span>
-                    <span className="flex items-center gap-1.5"><Smartphone className="w-4 h-4 text-slate-400" /> {profileData.phone}</span>
+                    <span className="flex items-center gap-1.5"><Smartphone className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {profileData.phone}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Navigation Tabs (Centered & Equally Spaced) */}
-            <div className="flex items-center justify-center gap-2 sm:gap-4 mt-7 overflow-x-auto no-scrollbar pb-1 w-full">
+            {/* Navigation Tabs (Responsive Equal 3-Column Grid) */}
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mt-4 sm:mt-6 w-full bg-slate-100/80 p-1.5 rounded-2xl">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 const Icon = tab.icon;
@@ -380,19 +380,12 @@ export default function UserProfileModal({ isOpen, onClose }) {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`relative px-6 py-2.5 rounded-full text-[15px] font-semibold transition-colors duration-300 flex items-center gap-2.5 flex-shrink-0
-                      ${isActive ? 'text-[#FF7A59]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}
+                    className={`relative py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2.5 w-full z-10
+                      ${isActive ? 'text-[#FF7A59] bg-white shadow-xs' : 'text-slate-600 hover:text-slate-900'}
                     `}
                   >
-                    {isActive && (
-                      <motion.div
-                        layoutId="tab-indicator"
-                        className="absolute inset-0 bg-[#FFF3EE] rounded-full z-0"
-                        transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
-                      />
-                    )}
-                    <Icon className={`w-4 h-4 relative z-10 transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} />
-                    <span className="relative z-10">{tab.label}</span>
+                    <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
+                    <span>{tab.label}</span>
                   </button>
                 );
               })}
@@ -400,7 +393,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
           </div>
 
           {/* Scrollable Main Content */}
-          <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-[#FFFDF9] scroll-smooth">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#FFFDF9] scroll-smooth">
             
             {/* 1. ORDERS TAB */}
             {activeTab === 'orders' && (

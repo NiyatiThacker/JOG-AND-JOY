@@ -67,7 +67,7 @@ function ScrollToTop() {
 
 function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsProfileOpen }) {
   return (
-    <div className="min-h-screen bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
+    <div className="min-h-screen w-full overflow-x-hidden relative bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
       <AnnouncementBar />
       <Navbar onOpenProfile={() => setIsProfileOpen(true)} />
 
