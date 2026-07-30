@@ -13,21 +13,23 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useCreateOrder } from '../queries/useOrders';
+import { useAuth } from '../context/AuthContext';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { cart, cartSubtotal, discountAmount, shippingFee, cartGrandTotal, clearCart } = useCart();
   const createOrder = useCreateOrder();
+  const { user } = useAuth();
 
   const [step, setStep] = useState(1); // 1: Address | 2: Shipping | 3: Payment | 4: Order Confirmed
   const [formData, setFormData] = useState({
-    fullName: 'Ananya Sharma',
-    email: 'ananya.sharma@example.com',
-    phone: '9876543210',
-    address: 'Flat 402, Sunshine Heights, MG Road',
-    city: 'Mumbai',
-    state: 'Maharashtra',
-    pincode: '400050',
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: user?.address || '',
+    city: '',
+    state: '',
+    pincode: '',
     shippingMethod: 'express', // 'standard' | 'express'
     paymentMethod: 'upi' // 'upi' | 'card' | 'cod'
   });
@@ -63,6 +65,7 @@ export default function Checkout() {
   const handlePlaceOrder = async () => {
     const orderPayload = {
       orderNumber: `JJ-${Math.floor(Math.random() * 90000) + 10000}`,
+      customerId: user?.id || null,
       createdAt: new Date().toISOString(),
       status: 'PROCESSING',
       paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'paid',
