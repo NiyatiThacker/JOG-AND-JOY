@@ -23,9 +23,11 @@ export default function UserProfileModal({ isOpen, onClose }) {
       const formattedOrders = ordersData.data.map(o => ({
         id: o.id,
         date: new Date(o.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-        items: o.items ? o.items.map(item => `${item.name} (x${item.quantity})`).join(', ') : '',
+        items: o.items ? o.items.map(item => `${item.name || item.titleSnapshot || 'Item'} (x${item.quantity})`).join(', ') : '',
         total: `₹${o.total}`,
-        status: o.status
+        status: o.status,
+        trackingId: o.trackingId,
+        carrier: o.carrier
       }));
       setOrders(formattedOrders);
     }
@@ -165,6 +167,15 @@ export default function UserProfileModal({ isOpen, onClose }) {
                       </span>
                     </div>
                     <p className="text-xs font-medium text-slate-600 line-clamp-1">{order.items}</p>
+                    {(order.trackingId || order.status === 'SHIPPED' || order.status === 'DELIVERED') && (
+                      <div className="bg-white border border-amber-200 rounded-lg p-2 flex items-center gap-2">
+                        <Package className="w-4 h-4 text-[#EF4A45]" />
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase leading-none">Tracking Info</p>
+                          <p className="text-xs font-black text-slate-800 leading-none mt-1">{order.carrier || 'Shipping Partner'}: {order.trackingId || 'Pending Tracking ID'}</p>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between pt-2 border-t border-amber-200/50 text-xs">
                       <span className="text-slate-500 font-semibold">Ordered: {order.date}</span>
                       <div className="flex items-center gap-3">

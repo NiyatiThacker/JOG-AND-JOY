@@ -17,7 +17,7 @@ const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SU
 
 async function testOrder() {
   const newOrder = {
-      id: "JJ-TEST-001",
+      id: "JJ-TEST-002",
       customerId: "guest",
       customerName: "Test Name",
       customerEmail: "test@example.com",
@@ -30,7 +30,7 @@ async function testOrder() {
       status: 'PROCESSING'
   };
 
-  const { data, error } = await supabase.from('orders').insert([newOrder]).select();
+  const { data, error } = await supabase.from('orders').insert([newOrder]);
   if (error) {
     console.error("Insert Error:", error);
   } else {

@@ -159,10 +159,12 @@ function AdminLayoutContent() {
    )}
  </div>
  <div className="flex items-center gap-3 pl-4 border-l border-border">
- <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-zinc-600 font-bold text-xs">AD</div>
+ <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-zinc-600 font-bold text-xs uppercase">
+   {user?.name ? user.name.substring(0, 2) : 'AD'}
+ </div>
  <div className="hidden sm:block">
- <p className="text-sm font-bold text-text-primary leading-none">Administrator</p>
- <p className="text-xs text-text-secondary mt-1">{settings?.storeName || 'Jog & Joy'}</p>
+ <p className="text-sm font-bold text-text-primary leading-none truncate w-28">{user?.name || 'Administrator'}</p>
+ <p className="text-xs text-text-secondary mt-1 truncate w-28">{user?.email}</p>
  </div>
  </div>
  </div>

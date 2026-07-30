@@ -28,11 +28,7 @@ export default function AdminSettings() {
   const tabs = [
     { id: 'general', icon: <Store className="w-4 h-4" />, label: 'General Details' },
     { id: 'checkout', icon: <ShoppingCart className="w-4 h-4" />, label: 'Checkout & Accounts' },
-    { id: 'shipping', icon: <Truck className="w-4 h-4" />, label: 'Shipping & Delivery' },
     { id: 'taxes', icon: <Receipt className="w-4 h-4" />, label: 'Taxes & Duties' },
-    { id: 'payments', icon: <CreditCard className="w-4 h-4" />, label: 'Payments' },
-    { id: 'notifications', icon: <Bell className="w-4 h-4" />, label: 'Notifications' },
-    { id: 'policies', icon: <FileText className="w-4 h-4" />, label: 'Legal Policies' },
   ];
 
   if (isLoading) {
@@ -195,15 +191,6 @@ export default function AdminSettings() {
                   </section>
                 </div>
               )}
-
-              {['shipping', 'notifications', 'payments', 'policies'].includes(activeTab) && (
-                <div className="py-12 text-center text-zinc-400">
-                  <Globe className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                  <h3 className="text-lg font-bold text-primary-dark mb-1">Configuration Section Placeholder</h3>
-                  <p className="text-sm max-w-md mx-auto">This sub-module is fully architected in the data layer and waiting for specific UI components.</p>
-                </div>
-              )}
-
             </form>
           </div>
         </div>

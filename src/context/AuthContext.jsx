@@ -8,79 +8,110 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
-      // Check localStorage for saved session
-      const savedUser = localStorage.getItem('jog_n_joy_user');
-      if (savedUser) {
-        const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-        
-        // Fetch latest from DB to ensure data like phone/address is up to date
-        if (parsed?.id) {
-          const { data } = await supabase.from('users').select('*').eq('id', parsed.id).single();
-          if (data) {
-            setUser(data);
-            localStorage.setItem('jog_n_joy_user', JSON.stringify(data));
-          }
+    const fetchUserProfile = async (userId) => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error || !data) {
+        console.warn('Could not fetch from public.users, using session data fallback.', error);
+        // Fallback: Use data from the auth session if public.users is missing/unavailable
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user && session.user.id === userId) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.name || session.user.email.split('@')[0],
+            role: session.user.user_metadata?.role || 'CUSTOMER',
+            phone: '',
+            address: ''
+          });
         }
+      } else {
+        setUser(data);
+      }
+    };
+
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await fetchUserProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error('Error fetching session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        await fetchUserProfile(session.user.id);
+      } else {
+        setUser(null);
       }
       setLoading(false);
+    });
+
+    return () => {
+      subscription?.unsubscribe();
     };
-    initAuth();
   }, []);
 
   const isAuthenticated = !!user;
 
   const login = async (email, password) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .eq('password', password)
-      .single();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     
-    if (error || !data) {
-      console.error('Login error:', error?.message || 'Invalid credentials');
+    if (error) {
+      console.error('Login error:', error.message);
       return false;
     }
-    
-    setUser(data);
-    localStorage.setItem('jog_n_joy_user', JSON.stringify(data));
     return true;
   };
 
   const register = async (name, email, password, role = 'CUSTOMER', phone = '', address = '') => {
-    // Check if email exists
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .single();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          role
+        }
+      }
+    });
 
-    if (existingUser) {
-      console.error('Registration error: Email already exists');
+    if (error) {
+      console.error('Registration error:', error.message);
       return false;
     }
 
-    const { data, error } = await supabase
-      .from('users')
-      .insert([{ name, email, password, role, phone, address }])
-      .select()
-      .single();
-
-    if (error || !data) {
-      console.error('Registration error:', error?.message);
-      return false;
+    if (data.user && (phone || address)) {
+        // slight delay to allow postgres trigger to insert into public.users
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await supabase
+          .from('users')
+          .update({ phone, address })
+          .eq('id', data.user.id);
     }
-    
-    setUser(data);
-    localStorage.setItem('jog_n_joy_user', JSON.stringify(data));
+
     return true;
   };
 
   const logout = async () => {
-    setUser(null);
-    localStorage.removeItem('jog_n_joy_user');
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout error:', error.message);
+    }
   };
 
   const updateUser = async (updates) => {
@@ -99,7 +130,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     setUser(data);
-    localStorage.setItem('jog_n_joy_user', JSON.stringify(data));
     return true;
   };
 

@@ -12,7 +12,7 @@ import { useMessagesList } from '../../queries/useMessages';
 export default function AdminDashboard() {
   const { formatCurrency } = useSettingsContext();
   const { data: summary, isLoading: isLoadingSummary } = useRevenueSummary();
-  const { data: ordersData } = useOrdersList({ fulfillmentStatus: 'unfulfilled' });
+  const { data: ordersData } = useOrdersList({ status: 'PROCESSING' });
   const { data: productsData } = useProductsList();
   const { data: messagesData } = useMessagesList({ status: 'unread' });
   const { activities } = useRecentActivity(); // Force HMR reload
@@ -33,8 +33,14 @@ export default function AdminDashboard() {
 
   const { data: salesSeries = [] } = useSalesSeries({ granularity: 'day' });
 
+  // Map API data {date, revenue} -> {name, sales} for Recharts
+  const mappedSeries = salesSeries.map(item => ({
+    name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+    sales: item.revenue || 0
+  }));
+
   // Fallback to empty chart if no data yet
-  const chartData = salesSeries.length > 0 ? salesSeries : [
+  const chartData = mappedSeries.length > 0 ? mappedSeries : [
     { name: 'Mon', sales: 0 },
     { name: 'Tue', sales: 0 },
     { name: 'Wed', sales: 0 },
@@ -61,7 +67,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
         <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden group hover:border-accent-green transition-colors">
           <div className="flex justify-between items-start mb-2">
             <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Total Sales</p>
@@ -77,17 +83,6 @@ export default function AdminDashboard() {
 
         <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden group hover:border-accent-green transition-colors">
           <div className="flex justify-between items-start mb-2">
-            <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Store Sessions</p>
-            <div className="p-1.5 bg-zinc-100 rounded-lg text-zinc-500 group-hover:bg-accent-green/10 group-hover:text-accent-green transition-colors"><Users className="w-4 h-4" /></div>
-          </div>
-          <div className="flex items-end gap-3 mt-4">
-            <p className="text-2xl font-black text-primary-dark">0</p>
-            <span className="text-xs font-bold text-slate-400 mb-1">0%</span>
-          </div>
-        </div>
-
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden group hover:border-accent-green transition-colors">
-          <div className="flex justify-between items-start mb-2">
             <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Orders</p>
             <div className="p-1.5 bg-zinc-100 rounded-lg text-zinc-500 group-hover:bg-accent-green/10 group-hover:text-accent-green transition-colors"><ShoppingBag className="w-4 h-4" /></div>
           </div>
@@ -96,17 +91,6 @@ export default function AdminDashboard() {
               {isLoadingSummary ? '...' : summary?.totalOrders || 0}
             </p>
             <span className="text-xs font-bold text-error mb-1">-2%</span>
-          </div>
-        </div>
-        
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden group hover:border-accent-green transition-colors">
-          <div className="flex justify-between items-start mb-2">
-            <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Conversion Rate</p>
-            <div className="p-1.5 bg-zinc-100 rounded-lg text-zinc-500 group-hover:bg-accent-green/10 group-hover:text-accent-green transition-colors"><TrendingUp className="w-4 h-4" /></div>
-          </div>
-          <div className="flex items-end gap-3 mt-4">
-            <p className="text-2xl font-black text-primary-dark">0%</p>
-            <span className="text-xs font-bold text-slate-400 mb-1">0%</span>
           </div>
         </div>
       </div>

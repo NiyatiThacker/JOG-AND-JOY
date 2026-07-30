@@ -88,17 +88,22 @@ export async function create(table, payload) {
     updatedAt: now 
   };
 
-  const { data, error } = await supabase
-    .from(table)
-    .insert([record])
-    .select()
-    .single();
+  let query = supabase.from(table).insert([record]);
+  
+  // Guest orders will fail RLS if we try to SELECT after INSERT. 
+  // We can safely omit the select for orders since we already know the payload.
+  if (table !== 'orders') {
+    query = query.select().single();
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error(`Supabase Create Error [${table}]:`, error);
     throw new Error(error.message);
   }
-  return data;
+  
+  return data || record;
 }
 
 export async function update(table, id, patch) {

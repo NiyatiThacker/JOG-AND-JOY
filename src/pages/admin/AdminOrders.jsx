@@ -10,8 +10,6 @@ export default function AdminOrders() {
   const [search, setSearch] = useState('');
   const [view, setView] = useState('list');
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showDraftModal, setShowDraftModal] = useState(false);
-  const [draftData, setDraftData] = useState({ customerEmail: '', items: [] });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
@@ -60,10 +58,6 @@ export default function AdminOrders() {
       }
       return matches;
     });
-  }
-
-  if (activeTab === 'returns') {
-    orders = []; // Mock Returns/RMA tab
   }
 
   const updateMut = useUpdateOrder();
@@ -115,24 +109,7 @@ export default function AdminOrders() {
     }
   };
 
-  const handleFulfill = () => {
-    if (selectedOrder) {
-      const historyEntry = { status: 'SHIPPED', timestamp: new Date().toISOString(), note: 'Items fulfilled' };
-      updateMut.mutate({
-        id: selectedOrder.id,
-        patch: {
-          fulfillmentStatus: 'fulfilled',
-          status: 'SHIPPED',
-          statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
-        }
-      }, {
-        onSuccess: (updated) => {
-          setSelectedOrder(updated);
-          showToast('Items fulfilled successfully');
-        }
-      });
-    }
-  };
+
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
@@ -222,7 +199,7 @@ export default function AdminOrders() {
                   <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20">
                     <div className="p-1">
-                      {['PROCESSING', 'ON_HOLD', 'CANCELLED'].map(st => (
+                      {['PROCESSING', 'SHIPPED', 'DELIVERED', 'ON_HOLD', 'CANCELLED'].map(st => (
                         <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
                           Mark as {st.replace('_', ' ')}
                         </button>
@@ -240,7 +217,7 @@ export default function AdminOrders() {
             {/* Line Items */}
             <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden p-6">
               <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2">
-                <Package className="w-5 h-5 text-accent-green" /> Unfulfilled ({o.items?.length || 0})
+                <Package className="w-5 h-5 text-accent-green" /> Ordered Items ({o.items?.length || 0})
               </h2>
               <div className="space-y-4">
                 {o.items?.map((item, i) => (
@@ -256,9 +233,6 @@ export default function AdminOrders() {
                     </div>
                   </div>
                 ))}
-              </div>
-              <div className="mt-6 flex justify-end">
-                <button onClick={handleFulfill} className="px-6 py-2 bg-primary-dark text-white rounded-xl font-bold text-sm shadow-sm hover:bg-primary-hover">Fulfill Items</button>
               </div>
             </div>
 
@@ -325,12 +299,7 @@ export default function AdminOrders() {
                 {o.tags?.map(t => <span key={t} className="px-2 py-1 bg-zinc-100 rounded text-xs font-bold text-text-secondary">{t}</span>)}
               </div>
 
-              <hr className="border-border my-4" />
-              <h2 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-3">Fraud Analysis</h2>
-              <div className={`p-3 rounded-lg flex items-start gap-3 ${o.riskLevel === 'high' ? 'bg-error/10 text-error' : o.riskLevel === 'medium' ? 'bg-warning/10 text-warning-dark' : 'bg-success/10 text-success-dark'}`}>
-                <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
-                <p className="text-sm font-bold">{o.riskLevel === 'high' ? 'High Risk' : o.riskLevel === 'medium' ? 'Medium Risk' : 'Low Risk'}</p>
-              </div>
+
             </div>
           </div>
         </div>
@@ -427,8 +396,7 @@ export default function AdminOrders() {
               { id: 'SHIPPED', label: 'Shipped' },
               { id: 'DELIVERED', label: 'Delivered' },
               { id: 'CANCELLED', label: 'Cancelled' },
-              { id: 'ON_HOLD', label: 'On Hold' },
-              { id: 'returns', label: 'Returns' }
+              { id: 'ON_HOLD', label: 'On Hold' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -508,49 +476,6 @@ export default function AdminOrders() {
           )}
         </div>
       </div>
-
-      {showDraftModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-border flex justify-between items-center bg-zinc-50">
-              <h2 className="font-extrabold text-lg text-primary-dark">Create Draft Order</h2>
-              <button onClick={() => setShowDraftModal(false)} className="p-2 bg-white rounded-lg border border-border hover:bg-zinc-100 transition-colors">
-                <X className="w-4 h-4 text-zinc-500" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Customer Email</label>
-                <input type="email" value={draftData.customerEmail} onChange={e => setDraftData({...draftData, customerEmail: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl bg-zinc-50 focus:border-accent-green outline-none" placeholder="customer@example.com" />
-              </div>
-              <div className="p-4 bg-zinc-50 border border-border rounded-xl">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-bold text-primary-dark">Items</span>
-                  <button onClick={() => setDraftData({...draftData, items: [...draftData.items, { titleSnapshot: '', unitPrice: 0, quantity: 1 }]})} className="text-xs font-bold text-accent-green hover:underline">+ Add Custom Item</button>
-                </div>
-                {draftData.items.length === 0 ? (
-                  <p className="text-xs text-text-secondary italic">No items added.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {draftData.items.map((item, idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
-                        <input type="text" placeholder="Item name" value={item.titleSnapshot} onChange={e => { const newItems = [...draftData.items]; newItems[idx].titleSnapshot = e.target.value; setDraftData({...draftData, items: newItems}); }} className="flex-1 px-2 py-1 text-sm border border-border rounded" />
-                        <input type="number" placeholder="Price" value={item.unitPrice} onChange={e => { const newItems = [...draftData.items]; newItems[idx].unitPrice = Number(e.target.value); setDraftData({...draftData, items: newItems}); }} className="w-20 px-2 py-1 text-sm border border-border rounded" />
-                        <input type="number" placeholder="Qty" value={item.quantity} onChange={e => { const newItems = [...draftData.items]; newItems[idx].quantity = Number(e.target.value); setDraftData({...draftData, items: newItems}); }} className="w-16 px-2 py-1 text-sm border border-border rounded" />
-                        <button onClick={() => { const newItems = draftData.items.filter((_, i) => i !== idx); setDraftData({...draftData, items: newItems}); }} className="text-error hover:bg-error/10 p-1 rounded"><X className="w-3 h-3"/></button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="p-4 border-t border-border bg-zinc-50 flex justify-end gap-3">
-              <button onClick={() => setShowDraftModal(false)} className="px-4 py-2 text-sm font-bold text-text-secondary hover:text-primary-dark transition-colors">Cancel</button>
-              <button onClick={() => { alert('Draft order created!'); setShowDraftModal(false); setDraftData({ customerEmail: '', items: [] }); }} className="px-6 py-2 bg-primary-dark text-white rounded-xl font-bold text-sm shadow-sm hover:bg-primary-hover transition-colors">Save Draft</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
