@@ -20,7 +20,7 @@ export default function AdminAnalytics() {
   const now = new Date();
   let startDate = new Date();
   if (period === 'today') {
-    startDate.setHours(0, 0, 0, 0);
+    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   } else if (period === '7d') {
     startDate.setDate(now.getDate() - 7);
   } else if (period === '30d') {

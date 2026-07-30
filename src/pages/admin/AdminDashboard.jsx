@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ShoppingBag, Users, IndianRupee, AlertTriangle, Package, MessageSquare, Clock, ArrowRight, CreditCard, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOrdersList } from '../../queries/useOrders';
@@ -17,19 +17,21 @@ export default function AdminDashboard() {
   // Filtering logic
   const now = new Date();
   let startDate = new Date(0);
-  if (period === 'today') { startDate = new Date(); startDate.setHours(0,0,0,0); }
-  else if (period === 'week') { startDate = new Date(now.setDate(now.getDate() - 7)); }
-  else if (period === '30d') { startDate = new Date(now.setDate(now.getDate() - 30)); }
+  if (period === 'today') { startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); }
+  else if (period === 'week') { startDate = new Date(); startDate.setDate(now.getDate() - 7); }
+  else if (period === '30d') { startDate = new Date(); startDate.setDate(now.getDate() - 30); }
   else if (period === 'last_month') {
-    const today = new Date();
-    startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    now.setFullYear(today.getFullYear(), today.getMonth(), 0);
+    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   }
-  else if (period === 'year') { startDate = new Date(new Date().getFullYear(), 0, 1); }
+  else if (period === 'year') { startDate = new Date(now.getFullYear(), 0, 1); }
 
   const filteredOrders = orders.filter(o => {
     const d = new Date(o.createdAt || new Date());
-    return d >= startDate && (period === 'last_month' ? d <= now : true);
+    if (period === 'last_month') {
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      return d >= startDate && d <= endOfLastMonth;
+    }
+    return d >= startDate;
   });
 
   const validOrders = filteredOrders.filter(o => o.status !== 'CANCELLED' && o.status !== 'REFUNDED');

@@ -14,10 +14,17 @@ export default function AdminFinancials() {
   const financials = useMemo(() => {
     const now = new Date();
     let startDate = new Date(0);
-    if (period === 'today') { startDate = new Date(); startDate.setHours(0,0,0,0); }
-    else if (period === '7d') { startDate = new Date(now.setDate(now.getDate() - 7)); }
-    else if (period === '30d') { startDate = new Date(now.setDate(now.getDate() - 30)); }
-    else if (period === 'year') { startDate = new Date(new Date().getFullYear(), 0, 1); }
+    if (period === 'today') { 
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); 
+    } else if (period === '7d') { 
+      startDate = new Date(); 
+      startDate.setDate(now.getDate() - 7); 
+    } else if (period === '30d') { 
+      startDate = new Date(); 
+      startDate.setDate(now.getDate() - 30); 
+    } else if (period === 'year') { 
+      startDate = new Date(now.getFullYear(), 0, 1); 
+    }
 
     const paidOrders = orders.filter(o => o.paymentStatus === 'paid' && new Date(o.createdAt || new Date()) >= startDate);
     
