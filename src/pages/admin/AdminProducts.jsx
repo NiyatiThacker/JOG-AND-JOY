@@ -24,7 +24,9 @@ export default function AdminProducts() {
     shipping: '',
     sizes: [],
     colors: [],
-    variants: []
+    variants: [],
+    collections: [],
+    isNewArrival: false
   });
   
   const [customColorName, setCustomColorName] = useState('');
@@ -55,7 +57,7 @@ export default function AdminProducts() {
 
   const resetForm = () => {
     setFormData({
-      title: '', groupId: '', categoryId: 'Boy', vendor: '', originalPrice: '', discountPercent: '20', stock: '', images: [], description: '', fabric: '', care: '', shipping: '', sizes: [], colors: [], variants: []
+      title: '', groupId: '', categoryId: 'Boy', vendor: '', originalPrice: '', discountPercent: '20', stock: '', images: [], description: '', fabric: '', care: '', shipping: '', sizes: [], colors: [], variants: [], collections: [], isNewArrival: false
     });
     setEditingId(null);
     setShowForm(false);
@@ -126,7 +128,9 @@ export default function AdminProducts() {
       shipping: product.shipping || '',
       sizes: product.sizes || [],
       colors: [], 
-      variants: []
+      variants: [],
+      collections: product.collections || [],
+      isNewArrival: product.isNewArrival || false
     });
   };
 
@@ -141,6 +145,8 @@ export default function AdminProducts() {
       discPct = product.discountPercent.toString();
     }
 
+    const computedTotalStock = product.variants?.reduce((sum, v) => sum + (Number(v.stock) || 0), 0) || product.stock || 0;
+
     setFormData({
       title: product.title || '',
       groupId: product.groupId || '',
@@ -148,7 +154,7 @@ export default function AdminProducts() {
       vendor: product.vendor || '',
       originalPrice: product.originalPrice || product.basePrice || '',
       discountPercent: discPct,
-      stock: product.stock?.toString() || product.variants?.[0]?.stock?.toString() || '0',
+      stock: computedTotalStock.toString(),
       images: product.images || [],
       description: product.description || '',
       fabric: product.fabric || '',
@@ -156,7 +162,9 @@ export default function AdminProducts() {
       shipping: product.shipping || '',
       sizes: product.sizes || [],
       colors: product.colors || [],
-      variants: product.variants || []
+      variants: product.variants || [],
+      collections: product.collections || [],
+      isNewArrival: product.isNewArrival || false
     });
     
     setShowForm(true);
@@ -170,6 +178,18 @@ export default function AdminProducts() {
     }
 
     const calculatedPrice = Math.round(Number(formData.originalPrice) * (1 - Number(formData.discountPercent) / 100));
+    
+    // Auto-sync logic for stock and variants
+    let finalStock = Number(formData.stock) || 0;
+    let finalVariants = formData.variants;
+    
+    if (finalVariants.length === 1) {
+      // If only one variant (standard), force variant stock to match total stock input
+      finalVariants[0] = { ...finalVariants[0], stock: finalStock };
+    } else if (finalVariants.length > 1) {
+      // If multiple variants, force total stock to equal the sum of variant stocks
+      finalStock = finalVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+    }
 
     const productPayload = {
       title: formData.title,
@@ -188,8 +208,10 @@ export default function AdminProducts() {
       colors: formData.colors,
       status: 'live',
       images: formData.images.length > 0 ? formData.images : ['https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop'],
-      stock: Number(formData.stock) || 0,
-      variants: formData.variants.map(v => ({
+      stock: finalStock,
+      collections: formData.collections || [],
+      isNewArrival: formData.isNewArrival || false,
+      variants: finalVariants.map(v => ({
         id: v.id,
         sku: v.sku,
         colorHex: v.colorHex,
@@ -325,16 +347,15 @@ export default function AdminProducts() {
               <div>
                 <label className="block text-sm font-bold text-text-secondary mb-2">Category *</label>
                 <select value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" required>
-                  <option value="Boys">Boys</option>
-                  <option value="Girls">Girls</option>
-                  <option value="Newborn & Baby">Newborn & Baby</option>
-                  <option value="Men's Collection">Men's Collection</option>
-                  <option value="Women's Collection">Women's Collection</option>
-                  <option value="Ethnic Wear">Ethnic Wear</option>
-                  <option value="Activewear">Activewear</option>
-                  <option value="Winter Wear">Winter Wear</option>
-                  <option value="Footwear">Footwear</option>
-                  <option value="Accessories">Accessories</option>
+                  <option value="Kids T-shirt">Kids T-shirt</option>
+                  <option value="Kids joggers and tracks">Kids joggers and tracks</option>
+                  <option value="Kids shorts and bermudas">Kids shorts and bermudas</option>
+                  <option value="Kids night suits">Kids night suits</option>
+                  <option value="Kids pajama suits">Kids pajama suits</option>
+                  <option value="Men tracks and joggers">Men tracks and joggers</option>
+                  <option value="Men shorts and bermuda">Men shorts and bermuda</option>
+                  <option value="Men boxers">Men boxers</option>
+                  <option value="Girl frocks">Girl frocks</option>
                 </select>
               </div>
             </div>
@@ -346,8 +367,63 @@ export default function AdminProducts() {
                   <input type="text" value={formData.vendor} onChange={e => setFormData({ ...formData, vendor: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" placeholder="e.g. Mitti" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-text-secondary mb-2">Total Stock *</label>
-                  <input type="number" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" placeholder="e.g. 50" required />
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-bold text-text-secondary">Total Stock *</label>
+                    {formData.variants.length > 1 && (
+                      <span className="text-[10px] text-accent-green font-bold uppercase tracking-wider">Auto-calculated</span>
+                    )}
+                  </div>
+                  <input 
+                    type="number" 
+                    value={formData.variants.length > 1 ? formData.variants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0) : formData.stock} 
+                    onChange={e => {
+                      if (formData.variants.length <= 1) {
+                        setFormData({ ...formData, stock: e.target.value });
+                      }
+                    }} 
+                    disabled={formData.variants.length > 1}
+                    className={`w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none ${formData.variants.length > 1 ? 'bg-zinc-50 text-zinc-500 cursor-not-allowed' : ''}`} 
+                    placeholder="e.g. 50" 
+                    required 
+                  />
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center p-4 bg-zinc-50 border border-border rounded-xl">
+                <div className="flex-1">
+                  <label className="block text-sm font-bold text-text-secondary mb-3">Seasonal Collections</label>
+                  <div className="flex flex-wrap gap-3">
+                    {['Summer', 'Winter', 'Monsoon', 'Festive'].map(season => (
+                      <label key={season} className="flex items-center gap-2 cursor-pointer group">
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${formData.collections?.includes(season) ? 'bg-accent-green border-accent-green text-white' : 'border-zinc-300 group-hover:border-accent-green bg-white'}`}>
+                          {formData.collections?.includes(season) && <CheckCircle2 className="w-3 h-3" />}
+                        </div>
+                        <span className="text-sm font-bold text-zinc-600">{season}</span>
+                        <input 
+                          type="checkbox" 
+                          className="hidden" 
+                          checked={formData.collections?.includes(season)} 
+                          onChange={(e) => {
+                            const newCols = e.target.checked 
+                              ? [...(formData.collections || []), season]
+                              : (formData.collections || []).filter(c => c !== season);
+                            setFormData({ ...formData, collections: newCols });
+                          }} 
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="h-full w-px bg-border hidden sm:block"></div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-text-secondary whitespace-nowrap">New Arrival</span>
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({ ...formData, isNewArrival: !formData.isNewArrival })}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${formData.isNewArrival ? 'bg-accent-green' : 'bg-zinc-300'}`}
+                  >
+                    <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${formData.isNewArrival ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                  </button>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -727,10 +803,27 @@ export default function AdminProducts() {
                                 <ImageIcon className="w-5 h-5 text-zinc-300" />
                               )}
                             </div>
-                            <div>
-                              <p className="font-bold text-primary-dark">{product.title}</p>
-                              <p className="text-xs text-zinc-400">{product.categoryId || product.vendor}</p>
-                            </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-bold text-primary-dark">{product.title}</p>
+                                  {product.isNewArrival && (
+                                    <span className="px-1.5 py-0.5 rounded bg-accent-green/10 text-accent-green text-[9px] font-extrabold tracking-widest uppercase">New</span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <p className="text-xs text-zinc-400 font-bold">{product.categoryId || product.vendor}</p>
+                                  {product.collections?.length > 0 && (
+                                    <>
+                                      <span className="text-zinc-300">•</span>
+                                      <div className="flex gap-1">
+                                        {product.collections.map(c => (
+                                          <span key={c} className="text-[9px] font-bold text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded">{c}</span>
+                                        ))}
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 font-mono text-xs font-bold text-zinc-600">{sku}</td>
@@ -739,8 +832,14 @@ export default function AdminProducts() {
                         </td>
                         <td className="px-6 py-4 font-extrabold text-primary-dark">₹{product.price || product.basePrice}</td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-widest bg-green-50 text-accent-green">
-                            Approved
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+                            product.status === 'live' ? 'bg-success/15 text-success-dark' : 
+                            product.status === 'pending_review' ? 'bg-warning/15 text-warning-dark' : 
+                            product.status === 'archived' ? 'bg-error/10 text-error' :
+                            'bg-zinc-200 text-zinc-600'
+                          }`}>
+                            {product.status === 'live' && <CheckCircle2 className="w-3 h-3" />}
+                            {product.status.replace('_', ' ')}
                           </span>
                         </td>
                         <td className="px-6 py-4">

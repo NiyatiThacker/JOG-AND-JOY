@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Package, AlertTriangle, Truck, RefreshCw, FileText, MapPin, Users, Search, Plus, Filter, ArrowRightLeft, X, Image as ImageIcon } from 'lucide-react';
 import { useProductsList, useUpdateProduct } from '../../queries/useProducts';
 import { useSettings } from '../../queries/useSettings';
@@ -6,6 +6,10 @@ import { useSettings } from '../../queries/useSettings';
 const StockRow = ({ item, product, updateMut }) => {
   const [localStock, setLocalStock] = useState(item.onHand);
   
+  useEffect(() => {
+    setLocalStock(item.onHand);
+  }, [item.onHand]);
+
   const available = localStock - item.reserved;
   const isOut = available <= 0;
   const isLow = !isOut && available <= item.threshold;
@@ -16,7 +20,8 @@ const StockRow = ({ item, product, updateMut }) => {
     const newVariants = product.variants.map(v => 
       v.id === item.variantId ? { ...v, stock: newStock } : v
     );
-    updateMut.mutate({ id: product.id, patch: { variants: newVariants } });
+    const totalStock = newVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+    updateMut.mutate({ id: product.id, patch: { variants: newVariants, stock: totalStock } });
   };
 
   return (
@@ -32,7 +37,14 @@ const StockRow = ({ item, product, updateMut }) => {
           </div>
           <div>
             <p className="font-bold text-primary-dark">{item.productTitle}</p>
-            <p className="text-xs text-zinc-400">{product.vendor || 'Jog & Joy'} • {product.categoryId || 'General'}</p>
+            {item.variantSize && item.variantColor && (item.variantSize !== 'Standard' || item.variantColor !== 'Standard') && (
+              <p className="text-xs font-bold text-accent-green mb-0.5">
+                {item.variantColor !== 'Standard' ? item.variantColor : ''} 
+                {item.variantColor !== 'Standard' && item.variantSize !== 'Standard' ? ' • ' : ''} 
+                {item.variantSize !== 'Standard' ? item.variantSize : ''}
+              </p>
+            )}
+            <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{product.vendor || 'Jog & Joy'} • {product.categoryId || 'General'}</p>
           </div>
         </div>
       </td>
@@ -58,15 +70,16 @@ const StockRow = ({ item, product, updateMut }) => {
       <td className="px-6 py-4">
         <div className="flex items-center gap-1">
           <button 
-            onClick={() => commitStockChange(localStock - 1)}
+            onClick={() => commitStockChange(Math.max(0, localStock - 1))}
             className="w-8 h-8 rounded-lg border border-border bg-white flex items-center justify-center text-zinc-600 hover:bg-zinc-50 transition-colors font-bold"
           >
             -
           </button>
           <input 
             type="number" 
+            min="0"
             value={localStock}
-            onChange={(e) => setLocalStock(Number(e.target.value))}
+            onChange={(e) => setLocalStock(Math.max(0, Number(e.target.value)))}
             onBlur={() => commitStockChange(localStock)}
             className="w-14 h-8 text-center border border-border rounded-lg bg-white font-bold text-sm focus:border-accent-green outline-none"
           />
@@ -103,6 +116,8 @@ export default function AdminInventory() {
           productId: p.id,
           productTitle: p.title,
           variantId: v.id,
+          variantSize: v.size,
+          variantColor: v.colorName,
           sku: v.sku,
           onHand: v.stock || 0,
           reserved: 0,

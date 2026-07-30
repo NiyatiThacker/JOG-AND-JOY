@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import BrandLogo from '../../components/ui/BrandLogo';
-import { LayoutDashboard, ShoppingBag, PackageSearch, Settings, LogOut, Package, Tag, BarChart3, Star, Truck, MessageSquare, IndianRupee, Bell, BellOff, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, PackageSearch, Settings, LogOut, Package, Tag, BarChart3, Star, Truck, MessageSquare, IndianRupee, Bell, BellOff, CheckCircle, Users } from 'lucide-react';
 import { useAuth as useAdmin } from '../../context/AuthContext';
 import AdminLogin from './AdminLogin';
 import { SettingsProvider, useSettingsContext } from '../../context/SettingsContext';
@@ -33,6 +33,7 @@ function AdminLayoutContent() {
 
  const navItems = [
  { name: 'Overview', path: '/admin', icon: LayoutDashboard },
+ { name: 'Customers', path: '/admin/customers', icon: Users },
  { name: 'Products', path: '/admin/products', icon: PackageSearch },
  { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
  { name: 'Inventory', path: '/admin/inventory', icon: Package },

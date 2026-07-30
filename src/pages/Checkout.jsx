@@ -68,7 +68,6 @@ export default function Checkout() {
       paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'paid',
       fulfillmentStatus: 'unfulfilled',
       channel: 'Web Storefront',
-      riskLevel: 'low',
       subtotal: cartSubtotal,
       discountAmount: discountAmount,
       shippingCost: shippingFee,

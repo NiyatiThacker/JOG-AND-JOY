@@ -6,7 +6,7 @@ import { useSettingsContext } from '../../context/SettingsContext';
 import { useSearchParams } from 'react-router-dom';
 
 export default function AdminOrders() {
-  const [activeTab, setActiveTab] = useState('unfulfilled');
+  const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   const [view, setView] = useState('list');
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -40,7 +40,6 @@ export default function AdminOrders() {
   }, [toastMessage]);
 
   const filters = {};
-  if (activeTab === 'unfulfilled') filters.fulfillmentStatus = 'unfulfilled';
   if (['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'ON_HOLD'].includes(activeTab)) {
     filters.status = activeTab;
   }
@@ -50,7 +49,6 @@ export default function AdminOrders() {
   if (Object.keys(filters).length > 0) {
     orders = orders.filter(o => {
       let matches = true;
-      if (filters.fulfillmentStatus && o.fulfillmentStatus !== filters.fulfillmentStatus) matches = false;
       if (filters.status && o.status !== filters.status) matches = false;
       if (filters.search) {
         const q = filters.search.toLowerCase();
@@ -68,6 +66,41 @@ export default function AdminOrders() {
   };
 
   const showToast = (msg) => setToastMessage(msg);
+
+  const exportToCSV = () => {
+    if (!orders || orders.length === 0) {
+      showToast("No orders to export");
+      return;
+    }
+
+    const headers = ["Order ID", "Date", "Customer Name", "Customer Email", "Status", "Payment", "Total (INR)"];
+    
+    const rows = orders.map(o => {
+      const date = new Date(o.createdAt).toLocaleDateString();
+      const name = o.shippingAddress?.name ? `"${o.shippingAddress.name.replace(/"/g, '""')}"` : 'Guest';
+      const email = o.userId || 'Guest'; // Fallback if no email
+      return [
+        o.id,
+        date,
+        name,
+        email,
+        o.status || 'PROCESSING',
+        o.paymentStatus || 'pending',
+        o.total || 0
+      ].join(',');
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `orders_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast("CSV Exported successfully!");
+  };
 
   const handleStatusChange = (newStatus) => {
     if (selectedOrder) {
@@ -87,6 +120,69 @@ export default function AdminOrders() {
         }
       });
     }
+  };
+
+  const handlePrintPackingSlip = () => {
+    if (!selectedOrder) return;
+    
+    const printWindow = window.open('', '_blank');
+    const html = `
+      <html>
+        <head>
+          <title>Packing Slip - ${selectedOrder.id}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; }
+            .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h1 style="margin:0;">JOG & JOY</h1>
+              <p style="margin:5px 0; color:#666;">Packing Slip</p>
+            </div>
+            <div style="text-align: right;">
+              <h2 style="margin:0;">Order #${selectedOrder.id}</h2>
+              <p style="margin:5px 0;">Date: ${new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 30px;">
+            <h3>Ship To:</h3>
+            <p style="margin:2px 0;"><strong>${selectedOrder.shippingAddress?.name || 'Customer'}</strong></p>
+            <p style="margin:2px 0;">${selectedOrder.shippingAddress?.line1 || ''}</p>
+            <p style="margin:2px 0;">${selectedOrder.shippingAddress?.city || ''}, ${selectedOrder.shippingAddress?.state || ''} ${selectedOrder.shippingAddress?.postalCode || ''}</p>
+          </div>
+
+          <table>
+            <thead>
+              <tr style="background:#f9fafb;">
+                <th>Item</th>
+                <th>SKU</th>
+                <th>Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(selectedOrder.items || []).map(item => `
+                <tr>
+                  <td>
+                    <strong>${item.title || 'Product'}</strong><br/>
+                    <small style="color:#666;">Variant: ${item.colorName || 'Standard'} | Size: ${item.size || 'Standard'}</small>
+                  </td>
+                  <td>${item.sku || '-'}</td>
+                  <td>${item.quantity || 1}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <script>window.print();</script>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   const executeRefund = () => {
@@ -187,26 +283,39 @@ export default function AdminOrders() {
             >
               Edit
             </button>
-            <div className="relative">
-              <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)} 
-                className="p-2 bg-primary-dark text-white rounded-xl shadow-sm hover:bg-primary-hover"
-              >
-                <MoreHorizontal className="w-5 h-5" />
+            <div className="flex gap-2">
+              <button onClick={handlePrintPackingSlip} className="px-4 py-2 bg-white border border-border text-primary-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Print Packing Slip
               </button>
-              {isMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20">
-                    <div className="p-1">
-                      {['PROCESSING', 'SHIPPED', 'DELIVERED', 'ON_HOLD', 'CANCELLED'].map(st => (
-                        <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
-                          Mark as {st.replace('_', ' ')}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
+              {!['DELIVERED', 'CANCELLED', 'REFUNDED'].includes(o.status) && (
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                    className="p-2 bg-primary-dark text-white rounded-xl shadow-sm hover:bg-primary-hover"
+                  >
+                    <MoreHorizontal className="w-5 h-5" />
+                  </button>
+                  {isMenuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20">
+                        <div className="p-1">
+                          {['PROCESSING', 'SHIPPED', 'DELIVERED', 'ON_HOLD', 'CANCELLED'].filter(st => {
+                            if (o.status === 'PROCESSING') return ['SHIPPED', 'ON_HOLD', 'CANCELLED'].includes(st);
+                            if (o.status === 'ON_HOLD') return ['PROCESSING', 'SHIPPED', 'CANCELLED'].includes(st);
+                            if (o.status === 'SHIPPED') return ['DELIVERED', 'CANCELLED'].includes(st);
+                            return false;
+                          }).map(st => (
+                            <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
+                              Mark as {st.replace('_', ' ')}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -289,6 +398,63 @@ export default function AdminOrders() {
                 {o.shippingAddress?.city}, {o.shippingAddress?.state} {o.shippingAddress?.postalCode}<br/>
                 {o.shippingAddress?.country}
               </p>
+              
+              <hr className="border-border my-4" />
+              <h3 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2 flex justify-between items-center">
+                Tracking Information
+                {o.shippingAddress?.trackingNumber && <CheckCircle2 className="w-3 h-3 text-accent-green" />}
+              </h3>
+              <div className="flex gap-2 mt-2">
+                <input 
+                  id="tracking-input"
+                  type="text" 
+                  placeholder="Enter tracking number..."
+                  defaultValue={o.shippingAddress?.trackingNumber || ''}
+                  className="w-full px-3 py-2 bg-zinc-50 border border-border rounded-lg text-sm focus:outline-none focus:border-accent-green"
+                />
+                <button 
+                  onClick={() => {
+                    const val = document.getElementById('tracking-input').value;
+                    if (val !== o.shippingAddress?.trackingNumber) {
+                      const newShippingAddress = { ...(o.shippingAddress || {}), trackingNumber: val };
+                      const newStatus = val && o.status === 'PROCESSING' ? 'SHIPPED' : o.status;
+                      const historyEntry = { status: newStatus, timestamp: new Date().toISOString(), note: 'Tracking added via Admin' };
+                      updateMut.mutate({ 
+                        id: o.id, 
+                        patch: { 
+                          shippingAddress: newShippingAddress, 
+                          ...(val && o.status === 'PROCESSING' ? { status: 'SHIPPED', statusHistory: [...(o.statusHistory || []), historyEntry] } : {}) 
+                        } 
+                      }, {
+                        onSuccess: (updated) => {
+                          setSelectedOrder(updated);
+                          showToast('Tracking saved & order updated!');
+                        }
+                      });
+                    }
+                  }}
+                  className="px-3 py-2 bg-primary-dark text-white text-sm font-bold rounded-lg hover:bg-primary-hover whitespace-nowrap"
+                >
+                  Save
+                </button>
+              </div>
+              {o.shippingAddress?.trackingNumber && o.status !== 'DELIVERED' && o.status !== 'CANCELLED' && o.status !== 'REFUNDED' && (
+                <button 
+                  onClick={() => {
+                    const historyEntry = { status: 'DELIVERED', timestamp: new Date().toISOString(), note: 'Marked delivered via Admin' };
+                    updateMut.mutate({ id: o.id, patch: { status: 'DELIVERED', statusHistory: [...(o.statusHistory || []), historyEntry] } }, {
+                      onSuccess: (updated) => {
+                        setSelectedOrder(updated);
+                        showToast('Order marked as Delivered!');
+                      }
+                    });
+                  }}
+                  className="w-full mt-3 px-3 py-2 bg-success/15 text-success-dark text-sm font-bold rounded-lg hover:bg-success/25 transition-colors flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Mark as Delivered
+                </button>
+              )}
             </div>
 
             {/* Tags & Risk */}
@@ -374,24 +540,56 @@ export default function AdminOrders() {
     );
   }
 
+  // Summary Metrics
+  const allOrders = data?.data || [];
+  const totalOrders = allOrders.length;
+  const pendingOrders = allOrders.filter(o => o.status === 'PROCESSING' || o.status === 'PENDING').length;
+  const shippedOrders = allOrders.filter(o => o.status === 'SHIPPED').length;
+  const totalRevenue = allOrders
+    .filter(o => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
+    .reduce((sum, o) => sum + (o.total || 0), 0);
+
   // LIST VIEW
   return (
-    <div className="w-full animate-in fade-in duration-300">
+    <div className="w-full animate-in fade-in duration-300 pb-12">
       <div className="flex justify-between items-end mb-8">
         <div>
           <span className="text-[10px] text-accent-green font-bold uppercase tracking-widest font-mono">Operations</span>
           <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Orders</h1>
           <p className="text-xs text-text-secondary mt-1">Lifecycle, fulfillment, and returns</p>
         </div>
-
+        <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-border text-primary-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors">
+          <FileText className="w-4 h-4" />
+          Export CSV
+        </button>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
-        <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-zinc-50/50 p-4 gap-4">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Orders</p>
+          <p className="text-3xl font-extrabold text-primary-dark">{totalOrders}</p>
+        </div>
+        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Processing</p>
+          <p className="text-3xl font-extrabold text-warning-dark">{pendingOrders}</p>
+        </div>
+        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Shipped</p>
+          <p className="text-3xl font-extrabold text-info-dark">{shippedOrders}</p>
+        </div>
+        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Revenue</p>
+          <p className="text-3xl font-extrabold text-accent-green">{formatCurrency(totalRevenue)}</p>
+        </div>
+      </div>
+
+      {/* Tabs & Search */}
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
+        <div className="flex-1 overflow-hidden">
           <div className="flex overflow-x-auto w-full hide-scrollbar gap-2">
             {[
               { id: 'all', label: 'All' },
-              { id: 'unfulfilled', label: 'Unfulfilled' },
               { id: 'PROCESSING', label: 'Processing' },
               { id: 'SHIPPED', label: 'Shipped' },
               { id: 'DELIVERED', label: 'Delivered' },
@@ -411,18 +609,20 @@ export default function AdminOrders() {
               </button>
             ))}
           </div>
-          <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input 
-              type="text" 
-              placeholder="Search orders..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-white focus:outline-none focus:border-accent-green text-sm transition-colors"
-            />
-          </div>
         </div>
+        <div className="relative w-full md:w-64">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <input 
+            type="text" 
+            placeholder="Search orders..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-white focus:outline-none focus:border-accent-green text-sm transition-colors"
+          />
+        </div>
+      </div>
 
+      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto min-h-[400px]">
           {isLoading ? (
             <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading orders...</div>
@@ -433,9 +633,9 @@ export default function AdminOrders() {
                   <th className="px-6 py-4">Order</th>
                   <th className="px-6 py-4">Date</th>
                   <th className="px-6 py-4">Customer</th>
-                  <th className="px-6 py-4">Payment</th>
-                  <th className="px-6 py-4">Fulfillment</th>
-                  <th className="px-6 py-4">Total</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-widest whitespace-nowrap">Payment</th>
+                  <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-widest whitespace-nowrap">Total</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -449,25 +649,70 @@ export default function AdminOrders() {
                 ) : (
                   orders.map((order) => (
                     <tr key={order.id} onClick={() => handleOpenDetail(order)} className="hover:bg-zinc-50/50 transition-colors cursor-pointer group">
-                      <td className="px-6 py-4 font-bold text-primary-dark group-hover:text-accent-green">{order.orderNumber || order.id}</td>
-                      <td className="px-6 py-4 text-text-secondary">{formatDate(order.createdAt)}</td>
-                      <td className="px-6 py-4 font-medium text-primary-dark">{order.shippingAddress?.name || 'Customer'}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
-                          order.paymentStatus === 'paid' ? 'bg-zinc-100 text-zinc-700' : 'bg-warning/15 text-warning-dark'
+                        <p className="font-bold text-primary-dark group-hover:text-accent-green transition-colors">{order.id}</p>
+                        <p className="text-xs text-text-secondary mt-0.5">{order.items?.length || 0} items</p>
+                      </td>
+                      <td className="px-6 py-4 text-text-secondary font-medium">
+                        {formatDate(order.createdAt)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-primary-dark">{order.shippingAddress?.name || 'Guest'}</p>
+                        <p className="text-xs text-text-secondary">{order.shippingAddress?.city || 'Unknown'}</p>
+                      </td>
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                        {['DELIVERED', 'CANCELLED', 'REFUNDED'].includes(order.status) ? (
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+                            order.status === 'DELIVERED' ? 'bg-success/15 text-success-dark' : 'bg-error/10 text-error'
+                          }`}>
+                            {order.status === 'DELIVERED' && <CheckCircle2 className="w-3 h-3" />}
+                            {order.status}
+                          </span>
+                        ) : (
+                          <div className="relative inline-block">
+                            <select
+                              value={order.status || 'PROCESSING'}
+                              onChange={(e) => {
+                                const newStatus = e.target.value;
+                                const historyEntry = { status: newStatus, timestamp: new Date().toISOString(), note: 'Status updated by admin via table' };
+                                updateMut.mutate({ 
+                                  id: order.id, 
+                                  patch: { 
+                                    status: newStatus,
+                                    statusHistory: [...(order.statusHistory || []), historyEntry]
+                                  } 
+                                }, {
+                                  onSuccess: () => showToast(`Order ${order.id} marked as ${newStatus}`)
+                                });
+                              }}
+                              className={`inline-flex items-center px-2.5 py-1.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border-none outline-none focus:ring-2 focus:ring-accent-green/50 pr-6 ${
+                                order.status === 'SHIPPED' ? 'bg-info/15 text-info-dark' : 'bg-warning/15 text-warning-dark'
+                              }`}
+                            >
+                              {(order.status === 'PROCESSING' || order.status === 'ON_HOLD') && <option value="PROCESSING">Processing</option>}
+                              {(order.status === 'PROCESSING' || order.status === 'ON_HOLD') && <option value="ON_HOLD">On Hold</option>}
+                              
+                              {(order.status === 'PROCESSING' || order.status === 'ON_HOLD' || order.status === 'SHIPPED') && <option value="SHIPPED">Shipped</option>}
+                              {(order.status === 'SHIPPED') && <option value="DELIVERED">Delivered</option>}
+                              
+                              <option value="CANCELLED">Cancelled</option>
+                              {order.status === 'SHIPPED' && <option value="REFUNDED">Refunded</option>}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1.5">
+                              <svg className="h-3 w-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+                          order.paymentStatus === 'paid' ? 'bg-success/15 text-success-dark' : 'bg-warning/15 text-warning-dark'
                         }`}>
+                          {order.paymentStatus === 'paid' && <CheckCircle2 className="w-3 h-3" />}
                           {order.paymentStatus}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
-                          order.fulfillmentStatus === 'fulfilled' ? 'bg-zinc-100 text-zinc-700' : 
-                          order.fulfillmentStatus === 'partial' ? 'bg-info/15 text-info-dark' : 'bg-warning/15 text-warning-dark'
-                        }`}>
-                          {order.fulfillmentStatus || 'unfulfilled'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-bold text-primary-dark">{formatCurrency(order.total)}</td>
+                      <td className="px-6 py-4 font-semibold text-primary-dark">{formatCurrency(order.total)}</td>
                     </tr>
                   ))
                 )}

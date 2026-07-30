@@ -5,13 +5,21 @@ import { useOrdersList } from '../../queries/useOrders';
 
 export default function AdminFinancials() {
   const [activeTab, setActiveTab] = useState('transactions');
+  const [period, setPeriod] = useState('all');
   const { formatCurrency, formatDate } = useSettingsContext();
   
   const { data: ordersData, isLoading } = useOrdersList({ pageSize: 10000 });
   const orders = ordersData?.data || [];
 
   const financials = useMemo(() => {
-    const paidOrders = orders.filter(o => o.paymentStatus === 'paid');
+    const now = new Date();
+    let startDate = new Date(0);
+    if (period === 'today') { startDate = new Date(); startDate.setHours(0,0,0,0); }
+    else if (period === '7d') { startDate = new Date(now.setDate(now.getDate() - 7)); }
+    else if (period === '30d') { startDate = new Date(now.setDate(now.getDate() - 30)); }
+    else if (period === 'year') { startDate = new Date(new Date().getFullYear(), 0, 1); }
+
+    const paidOrders = orders.filter(o => o.paymentStatus === 'paid' && new Date(o.createdAt || new Date()) >= startDate);
     
     let grossRevenue = 0;
     let taxesCollected = 0;
@@ -78,10 +86,23 @@ export default function AdminFinancials() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Financials</h1>
           <p className="text-xs text-text-secondary mt-1">Transactions, taxes, and expenses</p>
         </div>
-        <button onClick={handleExport} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-border text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <select 
+            value={period} 
+            onChange={e => setPeriod(e.target.value)}
+            className="px-4 py-2 border border-border bg-white rounded-xl text-sm font-bold text-primary-dark focus:outline-none focus:border-accent-green"
+          >
+            <option value="today">Today</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="year">This Year</option>
+            <option value="all">All Time</option>
+          </select>
+          <button onClick={handleExport} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-border text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
