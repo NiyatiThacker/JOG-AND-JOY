@@ -85,6 +85,8 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
   );
 }
 
+import CartoonCursor from './components/ui/CartoonCursor';
+
 export default function App() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLiveChatOpen, setIsLiveChatOpen] = useState(false);
@@ -93,6 +95,7 @@ export default function App() {
     <CartProvider>
       <WishlistProvider>
         <Router>
+          <CartoonCursor />
           <ScrollToTop />
           <Routes>
             {/* Admin Routes - Completely Isolated */}

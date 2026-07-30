@@ -4,6 +4,17 @@ import NewArrivalProductCard from '../components/ui/NewArrivalProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Link } from 'react-router-dom';
+import DomeGallery from '../components/ui/DomeGallery';
+
+const newArrivalImages = [
+  { src: "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop", alt: "Active Play Orange Set" },
+  { src: "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop", alt: "Cozy Cotton Summer Polo" },
+  { src: "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop", alt: "Mint Soft Tees" },
+  { src: "https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?q=80&w=600&auto=format&fit=crop", alt: "Featured Spotlight" },
+  { src: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=600&auto=format&fit=crop", alt: "Sky Comfort" },
+  { src: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=600&auto=format&fit=crop", alt: "Sweet Lilac" },
+  { src: "https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=600&auto=format&fit=crop", alt: "Loungewear" }
+];
 
 export default function NewArrivalsPage() {
   const spotlightRef = useRef(null);
@@ -102,115 +113,17 @@ export default function NewArrivalsPage() {
           </div>
         </div>
 
-        {/* DYNAMIC STAGGERED KIDS GALLERY GRID (Inspired by Reference Layout) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center mb-12">
-
-          {/* Card 1 & 2 Column (Left Stack) */}
-          <div className="space-y-4 flex flex-col justify-between h-full">
-            <div className="relative aspect-[4/5] w-full rounded-[28px] overflow-hidden bg-[#FF7A59] p-3 shadow-md group">
-              <img
-                src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop"
-                alt="Playful Orange Hoodie"
-                className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop"; }}
-              />
-              <div className="absolute bottom-5 left-5 right-5 bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-white/50 text-left">
-                <span className="text-[10px] font-black text-[#FF7A59] uppercase tracking-wider block">Active Play</span>
-                <span className="text-xs font-extrabold text-slate-900">Vibrant Orange Set</span>
-              </div>
-            </div>
-
-            <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-[#FFD5A1] p-3 shadow-sm group">
-              <img
-                src="https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop"
-                alt="Kids Summer Polo"
-                className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop"; }}
-              />
-              <div className="absolute top-4 left-4 bg-slate-900/80 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
-                Cozy Cotton
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 (Center Left - Tall Pastel Mint Card) */}
-          <div className="relative aspect-[3/4] sm:aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#CFFFE5] p-3 shadow-md group">
-            <img
-              src="https://images.unsplash.com/photo-1519457431-44ccd64a579b?q=80&w=600&auto=format&fit=crop"
-              alt="Kids Emerald Fashion"
-              className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop"; }}
-            />
-            <div className="absolute bottom-5 left-5 bg-[#CFFFE5]/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-black text-emerald-950 border border-emerald-300">
-              Mint Soft Tees 🌿
-            </div>
-          </div>
-
-          {/* Card 4 (Center - Featured Sunshine Yellow Card with CTA Button) */}
-          <div className="relative aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#FFF3EE] border-2 border-[#FFE0D6] p-4 shadow-xl flex flex-col justify-between text-center group">
-            <div className="relative h-[270px] w-full rounded-2xl overflow-hidden mb-3">
-              <img
-                src="https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?q=80&w=600&auto=format&fit=crop"
-                alt="Featured New Arrival"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop"; }}
-              />
-              <div className="absolute top-3 left-3 bg-[#FF7A59] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
-                Spotlight
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                if (spotlightRef.current) {
-                  const y = spotlightRef.current.getBoundingClientRect().top + window.scrollY - 100;
-                  window.scrollTo({ top: y, behavior: 'smooth' });
-                }
-              }}
-              className="w-full py-3.5 bg-slate-900 hover:bg-[#FF7A59] text-white font-extrabold text-xs rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-            >
-              <span>Explore Collections</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Card 5 (Center Right - Tall Pastel Sky Blue Card) */}
-          <div className="relative aspect-[3/4] sm:aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#AEE6FF] p-3 shadow-md group">
-            <img
-              src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=600&auto=format&fit=crop"
-              alt="Kids Sky Blue Fashion"
-              className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?q=80&w=600&auto=format&fit=crop"; }}
-            />
-            <div className="absolute bottom-5 left-5 bg-[#AEE6FF]/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-black text-slate-900 border border-sky-300">
-              Sky Comfort ☁️
-            </div>
-          </div>
-
-          {/* Card 6 & 7 Column (Right Stack) */}
-          <div className="space-y-4 flex flex-col justify-between h-full">
-            <div className="relative aspect-[4/5] w-full rounded-[28px] overflow-hidden bg-[#E6D6FF] p-3 shadow-md group">
-              <img
-                src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=600&auto=format&fit=crop"
-                alt="Pastel Lavender Dress"
-                className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=600&auto=format&fit=crop"; }}
-              />
-              <div className="absolute top-4 right-4 bg-purple-900/80 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
-                Sweet Lilac
-              </div>
-            </div>
-
-            <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-[#FFE0D6] p-3 shadow-sm group">
-              <img
-                src="https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=600&auto=format&fit=crop"
-                alt="Kids Loungewear Set"
-                className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=600&auto=format&fit=crop"; }}
-              />
-            </div>
-          </div>
-
+        {/* DYNAMIC 3D SPHERICAL DOME GALLERY (Replaces Old Grid) */}
+        <div className="w-screen h-[100vh] relative left-1/2 -translate-x-1/2 mb-12 bg-slate-950 sm:bg-white overflow-hidden shadow-sm cursor-grab active:cursor-grabbing border-y border-slate-100">
+          <DomeGallery 
+            images={newArrivalImages} 
+            grayscale={true} 
+            overlayBlurColor="#ffffff" 
+            imageBorderRadius="24px"
+            openedImageBorderRadius="32px"
+            padFactor={0.2}
+            fit={0.9}
+          />
         </div>
 
         {/* BOTTOM FEATURE BAR: Review Quote + Lifestyle Header */}

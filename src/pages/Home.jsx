@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
 import HeroSection from '../components/home/HeroSection';
 import BrandStrip from '../components/home/BrandStrip';
 import CategoryGrid from '../components/home/CategoryGrid';
@@ -17,10 +16,7 @@ export default function Home() {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   return (
-    <main className="w-full bg-[#FFF8EC] relative overflow-hidden">
-      {/* Animated Cloth Doodles Background */}
-      <ClothDoodlesBackground />
-
+    <main className="w-full bg-white relative overflow-hidden">
       {/* Page Sections */}
       <div className="relative z-10 space-y-0">
         <HeroSection />
