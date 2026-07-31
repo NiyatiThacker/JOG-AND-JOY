@@ -98,7 +98,7 @@ export default function Navbar({ onOpenProfile }) {
                   >
                     <span>{link.name}</span>
                     {isActive && (
-                      <span className="absolute -bottom-1.5 left-0 right-0 h-1 rounded-full bg-gradient-to-r from-[#AEE6FF] via-[#EF4A45] to-[#FFD800]" />
+                      <span className="absolute -bottom-1.5 left-0 right-0 h-1 rounded-full bg-linear-to-r from-[#AEE6FF] via-[#EF4A45] to-[#FFD800]" />
                     )}
                   </Link>
                 );
@@ -151,7 +151,7 @@ export default function Navbar({ onOpenProfile }) {
               <Link
                 id="cart-icon-desktop"
                 to="/cart"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#EF4A45] to-orange-500 text-white font-extrabold text-xs shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-[#EF4A45] to-orange-500 text-white font-extrabold text-xs shadow-md hover:shadow-lg hover:scale-105 transition-all"
                 title="Shopping Bag"
               >
                 <ShoppingBag className="w-4 h-4" />

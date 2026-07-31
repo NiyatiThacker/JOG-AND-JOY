@@ -20,7 +20,7 @@ export default function AdminAnalytics() {
   const now = new Date();
   let startDate = new Date();
   if (period === 'today') {
-    startDate.setHours(0, 0, 0, 0);
+    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   } else if (period === '7d') {
     startDate.setDate(now.getDate() - 7);
   } else if (period === '30d') {
@@ -144,7 +144,7 @@ export default function AdminAnalytics() {
           <select
             value={period}
             onChange={e => setPeriod(e.target.value)}
-            className="px-4 py-2.5 bg-white border border-border rounded-xl text-sm font-bold focus:outline-none focus:border-accent-green shadow-sm"
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-green-500 shadow-sm"
           >
             <option value="today">Today</option>
             <option value="7d">Last 7 Days</option>
@@ -152,7 +152,7 @@ export default function AdminAnalytics() {
             <option value="year">This Year</option>
             <option value="all">All Time</option>
           </select>
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 bg-white border border-border text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
             <Download className="w-4 h-4" />
             Export
           </button>
@@ -161,25 +161,25 @@ export default function AdminAnalytics() {
 
       {/* Global KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Total Sales</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-primary-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue || 0)}</p>
           </div>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Avg Order Value</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-primary-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue / (summary?.totalOrders || 1) || 0)}</p>
           </div>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Total Orders</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-primary-dark">{totalOrdersCount}</p>
           </div>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Returning Customer Rate</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-primary-dark">{returningRate}%</p>
@@ -187,14 +187,14 @@ export default function AdminAnalytics() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-125">
         {/* Sidebar Tabs */}
-        <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-border p-4 space-y-1">
+        <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-slate-200 p-4 space-y-1">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-3 ${activeTab === tab.id ? 'bg-white border border-border shadow-sm text-primary-dark' : 'text-text-secondary hover:bg-zinc-100/50 hover:text-text-primary'
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-3 ${activeTab === tab.id ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' : 'text-text-secondary hover:bg-zinc-100/50 hover:text-text-primary'
                 }`}
             >
               <span className={activeTab === tab.id ? 'text-accent-green' : ''}>{tab.icon}</span>
@@ -205,14 +205,14 @@ export default function AdminAnalytics() {
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="p-4 border-b border-border bg-white flex justify-between items-center">
+          <div className="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
             <h2 className="text-lg font-bold text-primary-dark">{tabs.find(t => t.id === activeTab)?.label} Overview</h2>
           </div>
 
           <div className="p-6">
             {activeTab === 'sales' ? (
               <div className="space-y-6">
-                <div className="h-64 bg-zinc-50 border border-border rounded-xl p-4 flex flex-col justify-end">
+                <div className="h-64 bg-zinc-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-end">
                   <div className="flex justify-between items-end h-full gap-2 px-4">
                     {chartData.map((d, i) => (
                       <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
@@ -230,7 +230,7 @@ export default function AdminAnalytics() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 border border-border rounded-xl bg-white">
+                  <div className="p-4 border border-slate-200 rounded-xl bg-white">
                     <h3 className="font-bold text-sm mb-4 text-primary-dark">Sales by Channel</h3>
                     <div className="space-y-3">
                       <div>
@@ -243,7 +243,7 @@ export default function AdminAnalytics() {
                       </div>
                     </div>
                   </div>
-                  <div className="p-4 border border-border rounded-xl bg-white">
+                  <div className="p-4 border border-slate-200 rounded-xl bg-white">
                     <h3 className="font-bold text-sm mb-4 text-primary-dark">Gross vs Net Sales</h3>
                     <div className="flex flex-col justify-center h-full space-y-4 pb-4">
                       <div>
@@ -251,7 +251,7 @@ export default function AdminAnalytics() {
                          <p className="text-xl font-black text-primary-dark">{formatCurrency(grossSales)}</p>
                       </div>
                       <div>
-                         <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Net Sales <span className="lowercase normal-case font-medium opacity-70">(after discounts)</span></p>
+                         <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Net Sales <span className="lowercase font-medium opacity-70">(after discounts)</span></p>
                          <p className="text-xl font-black text-accent-green">{formatCurrency(netSales)}</p>
                       </div>
                     </div>
@@ -261,9 +261,9 @@ export default function AdminAnalytics() {
             ) : activeTab === 'products' ? (
               <div className="space-y-4">
                 <h3 className="font-bold text-primary-dark mb-4">Top Products by Units Sold</h3>
-                <div className="bg-white border border-border rounded-xl overflow-hidden">
+                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-zinc-50 border-b border-border text-[11px] uppercase tracking-wider text-text-secondary">
+                    <thead className="bg-zinc-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-text-secondary">
                       <tr><th className="px-4 py-3">Product</th><th className="px-4 py-3 text-right">Units</th><th className="px-4 py-3 text-right">Revenue</th></tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -282,12 +282,12 @@ export default function AdminAnalytics() {
               </div>
             ) : activeTab === 'customers' ? (
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 border border-border rounded-xl bg-white text-center">
+                <div className="p-4 border border-slate-200 rounded-xl bg-white text-center">
                   <Users className="w-8 h-8 text-primary-dark mx-auto mb-2" />
                   <p className="text-3xl font-black text-primary-dark">{filteredCustomers.length}</p>
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mt-1">Total Customers</p>
                 </div>
-                <div className="p-4 border border-border rounded-xl bg-white text-center">
+                <div className="p-4 border border-slate-200 rounded-xl bg-white text-center">
                   <TrendingUp className="w-8 h-8 text-accent-green mx-auto mb-2" />
                   <p className="text-3xl font-black text-primary-dark">
                     {filteredCustomers.length > 0 ? (filteredOrders.length / filteredCustomers.length).toFixed(1) : '0'}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import AnnouncementBar from './components/layout/AnnouncementBar';
@@ -31,6 +31,7 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminInventory from './pages/admin/AdminInventory';
 import AdminPromotions from './pages/admin/AdminPromotions';
@@ -42,7 +43,7 @@ import AdminFinancials from './pages/admin/AdminFinancials';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [pathname]);
@@ -71,10 +72,10 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
+    <div className="min-h-screen w-full overflow-x-hidden relative bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
       <AnnouncementBar />
       <Navbar onOpenProfile={() => setIsProfileOpen(true)} />
-      
+
       <LiveChatDrawer isOpen={isLiveChatOpen} onClose={() => setIsLiveChatOpen(false)} />
       
       {isAuthenticated ? (
@@ -86,7 +87,7 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
       <div className="grow">
         <Outlet />
       </div>
-      
+
       <Footer />
       <BottomNav onOpenProfile={() => setIsProfileOpen(true)} />
       <FloatingActions onOpenLiveChat={() => setIsLiveChatOpen(true)} />
@@ -96,6 +97,7 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
 
 import { AuthProvider } from './context/AuthContext';
 import AdminRoute from './components/layout/AdminRoute';
+import CartoonCursor from './components/ui/CartoonCursor';
 
 export default function App() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -106,6 +108,7 @@ export default function App() {
       <CartProvider>
         <WishlistProvider>
           <Router>
+            <CartoonCursor />
             <ScrollToTop />
             <Routes>
               {/* Admin Routes - Completely Isolated */}
@@ -114,6 +117,25 @@ export default function App() {
                   <Route index element={<AdminDashboard />} />
                   <Route path="products" element={<AdminProducts />} />
                   <Route path="orders" element={<AdminOrders />} />
+                  <Route path="customers" element={<AdminCustomers />} />
+                  <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="reviews" element={<AdminReviews />} />
+                  <Route path="shipping" element={<AdminShipping />} />
+                  <Route path="messages" element={<AdminMessages />} />
+                  <Route path="financials" element={<AdminFinancials />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+              </Route>
+
+              {/* Admin Routes - Completely Isolated */}
+              <Route path="/admin" element={<AdminRoute />}>
+                <Route element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="customers" element={<AdminCustomers />} />
                   <Route path="inventory" element={<AdminInventory />} />
                   <Route path="promotions" element={<AdminPromotions />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
@@ -131,6 +153,7 @@ export default function App() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/kids" element={<KidsPage />} />
+                <Route path="/men" element={<Navigate to="/products?category=Male" replace />} />
                 <Route path="/new-arrivals" element={<NewArrivalsPage />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/wishlist" element={<Wishlist />} />

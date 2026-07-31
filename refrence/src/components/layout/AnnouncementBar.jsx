@@ -18,7 +18,7 @@ export default function AnnouncementBar() {
   }, []);
 
   return (
-    <div className="bg-gradient-to-r from-[#FFD6BA] via-[#AEE6FF] to-[#E6D6FF] text-slate-900 text-xs font-black py-2 px-4 shadow-sm relative z-50 overflow-hidden">
+    <div className="bg-linear-to-r from-[#FFD6BA] via-[#AEE6FF] to-[#E6D6FF] text-slate-900 text-xs font-black py-2 px-4 shadow-sm relative z-50 overflow-hidden">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         <div className="hidden md:flex items-center gap-2 text-slate-800">

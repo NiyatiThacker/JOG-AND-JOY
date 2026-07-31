@@ -289,7 +289,7 @@ export default function Checkout() {
                   </button>
                   <button
                     onClick={handlePlaceOrder}
-                    className="w-2/3 py-3.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm shadow-xl hover:scale-102 transition-all flex items-center justify-center gap-1.5"
+                    className="w-2/3 py-3.5 rounded-full bg-linear-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm shadow-xl hover:scale-102 transition-all flex items-center justify-center gap-1.5"
                   >
                     <ShieldCheck className="w-5 h-5" /> Pay & Place Order (₹{cartGrandTotal})
                   </button>

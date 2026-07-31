@@ -22,12 +22,16 @@ export default function UserProfileModal({ isOpen, onClose }) {
     if (isOpen && ordersData?.data) {
       const formattedOrders = ordersData.data.map(o => ({
         id: o.id,
+        orderNumber: o.orderNumber || `#${o.id.substring(0,8).toUpperCase()}`,
         date: new Date(o.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-        items: o.items ? o.items.map(item => `${item.name || item.titleSnapshot || 'Item'} (x${item.quantity})`).join(', ') : '',
+        items: o.items || [],
         total: `₹${o.total}`,
         status: o.status,
         trackingId: o.trackingId,
-        carrier: o.carrier
+        carrier: o.carrier,
+        shippingAddress: o.shippingAddress,
+        paymentStatus: o.paymentStatus || 'paid',
+        paymentMethod: o.paymentMethod || 'online',
       }));
       setOrders(formattedOrders);
     }
@@ -117,7 +121,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                   type="text"
                   value={editForm.name}
                   onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value.replace(/[^A-Za-z\s]/g, '') }))}
-                  className="text-xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded px-2 py-1 w-full focus:outline-none focus:border-[#EF4A45]"
+                  className="text-xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded px-2 py-1 w-full focus:outline-none focus:border-red-500"
                   placeholder="Your Name"
                 />
               )}
@@ -159,34 +163,107 @@ export default function UserProfileModal({ isOpen, onClose }) {
             <div className="space-y-4">
               {orders.length > 0 ? (
                 orders.map((order, i) => (
-                  <div key={i} className="p-4 rounded-2xl bg-[#FFF8EC] border border-amber-100 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-slate-900">{order.id}</span>
-                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-white text-slate-700 shadow-xs">
-                        {order.status}
-                      </span>
+                  <div key={i} className="p-5 rounded-3xl bg-[#FFF8EC] border border-amber-100 shadow-sm flex flex-col gap-3">
+                    {/* Header: Order Number & Status */}
+                    <div className="flex items-start justify-between border-b border-amber-200/50 pb-3">
+                      <div>
+                        <span className="text-sm font-black text-slate-900 block">{order.orderNumber}</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5 block">Ordered: {order.date}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-white text-slate-700 shadow-xs inline-block mb-1 border border-slate-100">
+                          {order.status}
+                        </span>
+                        <span className="block text-sm font-black text-[#EF4A45]">{order.total}</span>
+                      </div>
                     </div>
-                    <p className="text-xs font-medium text-slate-600 line-clamp-1">{order.items}</p>
+                    
+                    {/* Items List */}
+                    <div className="space-y-1.5 py-1">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs text-slate-700 font-semibold">
+                           <span className="flex-1 truncate pr-4">
+                             <span className="text-slate-400 mr-2">{item.quantity}x</span> 
+                             {item.titleSnapshot || item.name || 'Item'}
+                           </span>
+                           <span className="font-bold">₹{item.unitPrice * item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Shipping & Payment Grid */}
+                    <div className="bg-white/80 rounded-2xl p-4 text-xs grid grid-cols-2 gap-4 border border-white">
+                       <div>
+                          <p className="font-black text-slate-400 uppercase text-[9px] tracking-widest mb-1.5 flex items-center gap-1"><MapPin className="w-3 h-3"/> Shipping To</p>
+                          <p className="font-bold text-slate-800 line-clamp-1">{order.shippingAddress?.name || user?.name || 'Customer'}</p>
+                          <p className="text-slate-500 font-medium leading-tight mt-0.5 line-clamp-2">
+                            {order.shippingAddress ? `${order.shippingAddress.line1}, ${order.shippingAddress.city}` : 'Standard Shipping'}
+                          </p>
+                       </div>
+                       <div>
+                          <p className="font-black text-slate-400 uppercase text-[9px] tracking-widest mb-1.5 flex items-center gap-1"><Package className="w-3 h-3"/> Payment</p>
+                          <p className="font-bold text-slate-800">
+                            {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online'} 
+                            <span className="text-slate-400 font-medium ml-1 capitalize">({order.paymentStatus})</span>
+                          </p>
+                       </div>
+                    </div>
+                    
+                    {/* Order Status Timeline */}
+                    <div className="mt-2 pt-4 border-t border-amber-200/50">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Order Status</p>
+                      <div className="relative flex items-center justify-between px-2">
+                        {/* Connecting Line */}
+                        <div className="absolute left-4 right-4 top-1.75 h-0.5 bg-amber-100 z-0"></div>
+                        <div className="absolute left-4 right-4 top-1.75 h-0.5 bg-[#EF4A45] z-0 transition-all duration-500" style={{ width: order.status === 'DELIVERED' ? '100%' : order.status === 'SHIPPED' ? '50%' : '0%' }}></div>
+                        
+                        {/* Processing Node */}
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                          <span className={`text-[10px] font-black ${['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) ? 'text-slate-800' : 'text-slate-400'}`}>Processing</span>
+                        </div>
+                        
+                        {/* Shipped Node */}
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${['SHIPPED', 'DELIVERED'].includes(order.status) ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                          <span className={`text-[10px] font-black ${['SHIPPED', 'DELIVERED'].includes(order.status) ? 'text-slate-800' : 'text-slate-400'}`}>Shipped</span>
+                        </div>
+                        
+                        {/* Delivered Node */}
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${order.status === 'DELIVERED' ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                          <span className={`text-[10px] font-black ${order.status === 'DELIVERED' ? 'text-slate-800' : 'text-slate-400'}`}>Delivered</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tracking Info */}
                     {(order.trackingId || order.status === 'SHIPPED' || order.status === 'DELIVERED') && (
-                      <div className="bg-white border border-amber-200 rounded-lg p-2 flex items-center gap-2">
-                        <Package className="w-4 h-4 text-[#EF4A45]" />
+                      <div className="bg-white border border-amber-200 rounded-xl p-3 flex items-center gap-3 mt-1">
+                        <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                          <Package className="w-4 h-4 text-[#EF4A45]" />
+                        </div>
                         <div>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase leading-none">Tracking Info</p>
-                          <p className="text-xs font-black text-slate-800 leading-none mt-1">{order.carrier || 'Shipping Partner'}: {order.trackingId || 'Pending Tracking ID'}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Tracking Info</p>
+                          <p className="text-xs font-black text-slate-800 leading-none mt-1.5">{order.carrier || 'Shipping Partner'}: {order.trackingId || 'Pending Tracking ID'}</p>
                         </div>
                       </div>
                     )}
-                    <div className="flex items-center justify-between pt-2 border-t border-amber-200/50 text-xs">
-                      <span className="text-slate-500 font-semibold">Ordered: {order.date}</span>
-                      <div className="flex items-center gap-3">
-                        {order.status === 'DELIVERED' && (
-                          <button onClick={() => handleRequestReturn(order.id)} className="flex items-center gap-1 text-[#EF4A45] hover:text-red-700 font-bold transition-colors">
-                            <RotateCcw className="w-3 h-3" /> Return
-                          </button>
-                        )}
-                        <span className="font-black text-slate-900 text-sm">{order.total}</span>
+
+                    {/* Footer Actions */}
+                    {order.status === 'DELIVERED' && (
+                      <div className="pt-2 flex justify-end">
+                        <button onClick={() => handleRequestReturn(order.id)} className="flex items-center gap-1.5 text-xs text-[#EF4A45] hover:text-red-700 font-bold transition-colors bg-white px-3 py-1.5 rounded-lg border border-red-100 shadow-sm">
+                          <RotateCcw className="w-3.5 h-3.5" /> Request Return
+                        </button>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))
               ) : (
@@ -217,7 +294,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                     <textarea
                       value={editForm.address}
                       onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full text-xs font-medium bg-white border border-slate-200 rounded-xl p-2 focus:outline-none focus:border-[#EF4A45]"
+                      className="w-full text-xs font-medium bg-white border border-slate-200 rounded-xl p-2 focus:outline-none focus:border-red-500"
                       rows={3}
                       placeholder="Enter your full address"
                     />
@@ -238,7 +315,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                     type="tel"
                     value={editForm.phone}
                     onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value.replace(/[^0-9]/g, '') }))}
-                    className="text-slate-900 bg-white border border-slate-200 rounded px-2 py-1 w-1/2 focus:outline-none focus:border-[#EF4A45] text-right"
+                    className="text-slate-900 bg-white border border-slate-200 rounded px-2 py-1 w-1/2 focus:outline-none focus:border-red-500 text-right"
                     placeholder="Enter phone number"
                     maxLength={10}
                   />

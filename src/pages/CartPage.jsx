@@ -169,7 +169,7 @@ export default function CartPage() {
                     placeholder="Coupon code (Try KIDS20)" 
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="w-full pl-4 pr-24 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#EF4A45] transition-colors"
+                    className="w-full pl-4 pr-24 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-red-500 transition-colors"
                   />
                   <button 
                     type="submit"

@@ -118,7 +118,7 @@ export default function NewArrivalsPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-[400px]">
             
             {/* Block 1: Kids (Vibrant Sky) */}
-            <Link to="/kids" className="md:col-span-5 relative group overflow-hidden rounded-[2rem] bg-slate-100 cursor-pointer block h-full">
+            <Link to="/kids" className="md:col-span-5 relative group overflow-hidden rounded-4xl bg-slate-100 cursor-pointer block h-full">
               <img src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop" alt="Kids" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-sky-500/70 group-hover:bg-sky-400/50 mix-blend-multiply transition-colors"></div>
               <div className="absolute inset-0 p-8 flex flex-col justify-end">
@@ -130,7 +130,7 @@ export default function NewArrivalsPage() {
 
             <div className="md:col-span-7 grid grid-rows-2 gap-6 h-full">
               {/* Block 2: Men (Vibrant Indigo) */}
-              <Link to="/men" className="relative group overflow-hidden rounded-[2rem] bg-slate-100 cursor-pointer block h-full">
+              <Link to="/men" className="relative group overflow-hidden rounded-4xl bg-slate-100 cursor-pointer block h-full">
                 <img src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800&auto=format&fit=crop" alt="Men" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-indigo-600/70 group-hover:bg-indigo-500/50 mix-blend-multiply transition-colors"></div>
                 <div className="absolute inset-0 p-8 flex flex-col justify-end">
@@ -141,7 +141,7 @@ export default function NewArrivalsPage() {
               </Link>
 
               {/* Block 3: Women (Vibrant Rose) */}
-              <Link to="/women" className="relative group overflow-hidden rounded-[2rem] bg-slate-100 cursor-pointer block h-full">
+              <Link to="/women" className="relative group overflow-hidden rounded-4xl bg-slate-100 cursor-pointer block h-full">
                 <img src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?q=80&w=800&auto=format&fit=crop" alt="Women" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-rose-500/70 group-hover:bg-rose-400/50 mix-blend-multiply transition-colors"></div>
                 <div className="absolute inset-0 p-8 flex flex-col justify-end">

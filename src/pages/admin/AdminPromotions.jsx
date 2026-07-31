@@ -98,7 +98,7 @@ export default function AdminPromotions() {
       <div className="w-full max-w-4xl mx-auto pb-12 animate-in fade-in duration-300">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
-            <button onClick={() => setView('list')} className="p-2 bg-white rounded-lg border border-border hover:bg-zinc-50 transition-colors">
+            <button onClick={() => setView('list')} className="p-2 bg-white rounded-lg border border-slate-200 hover:bg-zinc-50 transition-colors">
               <X className="w-5 h-5 text-zinc-500" />
             </button>
             <div>
@@ -116,11 +116,11 @@ export default function AdminPromotions() {
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* General info */}
-          <div className="bg-white border border-border rounded-2xl shadow-sm p-6 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
             <h2 className="text-lg font-bold text-primary-dark">General Information</h2>
             <div>
               <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Internal Title</label>
-              <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full px-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none" placeholder="e.g. Summer Sale 20%" />
+              <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-green-500 outline-none" placeholder="e.g. Summer Sale 20%" />
             </div>
             
             <div className="grid grid-cols-2 gap-6 pt-2">
@@ -140,14 +140,14 @@ export default function AdminPromotions() {
               {formData.method === 'code' && (
                 <div>
                   <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Promo Code</label>
-                  <input required type="text" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value.toUpperCase()})} className="w-full px-4 py-2 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none font-mono" placeholder="SUMMER20" />
+                  <input required type="text" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value.toUpperCase()})} className="w-full px-4 py-2 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-green-500 outline-none font-mono" placeholder="SUMMER20" />
                 </div>
               )}
             </div>
           </div>
 
           {/* Value */}
-          <div className="bg-white border border-border rounded-2xl shadow-sm p-6 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
             <h2 className="text-lg font-bold text-primary-dark">Value & Rules</h2>
             
             <div className="pt-4 grid grid-cols-2 gap-6">
@@ -168,7 +168,7 @@ export default function AdminPromotions() {
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Discount Value</label>
                 <div className="relative w-full">
-                  <input required type="number" value={formData.value} onChange={e => setFormData({...formData, value: Number(e.target.value)})} className={`w-full ${formData.discountType === 'percentage' ? 'pl-8' : 'pl-10'} pr-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none font-bold`} />
+                  <input required type="number" value={formData.value} onChange={e => setFormData({...formData, value: Number(e.target.value)})} className={`w-full ${formData.discountType === 'percentage' ? 'pl-8' : 'pl-10'} pr-4 py-2.5 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-green-500 outline-none font-bold`} />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">
                     {formData.discountType === 'percentage' ? '%' : '₹'}
                   </span>
@@ -179,7 +179,7 @@ export default function AdminPromotions() {
 
 
           {/* Activity */}
-          <div className="bg-white border border-border rounded-2xl shadow-sm p-6 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-primary-dark">Status & Schedule</h2>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -190,11 +190,11 @@ export default function AdminPromotions() {
             <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Start Date (Optional)</label>
-                <input type="datetime-local" value={formatForInput(formData.startsAt)} onChange={e => setFormData({...formData, startsAt: e.target.value})} className="w-full px-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none" />
+                <input type="datetime-local" value={formatForInput(formData.startsAt)} onChange={e => setFormData({...formData, startsAt: e.target.value})} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-green-500 outline-none" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">End Date (Optional)</label>
-                <input type="datetime-local" value={formatForInput(formData.expiresAt)} onChange={e => setFormData({...formData, expiresAt: e.target.value})} className="w-full px-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none" />
+                <input type="datetime-local" value={formatForInput(formData.expiresAt)} onChange={e => setFormData({...formData, expiresAt: e.target.value})} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-green-500 outline-none" />
               </div>
             </div>
           </div>
@@ -218,8 +218,8 @@ export default function AdminPromotions() {
         </button>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
-        <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-zinc-50/50 p-4 gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-center border-b border-slate-200 bg-zinc-50/50 p-4 gap-4">
           <div className="flex overflow-x-auto w-full hide-scrollbar gap-2">
             {[
               { id: 'all', label: 'All' },
@@ -232,7 +232,7 @@ export default function AdminPromotions() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                   activeTab === tab.id 
-                    ? 'bg-white border border-border shadow-sm text-primary-dark' 
+                    ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' 
                     : 'text-text-secondary hover:text-text-primary hover:bg-zinc-100/50'
                 }`}
               >
@@ -247,17 +247,17 @@ export default function AdminPromotions() {
               placeholder="Search promos..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-white focus:outline-none focus:border-accent-green text-sm transition-colors"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-green-500 text-sm transition-colors"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto min-h-100">
           {isLoading ? (
             <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading promotions...</div>
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-border text-[11px] uppercase tracking-wider">
+              <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-slate-200 text-[11px] uppercase tracking-wider">
                 <tr>
                   <th className="px-6 py-4">Title / Code</th>
                   <th className="px-6 py-4">Type</th>

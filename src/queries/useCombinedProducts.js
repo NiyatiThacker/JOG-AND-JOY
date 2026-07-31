@@ -37,7 +37,7 @@ export function useCombinedProducts() {
     });
     
     // Live products from Admin Panel
-    return [...liveProducts];
+    return liveProducts;
   }, [data]);
 
   return { combinedProducts, isLoading };

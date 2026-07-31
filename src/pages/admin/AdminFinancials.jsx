@@ -5,13 +5,28 @@ import { useOrdersList } from '../../queries/useOrders';
 
 export default function AdminFinancials() {
   const [activeTab, setActiveTab] = useState('transactions');
+  const [period, setPeriod] = useState('all');
   const { formatCurrency, formatDate } = useSettingsContext();
   
   const { data: ordersData, isLoading } = useOrdersList({ pageSize: 10000 });
   const orders = ordersData?.data || [];
 
   const financials = useMemo(() => {
-    const paidOrders = orders.filter(o => o.paymentStatus === 'paid');
+    const now = new Date();
+    let startDate = new Date(0);
+    if (period === 'today') { 
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); 
+    } else if (period === '7d') { 
+      startDate = new Date(); 
+      startDate.setDate(now.getDate() - 7); 
+    } else if (period === '30d') { 
+      startDate = new Date(); 
+      startDate.setDate(now.getDate() - 30); 
+    } else if (period === 'year') { 
+      startDate = new Date(now.getFullYear(), 0, 1); 
+    }
+
+    const paidOrders = orders.filter(o => o.paymentStatus === 'paid' && new Date(o.createdAt || new Date()) >= startDate);
     
     let grossRevenue = 0;
     let taxesCollected = 0;
@@ -78,14 +93,27 @@ export default function AdminFinancials() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Financials</h1>
           <p className="text-xs text-text-secondary mt-1">Transactions, taxes, and expenses</p>
         </div>
-        <button onClick={handleExport} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-border text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <select 
+            value={period} 
+            onChange={e => setPeriod(e.target.value)}
+            className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-sm font-bold text-primary-dark focus:outline-none focus:border-green-500"
+          >
+            <option value="today">Today</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="year">This Year</option>
+            <option value="all">All Time</option>
+          </select>
+          <button onClick={handleExport} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <div className="flex justify-between items-start mb-2">
             <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Gross Revenue</p>
             <div className="p-1.5 bg-success/10 rounded-lg text-success"><TrendingUp className="w-4 h-4" /></div>
@@ -94,7 +122,7 @@ export default function AdminFinancials() {
             {isLoading ? '...' : formatCurrency(financials.grossRevenue)}
           </p>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <div className="flex justify-between items-start mb-2">
             <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Net Revenue</p>
             <div className="p-1.5 bg-zinc-100 rounded-lg text-zinc-500"><IndianRupee className="w-4 h-4" /></div>
@@ -103,7 +131,7 @@ export default function AdminFinancials() {
             {isLoading ? '...' : formatCurrency(financials.netRevenue)}
           </p>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <div className="flex justify-between items-start mb-2">
             <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Gateway Fees</p>
             <div className="p-1.5 bg-error/10 rounded-lg text-error"><Calculator className="w-4 h-4" /></div>
@@ -112,7 +140,7 @@ export default function AdminFinancials() {
             {isLoading ? '...' : formatCurrency(financials.gatewayFees)}
           </p>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <div className="flex justify-between items-start mb-2">
             <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Taxes Collected</p>
             <div className="p-1.5 bg-info/10 rounded-lg text-info-dark"><FileText className="w-4 h-4" /></div>
@@ -123,15 +151,15 @@ export default function AdminFinancials() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-125">
         {/* Sidebar Tabs */}
-        <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-border p-4 space-y-1">
+        <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-slate-200 p-4 space-y-1">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-3 ${
-                activeTab === tab.id ? 'bg-white border border-border shadow-sm text-primary-dark' : 'text-text-secondary hover:bg-zinc-100/50 hover:text-text-primary'
+                activeTab === tab.id ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' : 'text-text-secondary hover:bg-zinc-100/50 hover:text-text-primary'
               }`}
             >
               <span className={activeTab === tab.id ? 'text-accent-green' : ''}>{tab.icon}</span>
@@ -145,9 +173,9 @@ export default function AdminFinancials() {
           {activeTab === 'transactions' && (
             <div className="p-6">
               <h2 className="text-lg font-bold text-primary-dark mb-4">Recent Transactions</h2>
-              <div className="bg-white border border-border rounded-xl overflow-hidden">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-zinc-50 border-b border-border text-[11px] uppercase tracking-wider text-text-secondary">
+                  <thead className="bg-zinc-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-text-secondary">
                     <tr><th className="px-4 py-3">Date</th><th className="px-4 py-3">Order / Ref</th><th className="px-4 py-3 text-right">Gross</th><th className="px-4 py-3 text-right">Net</th></tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -171,9 +199,9 @@ export default function AdminFinancials() {
           {activeTab === 'taxes' && (
             <div className="p-6">
               <h2 className="text-lg font-bold text-primary-dark mb-4">Tax Liability</h2>
-              <div className="bg-white border border-border rounded-xl overflow-hidden">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-zinc-50 border-b border-border text-[11px] uppercase tracking-wider text-text-secondary">
+                  <thead className="bg-zinc-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-text-secondary">
                     <tr><th className="px-4 py-3">Region</th><th className="px-4 py-3 text-right">Sales Subject to Tax</th><th className="px-4 py-3 text-right">Tax Collected</th></tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -191,9 +219,9 @@ export default function AdminFinancials() {
           {activeTab === 'expenses' && (
             <div className="p-6">
               <h2 className="text-lg font-bold text-primary-dark mb-4">Platform Fees & Expenses</h2>
-              <div className="bg-white border border-border rounded-xl overflow-hidden">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-zinc-50 border-b border-border text-[11px] uppercase tracking-wider text-text-secondary">
+                  <thead className="bg-zinc-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-text-secondary">
                     <tr><th className="px-4 py-3">Category</th><th className="px-4 py-3">Details</th><th className="px-4 py-3 text-right">Amount</th></tr>
                   </thead>
                   <tbody className="divide-y divide-border">

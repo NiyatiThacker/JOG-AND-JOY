@@ -1,69 +1,73 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { AGE_GROUPS } from '../../data/productsData';
+import { ArrowRight, Sparkles, Smile, Star, HeartHandshake } from 'lucide-react';
 
-import { ArrowRight, Sparkles } from 'lucide-react';
-
-const AGE_GROUPS = [
-  { label: '0–2 Years', sub: 'Infants & Toddlers', badge: 'Soft & Safe', color: '#E8F5E9' },
-  { label: '3–5 Years', sub: 'Preschoolers', badge: 'Play Ready', color: '#E3F2FD' },
-  { label: '6–8 Years', sub: 'Kids', badge: 'Active Wear', color: '#FFF3E0' },
-  { label: '9–12 Years', sub: 'Pre-teens', badge: 'Trendy', color: '#F3E5F5' }
-];
+const ageIcons = [Smile, Star, HeartHandshake, Sparkles];
 
 export default function ShopByAge() {
   return (
-    <section className="py-6 bg-white relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-14 sm:py-20 bg-[#FFFDF9] relative overflow-hidden border-t border-[#ECECEC]">
+      {/* Background Soft Floating Accents */}
+      <div className="absolute top-10 left-5 w-24 h-24 rounded-full bg-[#AEE6FF]/30 blur-2xl pointer-events-none" />
+      <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-[#FFD5A1]/40 blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Title */}
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-          <span className="px-4 py-1.5 rounded-full bg-[#E6D6FF]/40 text-purple-800 text-xs font-black uppercase tracking-wider inline-flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600" /> Perfect Fit Guarantee
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3">
+          <span className="px-4 py-1.5 rounded-full bg-[#FFF3EE] text-[#FF7A59] text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 border border-[#FFE0D6]">
+            <Sparkles className="w-3.5 h-3.5" /> Perfect Fit Guarantee
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            Shop By <span className="text-[#EF4A45]">Age Group</span>
+            Shop By <span className="text-[#FF7A59]">Age Group</span>
           </h2>
-          <p className="text-sm sm:text-base text-slate-500 font-medium">
-            Find clothing tailored specifically to your child's age, growth stage, and play habits.
+          <p className="text-sm sm:text-base text-slate-500 font-medium leading-relaxed">
+            Clothing thoughtfully crafted for every stage of your child's joyful journey.
           </p>
         </div>
 
         {/* Age Group Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {AGE_GROUPS.map((item, index) => (
-            <Link
-              key={index}
-              to={`/products?age=${encodeURIComponent(item.label)}`}
-              className="group relative p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-slate-100 flex flex-col justify-between overflow-hidden"
-              style={{ backgroundColor: item.color }} // 100% opacity background
-            >
-              {/* Card Badge */}
-              <div className="flex justify-between items-start mb-6">
-                <span
-                  className="px-3 py-1 rounded-full text-[11px] font-black text-slate-800 bg-white shadow-xs"
-                >
-                  {item.badge}
-                </span>
-                <div className="w-9 h-9 rounded-full bg-white text-slate-800 flex items-center justify-center shadow-sm group-hover:bg-[#EF4A45] group-hover:text-white transition-colors">
+          {AGE_GROUPS.map((item, index) => {
+            const Icon = ageIcons[index % ageIcons.length];
+            return (
+              <Link
+                key={index}
+                to={`/products?age=${encodeURIComponent(item.label)}`}
+                className="group relative p-7 rounded-[28px] bg-white border border-[#ECECEC] shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between overflow-hidden"
+              >
+                {/* Top Pill & Icon */}
+                <div className="flex justify-between items-center mb-8">
+                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6]">
+                    {item.badge}
+                  </span>
+                  <div className="w-10 h-10 rounded-2xl bg-[#FFFDF9] border border-[#ECECEC] text-slate-700 flex items-center justify-center group-hover:bg-[#FF7A59] group-hover:text-white group-hover:border-[#FF7A59] transition-all duration-300 shadow-xs">
+                    <Icon className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                  </div>
+                </div>
+
+                {/* Card Title & Sub */}
+                <div className="space-y-2 mb-6">
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight group-hover:text-[#FF7A59] transition-colors">
+                    {item.label}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-semibold leading-normal">
+                    {item.sub}
+                  </p>
+                </div>
+
+                {/* Explore Action Banner */}
+                <div className="flex items-center gap-2 text-xs font-bold text-[#FF7A59] group-hover:translate-x-1 transition-transform duration-300">
+                  <span>Explore Items</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>
-              </div>
 
-              {/* Card Body */}
-              <div className="space-y-1">
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight group-hover:text-[#EF4A45] transition-colors">
-                  {item.label}
-                </h3>
-                <p className="text-xs text-slate-600 font-bold">{item.sub}</p>
-              </div>
-
-              {/* Bottom Decorative Circle */}
-              <div
-                className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full opacity-50 group-hover:scale-125 transition-transform duration-300"
-                style={{ backgroundColor: '#ffffff' }}
-              />
-            </Link>
-          ))}
+                {/* Bottom Soft Hover Accent */}
+                <div className="absolute -bottom-10 -right-10 w-28 h-28 rounded-full bg-[#FF7A59]/10 group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
+              </Link>
+            );
+          })}
         </div>
 
       </div>

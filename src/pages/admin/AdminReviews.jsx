@@ -67,10 +67,10 @@ export default function AdminReviews() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[600px]">
         {/* Main Content Area */}
-        <div className={`flex-1 flex flex-col min-w-0 ${selectedReview ? 'hidden md:flex md:w-2/3 md:border-r border-border' : 'w-full'}`}>
-          <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-zinc-50/50 p-4 gap-4">
+        <div className={`flex-1 flex flex-col min-w-0 ${selectedReview ? 'hidden md:flex md:w-2/3 md:border-r border-slate-200' : 'w-full'}`}>
+          <div className="flex flex-col sm:flex-row justify-between items-center border-b border-slate-200 bg-zinc-50/50 p-4 gap-4">
             <div className="flex overflow-x-auto w-full hide-scrollbar gap-2">
               {[
                 { id: 'all', label: 'All Reviews' },
@@ -82,7 +82,7 @@ export default function AdminReviews() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                     activeTab === tab.id 
-                      ? 'bg-white border border-border shadow-sm text-primary-dark' 
+                      ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' 
                       : 'text-text-secondary hover:text-text-primary hover:bg-zinc-100/50'
                   }`}
                 >
@@ -92,12 +92,12 @@ export default function AdminReviews() {
             </div>
           </div>
 
-          <div className="overflow-x-auto min-h-[400px]">
+          <div className="overflow-x-auto min-h-100">
             {isLoading ? (
               <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading reviews...</div>
             ) : (
               <table className="w-full text-left text-sm">
-                <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-border text-[11px] uppercase tracking-wider">
+                <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-slate-200 text-[11px] uppercase tracking-wider">
                   <tr>
                     <th className="px-6 py-4">Rating</th>
                     <th className="px-6 py-4">Review</th>
@@ -149,8 +149,8 @@ export default function AdminReviews() {
 
         {/* Detail Sidebar */}
         {selectedReview && (
-          <div className="w-full md:w-1/3 bg-zinc-50/50 flex flex-col h-full md:min-h-[600px] border-l border-border animate-in slide-in-from-right-8 duration-300">
-            <div className="p-4 flex justify-between items-center border-b border-border bg-white">
+          <div className="w-full md:w-1/3 bg-zinc-50/50 flex flex-col h-full md:min-h-[600px] border-l border-slate-200 animate-in slide-in-from-right-8 duration-300">
+            <div className="p-4 flex justify-between items-center border-b border-slate-200 bg-white">
               <h2 className="font-bold text-primary-dark">Review Details</h2>
               <button onClick={() => setSelectedReview(null)} className="p-2 text-zinc-400 hover:text-primary-dark rounded-lg hover:bg-zinc-100">
                 <X className="w-4 h-4" />
@@ -223,13 +223,13 @@ export default function AdminReviews() {
                   <span className="font-bold text-sm text-primary-dark ml-2">{selectedReview.rating}/5</span>
                 </div>
                 <h3 className="text-lg font-bold text-primary-dark mb-2">{selectedReview.title || 'Untitled'}</h3>
-                <p className="text-sm text-text-secondary leading-relaxed bg-white p-4 rounded-xl border border-border shadow-sm">
+                <p className="text-sm text-text-secondary leading-relaxed bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                   {selectedReview.body}
                 </p>
                 {selectedReview.media?.length > 0 && (
                   <div className="flex gap-2 mt-3">
                     {selectedReview.media.map((m, i) => (
-                      <div key={i} className="w-16 h-16 bg-zinc-100 rounded-lg border border-border flex items-center justify-center">
+                      <div key={i} className="w-16 h-16 bg-zinc-100 rounded-lg border border-slate-200 flex items-center justify-center">
                         <ImageIcon className="w-5 h-5 text-zinc-400" />
                       </div>
                     ))}
@@ -238,7 +238,7 @@ export default function AdminReviews() {
               </div>
 
               {selectedReview.status === 'pending' && (
-                <div className="p-4 bg-white border border-border rounded-xl shadow-sm space-y-3">
+                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3">
                   <h4 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Moderation Actions</h4>
                   <div className="flex flex-col gap-2">
                     <button onClick={() => handleStatusChange('approved')} className="flex items-center justify-center gap-2 w-full py-2 bg-success text-white rounded-lg font-bold text-sm hover:bg-success-dark">
@@ -247,7 +247,7 @@ export default function AdminReviews() {
                     <button onClick={() => handleStatusChange('rejected')} className="flex items-center justify-center gap-2 w-full py-2 bg-white border border-error text-error rounded-lg font-bold text-sm hover:bg-error/5">
                       <X className="w-4 h-4" /> Reject
                     </button>
-                    <button onClick={() => handleStatusChange('spam')} className="flex items-center justify-center gap-2 w-full py-2 bg-white border border-border text-zinc-600 rounded-lg font-bold text-sm hover:bg-zinc-50">
+                    <button onClick={() => handleStatusChange('spam')} className="flex items-center justify-center gap-2 w-full py-2 bg-white border border-slate-200 text-zinc-600 rounded-lg font-bold text-sm hover:bg-zinc-50">
                       <ShieldBan className="w-4 h-4" /> Mark as Spam
                     </button>
                   </div>
@@ -262,7 +262,7 @@ export default function AdminReviews() {
                     value={replyText}
                     onChange={e => { setReplyText(e.target.value); setReplySuccess(false); }}
                     placeholder="Write a public reply..."
-                    className="w-full p-3 border border-border rounded-xl text-sm focus:outline-none focus:border-accent-green"
+                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-green-500"
                   ></textarea>
                   <button 
                     onClick={handleSaveReply}

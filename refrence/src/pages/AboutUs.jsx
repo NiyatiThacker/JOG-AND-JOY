@@ -63,7 +63,7 @@ export default function AboutUs() {
                 "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
                 "https://images.unsplash.com/photo-1519238396255-81b670474ed5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
               ].map((src, idx) => (
-                <div key={idx} className="h-[120px] w-[100px] md:h-[160px] md:w-[130px] rounded-xl overflow-hidden flex-shrink-0 group">
+                <div key={idx} className="h-[120px] w-[100px] md:h-[160px] md:w-[130px] rounded-xl overflow-hidden shrink-0 group">
                   <img
                     src={src}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -117,7 +117,7 @@ export default function AboutUs() {
             {/* Background Blob decoration */}
             <div className="absolute top-4 -left-4 w-full h-full bg-sky-200 rounded-[3rem] rotate-3" />
 
-            <div className="relative rounded-[3rem] overflow-hidden aspect-[4/5] sm:aspect-square lg:aspect-[4/5] shadow-xl border-4 border-white">
+            <div className="relative rounded-[3rem] overflow-hidden aspect-4/5 sm:aspect-square lg:aspect-4/5 shadow-xl border-4 border-white">
               <img
                 src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt="Jog and Joy Manufacturing"
@@ -138,7 +138,7 @@ export default function AboutUs() {
           <div className="lg:pl-12 space-y-6">
             <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-black uppercase tracking-widest">Who We Are</span>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight">
-              Activewear is about <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-600">freedom</span>, not just fabric.
+              Activewear is about <span className="text-transparent bg-clip-text bg-linear-to-r from-sky-500 to-purple-600">freedom</span>, not just fabric.
             </h2>
             <p className="text-slate-600 text-base font-medium leading-relaxed">
               We started our journey in 1996 with a singular focus on perfect knitting and stitching. Today, Jog&Joy brings vibrant, durable, and extremely comfortable activewear directly to the next generation of kids and men.
@@ -190,7 +190,7 @@ export default function AboutUs() {
 
       {/* 4. Vibrant CTA Section */}
       <section className="relative py-32 md:py-48 mt-12 bg-[url('https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80')] bg-fixed bg-cover bg-center rounded-3xl mx-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 to-sky-900/90" />
+        <div className="absolute inset-0 bg-linear-to-r from-purple-900/90 to-sky-900/90" />
         <div className="relative z-10 max-w-4xl mx-auto text-center px-4 text-white space-y-6">
           <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 border border-white/30 text-white text-xs font-black uppercase tracking-widest backdrop-blur-sm shadow-sm">
             Partner With Us
@@ -253,7 +253,7 @@ export default function AboutUs() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-3xl mx-auto">
             {teamMembers.map((member, idx) => (
               <div key={idx} className="bg-white rounded-[2.5rem] shadow-lg hover:shadow-xl transition-all group overflow-hidden border border-slate-100 p-4">
-                <div className="aspect-square bg-slate-100 rounded-[2rem] overflow-hidden">
+                <div className="aspect-square bg-slate-100 rounded-4xl overflow-hidden">
                   <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-6 text-center">
@@ -286,8 +286,8 @@ export default function AboutUs() {
 
           <div className="flex-1 w-full overflow-hidden relative">
             {/* Gradient masks for smooth fading edges on marquee */}
-            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 left-0 w-16 bg-linear-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 right-0 w-16 bg-linear-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
             <motion.div
               className="flex items-center gap-16 md:gap-24 min-w-max text-slate-400 opacity-70 hover:opacity-100 transition-opacity duration-500"

@@ -39,7 +39,7 @@ export default function KidsProductCard({ product }) {
       </div>
 
       {/* Content Block */}
-      <div className="flex flex-col items-center text-center space-y-2 flex-grow">
+      <div className="flex flex-col items-center text-center space-y-2 grow">
         {/* Title */}
         <h3 className="text-sm font-black text-slate-900 tracking-tight line-clamp-1">
           {product.name}

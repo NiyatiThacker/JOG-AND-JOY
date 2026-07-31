@@ -15,7 +15,7 @@ export default function BrandIntro() {
               <img
                 src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200&auto=format&fit=crop"
                 alt="Jog & Joy Garment Craftsmanship"
-                className="w-full h-[450px] object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-112.5 object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-transparent opacity-80" />
               

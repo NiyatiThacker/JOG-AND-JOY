@@ -46,7 +46,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
 
           {/* User Profile Header */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#AEE6FF] to-[#E6D6FF] text-slate-900 font-black text-xl flex items-center justify-center border-2 border-white shadow-md">
+            <div className="w-14 h-14 rounded-full bg-linear-to-tr from-[#AEE6FF] to-[#E6D6FF] text-slate-900 font-black text-xl flex items-center justify-center border-2 border-white shadow-md">
               A
             </div>
             <div>

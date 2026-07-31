@@ -53,13 +53,13 @@ export default function WhyChooseUs() {
                 <div className="relative inline-flex items-center justify-center p-2 group cursor-pointer">
                   
                   {/* 1. Outer Pulsing Ring */}
-                  <div className="absolute -inset-3 bg-gradient-to-r from-[#FFD800] via-white to-[#AEE6FF] rounded-3xl blur-xl opacity-75 animate-pulse pointer-events-none"></div>
+                  <div className="absolute -inset-3 bg-linear-to-r from-[#FFD800] via-white to-[#AEE6FF] rounded-3xl blur-xl opacity-75 animate-pulse pointer-events-none"></div>
 
                   {/* 2. Rotating Gradient Aura Glow */}
                   <motion.div 
                     animate={{ rotate: 360 }}
                     transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
-                    className="absolute -inset-2 bg-gradient-to-r from-[#FFD800] via-[#FF5500] to-[#00A3E0] rounded-2xl blur-md opacity-90 pointer-events-none"
+                    className="absolute -inset-2 bg-linear-to-r from-[#FFD800] via-[#FF5500] to-[#00A3E0] rounded-2xl blur-md opacity-90 pointer-events-none"
                   ></motion.div>
 
                   {/* Logo Image & Sparkles Wrapper */}

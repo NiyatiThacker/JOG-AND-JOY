@@ -93,9 +93,9 @@ export default function WomenPage() {
             <div className="hidden lg:flex flex-col items-end gap-2 absolute top-1/2 right-0 -translate-y-1/2 pr-8">
               <span className="text-[10px] text-black font-semibold mb-2">01/04</span>
               <div className="w-8 h-[2px] bg-black"></div>
-              <div className="w-6 h-[1px] bg-gray-400"></div>
-              <div className="w-6 h-[1px] bg-gray-400"></div>
-              <div className="w-6 h-[1px] bg-gray-400"></div>
+              <div className="w-6 h-px bg-gray-400"></div>
+              <div className="w-6 h-px bg-gray-400"></div>
+              <div className="w-6 h-px bg-gray-400"></div>
             </div>
           </div>
 

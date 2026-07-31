@@ -82,7 +82,7 @@ export default function App() {
             <UserProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
 
             {/* Main Page Router */}
-            <div className="flex-grow">
+            <div className="grow">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />

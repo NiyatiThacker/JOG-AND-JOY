@@ -14,7 +14,7 @@ export default function NewArrivalProductCard({ product }) {
   return (
     <div className="flex flex-col group cursor-pointer w-full font-sans">
       {/* Image Block */}
-      <div className="relative aspect-[4/5] w-full bg-[#f4f4f4] rounded-2xl overflow-hidden mb-4 border border-slate-100">
+      <div className="relative aspect-4/5 w-full bg-[#f4f4f4] rounded-2xl overflow-hidden mb-4 border border-slate-100">
         <Link to={`/product/${product.id}`} className="absolute inset-0">
           <img
             src={product.image}

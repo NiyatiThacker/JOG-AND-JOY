@@ -47,15 +47,15 @@ export default function AdminShipping() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[600px]">
         {/* Sidebar Tabs */}
-        <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-border p-4 space-y-1">
+        <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-slate-200 p-4 space-y-1">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-3 ${
-                activeTab === tab.id ? 'bg-white border border-border shadow-sm text-primary-dark' : 'text-text-secondary hover:bg-zinc-100/50 hover:text-text-primary'
+                activeTab === tab.id ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' : 'text-text-secondary hover:bg-zinc-100/50 hover:text-text-primary'
               }`}
             >
               <span className={activeTab === tab.id ? 'text-accent-green' : ''}>{tab.icon}</span>
@@ -69,7 +69,7 @@ export default function AdminShipping() {
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-white p-4 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center border-b border-slate-200 bg-white p-4 gap-4">
                 <h2 className="text-lg font-bold text-primary-dark">Ready to Pack & Ship</h2>
                 <div className="relative w-full sm:w-64">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -78,17 +78,17 @@ export default function AdminShipping() {
                     placeholder="Search by order or name..." 
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-border bg-zinc-50 focus:outline-none focus:bg-white focus:border-accent-green text-sm transition-colors"
+                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-zinc-50 focus:outline-none focus:bg-white focus:border-green-500 text-sm transition-colors"
                   />
                 </div>
               </div>
               
-              <div className="overflow-x-auto min-h-[400px]">
+              <div className="overflow-x-auto min-h-100">
                 {isLoading ? (
                   <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading queue...</div>
                 ) : (
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-border text-[11px] uppercase tracking-wider">
+                    <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-slate-200 text-[11px] uppercase tracking-wider">
                       <tr>
                         <th className="px-6 py-4">Order</th>
                         <th className="px-6 py-4">Customer</th>

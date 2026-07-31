@@ -179,7 +179,7 @@ export default function KidsPage() {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 xl:px-8 pt-8">
 
         {/* Mint Green Hero Section */}
-        <div className="w-full max-w-6xl mx-auto bg-[#A7DEB9] rounded-[2rem] overflow-hidden flex flex-col md:flex-row items-center justify-between mb-4 shadow-sm min-h-[320px]">
+        <div className="w-full max-w-6xl mx-auto bg-[#A7DEB9] rounded-4xl overflow-hidden flex flex-col md:flex-row items-center justify-between mb-4 shadow-sm min-h-[320px]">
           <div className="p-8 md:p-16 max-w-xl text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-4">
               Gifts and Toys <br /> for 13 to Young Adults
