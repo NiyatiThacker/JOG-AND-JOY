@@ -675,7 +675,7 @@ export default function ProductDetails() {
         </div>
         <button
           onClick={(e) => addToCart(product, selectedSize, selectedColor, e, quantity, true)}
-          className="flex-grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5"
+          className="grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5"
         >
           <ShoppingBag className="w-4 h-4" /> Add To Bag
         </button>
@@ -690,7 +690,7 @@ export default function ProductDetails() {
       )}
       {/* Review Modal */}
       {isReviewModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => { setIsReviewModalOpen(false); setReviewSuccess(false); setReviewForm({ rating: 5, title: '', body: '', orderId: '', email: '' }); }} />
           <div className="relative bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">

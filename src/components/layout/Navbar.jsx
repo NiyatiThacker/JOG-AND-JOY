@@ -46,7 +46,7 @@ export default function Navbar({ onOpenProfile }) {
   }
 
   return (
-    <div className="sticky top-0 w-full h-[96px] md:h-[96px] max-md:h-[72px] bg-[#FFF8EC] block select-none z-50 shadow-sm">
+    <div className="sticky top-0 w-full h-24 md:h-24 max-md:h-18 bg-[#FFF8EC] block select-none z-50 shadow-sm">
       <CardNav
         items={navItems}
         baseColor="transparent"

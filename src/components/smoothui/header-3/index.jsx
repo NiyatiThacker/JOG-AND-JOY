@@ -42,7 +42,7 @@ export function HeroShowcase({
               ? { opacity: 1 }
               : { opacity: 1, scale: 1, filter: "blur(0px)" }
           }
-          className="relative overflow-hidden bg-gradient-to-b from-background to-muted"
+          className="relative overflow-hidden bg-linear-to-b from-background to-muted"
           initial={
             shouldReduceMotion
               ? { opacity: 1 }

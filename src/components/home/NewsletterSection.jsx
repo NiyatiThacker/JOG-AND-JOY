@@ -52,7 +52,7 @@ export default function NewsletterSection() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Soft Light Green / Mint Pastel Card Container */}
-        <div className="rounded-[3.5rem] bg-gradient-to-br from-[#D2F8DC] via-[#E6FCEE] to-[#B8F3C7] p-8 sm:p-14 text-emerald-950 shadow-2xl relative overflow-hidden border-4 border-white/80">
+        <div className="rounded-[3.5rem] bg-linear-to-br from-[#D2F8DC] via-[#E6FCEE] to-[#B8F3C7] p-8 sm:p-14 text-emerald-950 shadow-2xl relative overflow-hidden border-4 border-white/80">
           
           {/* Soft Background Radial Light */}
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none"></div>

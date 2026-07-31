@@ -66,7 +66,7 @@ export default function ProductCard({ product, onQuickView }) {
       </div>
 
       {/* Card Details Body */}
-      <div className="p-5 flex-grow flex flex-col justify-between space-y-3">
+      <div className="p-5 grow flex flex-col justify-between space-y-3">
         
         <div>
           {/* Category & Rating */}

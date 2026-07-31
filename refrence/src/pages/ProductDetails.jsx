@@ -328,7 +328,7 @@ export default function ProductDetails() {
         </div>
         <button
           onClick={handleAddToCart}
-          className="flex-grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5"
+          className="grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5"
         >
           <ShoppingBag className="w-4 h-4" /> Add To Bag
         </button>

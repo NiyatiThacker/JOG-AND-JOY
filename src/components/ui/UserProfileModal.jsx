@@ -121,7 +121,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                   type="text"
                   value={editForm.name}
                   onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value.replace(/[^A-Za-z\s]/g, '') }))}
-                  className="text-xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded px-2 py-1 w-full focus:outline-none focus:border-[#EF4A45]"
+                  className="text-xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded px-2 py-1 w-full focus:outline-none focus:border-red-500"
                   placeholder="Your Name"
                 />
               )}
@@ -214,8 +214,8 @@ export default function UserProfileModal({ isOpen, onClose }) {
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Order Status</p>
                       <div className="relative flex items-center justify-between px-2">
                         {/* Connecting Line */}
-                        <div className="absolute left-4 right-4 top-[7px] h-0.5 bg-amber-100 z-0"></div>
-                        <div className="absolute left-4 right-4 top-[7px] h-0.5 bg-[#EF4A45] z-0 transition-all duration-500" style={{ width: order.status === 'DELIVERED' ? '100%' : order.status === 'SHIPPED' ? '50%' : '0%' }}></div>
+                        <div className="absolute left-4 right-4 top-1.75 h-0.5 bg-amber-100 z-0"></div>
+                        <div className="absolute left-4 right-4 top-1.75 h-0.5 bg-[#EF4A45] z-0 transition-all duration-500" style={{ width: order.status === 'DELIVERED' ? '100%' : order.status === 'SHIPPED' ? '50%' : '0%' }}></div>
                         
                         {/* Processing Node */}
                         <div className="relative z-10 flex flex-col items-center gap-2">
@@ -294,7 +294,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                     <textarea
                       value={editForm.address}
                       onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full text-xs font-medium bg-white border border-slate-200 rounded-xl p-2 focus:outline-none focus:border-[#EF4A45]"
+                      className="w-full text-xs font-medium bg-white border border-slate-200 rounded-xl p-2 focus:outline-none focus:border-red-500"
                       rows={3}
                       placeholder="Enter your full address"
                     />
@@ -315,7 +315,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                     type="tel"
                     value={editForm.phone}
                     onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value.replace(/[^0-9]/g, '') }))}
-                    className="text-slate-900 bg-white border border-slate-200 rounded px-2 py-1 w-1/2 focus:outline-none focus:border-[#EF4A45] text-right"
+                    className="text-slate-900 bg-white border border-slate-200 rounded px-2 py-1 w-1/2 focus:outline-none focus:border-red-500 text-right"
                     placeholder="Enter phone number"
                     maxLength={10}
                   />

@@ -220,7 +220,7 @@ export default function Checkout() {
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.fullName ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.fullName ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
                     />
                     {errors.fullName && <p className="text-red-500 text-[10px] mt-1">{errors.fullName}</p>}
                   </div>
@@ -231,7 +231,7 @@ export default function Checkout() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
                     />
                     {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email}</p>}
                   </div>
@@ -242,7 +242,7 @@ export default function Checkout() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
                     />
                     {errors.phone && <p className="text-red-500 text-[10px] mt-1">{errors.phone}</p>}
                   </div>
@@ -253,7 +253,7 @@ export default function Checkout() {
                       name="pincode"
                       value={formData.pincode}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.pincode ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.pincode ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
                     />
                     {errors.pincode && <p className="text-red-500 text-[10px] mt-1">{errors.pincode}</p>}
                   </div>
@@ -264,7 +264,7 @@ export default function Checkout() {
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.address ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.address ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
                     />
                     {errors.address && <p className="text-red-500 text-[10px] mt-1">{errors.address}</p>}
                   </div>
@@ -275,7 +275,7 @@ export default function Checkout() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.city ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.city ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
                     />
                     {errors.city && <p className="text-red-500 text-[10px] mt-1">{errors.city}</p>}
                   </div>
@@ -286,7 +286,7 @@ export default function Checkout() {
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.state ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.state ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
                     />
                     {errors.state && <p className="text-red-500 text-[10px] mt-1">{errors.state}</p>}
                   </div>
@@ -395,7 +395,7 @@ export default function Checkout() {
                   </button>
                   <button
                     onClick={handlePlaceOrder}
-                    className="w-2/3 py-3.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm shadow-xl hover:scale-102 transition-all flex items-center justify-center gap-1.5"
+                    className="w-2/3 py-3.5 rounded-full bg-linear-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm shadow-xl hover:scale-102 transition-all flex items-center justify-center gap-1.5"
                   >
                     <ShieldCheck className="w-5 h-5" /> Pay & Place Order (₹{cartGrandTotal})
                   </button>

@@ -142,7 +142,7 @@ export default function ContactUs() {
     <div className="bg-[#FAF9F5] min-h-screen font-sans text-slate-900 overflow-x-hidden">
 
       {/* --- HERO SECTION --- */}
-      <section className="relative w-full pt-12 pb-20 overflow-hidden bg-gradient-to-b from-[#FFFDF8] via-[#FAF9F5] to-[#F3F1E9]">
+      <section className="relative w-full pt-12 pb-20 overflow-hidden bg-linear-to-b from-[#FFFDF8] via-[#FAF9F5] to-[#F3F1E9]">
         
         {/* Subtle geometric floaters */}
         <div className="absolute top-12 left-10 w-16 h-16 bg-[#FF5500]/10 rounded-2xl rotate-12 blur-sm pointer-events-none"></div>
@@ -230,7 +230,7 @@ export default function ContactUs() {
             <div className="lg:col-span-6 relative flex justify-center items-center">
               
               {/* Main Model Showcase Box with Orange Accents */}
-              <div className="relative w-full max-w-[500px]">
+              <div className="relative w-full max-w-125">
                 
                 {/* Floating Orange Block (Background accent) */}
                 <div className="absolute -top-4 -right-4 w-28 h-28 bg-[#FF5500] rounded-3xl z-0"></div>
@@ -242,14 +242,14 @@ export default function ContactUs() {
                   {/* Card 1: Top Left Big Image */}
                   <motion.div 
                     whileHover={{ scale: 1.02 }}
-                    className="relative col-span-2 sm:col-span-1 rounded-3xl overflow-hidden shadow-xl border-4 border-white h-[280px]"
+                    className="relative col-span-2 sm:col-span-1 rounded-3xl overflow-hidden shadow-xl border-4 border-white h-70"
                   >
                     <img 
                       src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop" 
                       alt="Jog & Joy Vibrant Activewear" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-orange-950/70 via-transparent to-transparent p-4 flex flex-col justify-end">
+                    <div className="absolute inset-0 bg-linear-to-t from-orange-950/70 via-transparent to-transparent p-4 flex flex-col justify-end">
                       <span className="bg-[#FF5500] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider w-max mb-1">
                         Orange Series
                       </span>
@@ -260,14 +260,14 @@ export default function ContactUs() {
                   {/* Card 2: Right Top Image */}
                   <motion.div 
                     whileHover={{ scale: 1.02 }}
-                    className="relative hidden sm:block rounded-3xl overflow-hidden shadow-xl border-4 border-white h-[280px]"
+                    className="relative hidden sm:block rounded-3xl overflow-hidden shadow-xl border-4 border-white h-70"
                   >
                     <img 
                       src="https://images.unsplash.com/photo-1483721074892-4a85d909158a?q=80&w=800&auto=format&fit=crop" 
                       alt="Adidas Hoodie Style" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-sky-950/70 via-transparent to-transparent p-4 flex flex-col justify-end">
+                    <div className="absolute inset-0 bg-linear-to-t from-sky-950/70 via-transparent to-transparent p-4 flex flex-col justify-end">
                       <span className="bg-[#00A3E0] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider w-max mb-1">
                         Best Fit
                       </span>
@@ -281,7 +281,7 @@ export default function ContactUs() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="absolute -bottom-4 right-4 sm:-right-6 z-20 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4 max-w-[240px]"
+                  className="absolute -bottom-4 right-4 sm:-right-6 z-20 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4 max-w-60"
                 >
                   <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 text-[#FF5500] flex items-center justify-center font-black">
                     <Clock className="w-5 h-5" />
@@ -541,7 +541,7 @@ export default function ContactUs() {
               initial={{ opacity: 0, scale: 0.97 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="lg:col-span-7 relative bg-gradient-to-br from-[#FFF9F2] via-[#FFF3EA] to-[#FFEBE0] p-8 sm:p-12 rounded-[2.5rem] border-4 border-dashed border-[#FF7A00]/30 shadow-2xl overflow-hidden"
+              className="lg:col-span-7 relative bg-linear-to-br from-[#FFF9F2] via-[#FFF3EA] to-[#FFEBE0] p-8 sm:p-12 rounded-[2.5rem] border-4 border-dashed border-[#FF7A00]/30 shadow-2xl overflow-hidden"
             >
               {/* Floating Background SVG Doodles */}
               <div className="absolute top-4 right-6 pointer-events-none animate-bounce">
@@ -597,7 +597,7 @@ export default function ContactUs() {
                       value={formData.name}
                       onChange={handleChange}
                       error={errors.name}
-                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-[#FF5500] focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                     />
                   </div>
 
@@ -614,7 +614,7 @@ export default function ContactUs() {
                       value={formData.mobile}
                       onChange={handleChange}
                       error={errors.mobile}
-                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-[#FF5500] focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                     />
                   </div>
                 </div>
@@ -634,7 +634,7 @@ export default function ContactUs() {
                       value={formData.email}
                       onChange={handleChange}
                       error={errors.email}
-                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-[#FF5500] focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                     />
                   </div>
 
@@ -665,7 +665,7 @@ export default function ContactUs() {
                     value={formData.comment}
                     onChange={handleChange}
                     error={errors.comment}
-                    className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-[#FF5500] focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                    className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                   />
                 </div>
 
@@ -675,7 +675,7 @@ export default function ContactUs() {
                     type="submit" 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
-                    className="w-full bg-gradient-to-r from-[#FF5500] via-[#FF6B00] to-[#FF4500] text-white font-black text-lg py-4 rounded-2xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all flex items-center justify-center gap-3 cursor-pointer group border-2 border-white/40"
+                    className="w-full bg-linear-to-r from-[#FF5500] via-[#FF6B00] to-[#FF4500] text-white font-black text-lg py-4 rounded-2xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all flex items-center justify-center gap-3 cursor-pointer group border-2 border-white/40"
                   >
                     <span>Submit Message</span>
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">
@@ -710,7 +710,7 @@ export default function ContactUs() {
               alt="Hoodie Collection Flagship Store" 
               className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent p-8 flex flex-col justify-end">
+            <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/30 to-transparent p-8 flex flex-col justify-end">
               <span className="bg-[#FF7A59] text-white text-xs font-black px-3.5 py-1.5 rounded-full w-max uppercase tracking-wider mb-3 shadow-md">
                 Flagship Office
               </span>
@@ -735,7 +735,7 @@ export default function ContactUs() {
                 alt="Pants Collections" 
                 className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent z-0"></div>
+              <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/40 to-transparent z-0"></div>
               <div className="relative z-10">
                 <span className="bg-[#AEE6FF] text-slate-900 text-xs font-black px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
                   Distributor Network
@@ -751,7 +751,7 @@ export default function ContactUs() {
             </div>
 
             {/* Bottom Wide Card: Fit Guarantee */}
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#FF6B00] to-[#FF4500] p-8 text-white flex flex-col justify-between shadow-xl">
+            <div className="relative rounded-3xl overflow-hidden bg-linear-to-r from-[#FF6B00] to-[#FF4500] p-8 text-white flex flex-col justify-between shadow-xl">
               <div>
                 <span className="bg-white text-[#FF5500] text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
                   Jog & Joy Guarantee
@@ -774,7 +774,7 @@ export default function ContactUs() {
 
 
       {/* --- CUSTOMER TESTIMONIALS SECTION (Infinite Marquee Carousel) --- */}
-      <section className="py-20 bg-gradient-to-b from-[#FFF5EC] via-[#FFEFE4] to-[#FFF8F2] border-y border-orange-200/60 overflow-hidden">
+      <section className="py-20 bg-linear-to-b from-[#FFF5EC] via-[#FFEFE4] to-[#FFF8F2] border-y border-orange-200/60 overflow-hidden">
         
         {/* Inline CSS animation for smooth infinite marquee */}
         <style>{`
@@ -889,7 +889,7 @@ export default function ContactUs() {
 
 
       {/* --- INFINITE TICKER / NEWSLETTER MARQUEE BANNER --- */}
-      <section className="bg-gradient-to-r from-[#FF5500] via-[#FF6B00] to-[#FF4500] text-white py-5 overflow-hidden shadow-inner">
+      <section className="bg-linear-to-r from-[#FF5500] via-[#FF6B00] to-[#FF4500] text-white py-5 overflow-hidden shadow-inner">
         <div className="flex whitespace-nowrap animate-marquee font-black text-xl sm:text-2xl uppercase tracking-wider gap-8 items-center">
           <span>+ Join Our Newsletter</span>
           <span>+ Fast Nationwide Delivery</span>
@@ -927,7 +927,7 @@ export default function ContactUs() {
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="aspect-video w-full flex items-center justify-center bg-gradient-to-br from-[#FFF9F2] to-[#FFEBE0] p-8 text-center">
+              <div className="aspect-video w-full flex items-center justify-center bg-linear-to-br from-[#FFF9F2] to-[#FFEBE0] p-8 text-center">
                 <div className="space-y-4">
                   <div className="w-16 h-16 rounded-full bg-[#FF5500] flex items-center justify-center text-white mx-auto shadow-lg shadow-orange-500/30">
                     <Play className="w-8 h-8 fill-white translate-x-0.5" />

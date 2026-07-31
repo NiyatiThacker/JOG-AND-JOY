@@ -127,7 +127,7 @@ export default function LiveChatDrawer({ isOpen, onClose }) {
                 placeholder="Ask a question..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#EF4A45]"
+                className="w-full px-4 py-2.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-red-500"
               />
               <button
                 type="submit"

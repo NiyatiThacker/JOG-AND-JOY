@@ -78,10 +78,10 @@ export default function AdminMessages() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row flex-1 min-h-[500px]">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row flex-1 min-h-125">
         {/* Left Pane: Conversation List */}
-        <div className="w-full md:w-80 flex flex-col border-r border-border bg-zinc-50/50">
-          <div className="p-4 border-b border-border bg-white">
+        <div className="w-full md:w-80 flex flex-col border-r border-slate-200 bg-zinc-50/50">
+          <div className="p-4 border-b border-slate-200 bg-white">
             <div className="relative w-full mb-3">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input 
@@ -89,7 +89,7 @@ export default function AdminMessages() {
                 placeholder="Search messages..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl border border-border bg-zinc-50 focus:outline-none focus:bg-white focus:border-accent-green text-sm transition-colors"
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-zinc-50 focus:outline-none focus:bg-white focus:border-green-500 text-sm transition-colors"
               />
             </div>
             <div className="flex bg-zinc-100 p-1 rounded-xl">
@@ -150,7 +150,7 @@ export default function AdminMessages() {
           {selectedThread ? (
             <>
               {/* Action Bar */}
-              <div className="p-4 border-b border-border flex justify-between items-center shrink-0">
+              <div className="p-4 border-b border-slate-200 flex justify-between items-center shrink-0">
                 <div>
                   <h2 className="font-bold text-lg text-primary-dark">{selectedThread.subject || 'No Subject'}</h2>
                   <p className="text-xs text-text-secondary flex items-center gap-2 mt-0.5">
@@ -170,7 +170,7 @@ export default function AdminMessages() {
                     <button className="p-1.5 text-zinc-400 hover:text-primary-dark rounded-lg hover:bg-zinc-100">
                       <MoreVertical className="w-4 h-4" />
                     </button>
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
                       <div className="p-1">
                         <button onClick={() => handleStatusChange('closed')} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg text-error">
                           Close Ticket
@@ -193,7 +193,7 @@ export default function AdminMessages() {
                       </div>
                       <div className={`p-3 rounded-2xl text-sm leading-relaxed ${
                         msg.internal ? 'bg-warning/20 border-warning/30 border text-primary-dark rounded-tr-sm' :
-                        isAdmin ? 'bg-primary-dark text-white rounded-tr-sm' : 'bg-white border border-border text-primary-dark rounded-tl-sm shadow-sm'
+                        isAdmin ? 'bg-primary-dark text-white rounded-tr-sm' : 'bg-white border border-slate-200 text-primary-dark rounded-tl-sm shadow-sm'
                       }`}>
                         {msg.internal && <span className="block text-[10px] font-extrabold uppercase tracking-widest text-warning-dark mb-1">Internal Note</span>}
                         {msg.body}
@@ -204,9 +204,9 @@ export default function AdminMessages() {
               </div>
 
               {/* Reply Box */}
-              <div className="p-4 border-t border-border bg-white shrink-0">
-                <div className="border border-border rounded-xl overflow-hidden focus-within:border-accent-green focus-within:ring-1 focus-within:ring-accent-green transition-shadow">
-                  <div className="flex items-center gap-2 p-2 border-b border-border bg-zinc-50">
+              <div className="p-4 border-t border-slate-200 bg-white shrink-0">
+                <div className="border border-slate-200 rounded-xl overflow-hidden focus-within:border-accent-green focus-within:ring-1 focus-within:ring-accent-green transition-shadow">
+                  <div className="flex items-center gap-2 p-2 border-b border-slate-200 bg-zinc-50">
                     <button onClick={handleInsertCanned} className="p-1.5 text-zinc-500 hover:text-primary-dark hover:bg-zinc-200 rounded-lg" title="Insert Canned Response"><FileTerminal className="w-4 h-4" /></button>
                     <label className="flex items-center gap-1.5 ml-auto text-xs font-bold text-zinc-500 cursor-pointer">
                       <input type="checkbox" checked={isInternal} onChange={e => setIsInternal(e.target.checked)} className="rounded text-warning focus:ring-warning" />

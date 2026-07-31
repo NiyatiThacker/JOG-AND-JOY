@@ -87,24 +87,24 @@ export default function AdminCustomers() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Customers</h1>
           <p className="text-xs text-text-secondary mt-1">Manage your buyers and their lifetime value</p>
         </div>
-        <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-border text-primary-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors">
+        <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-primary-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors">
           <FileText className="w-4 h-4" />
           Export CSV
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Customers</p>
           <p className="text-3xl font-extrabold text-primary-dark">{customers.length}</p>
         </div>
-        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Average LTV</p>
           <p className="text-3xl font-extrabold text-accent-green">
             {formatCurrency(customers.length ? customers.reduce((sum, c) => sum + c.totalSpent, 0) / customers.length : 0)}
           </p>
         </div>
-        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Repeat Rate</p>
           <p className="text-3xl font-extrabold text-info-dark">
             {customers.length ? Math.round((customers.filter(c => c.totalOrders > 1).length / customers.length) * 100) : 0}%
@@ -112,8 +112,8 @@ export default function AdminCustomers() {
         </div>
       </div>
 
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-border bg-zinc-50/50 flex justify-between items-center">
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-slate-200 bg-zinc-50/50 flex justify-between items-center">
           <div className="relative w-full md:w-64">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input 
@@ -121,17 +121,17 @@ export default function AdminCustomers() {
               placeholder="Search customers..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-white focus:outline-none focus:border-accent-green text-sm transition-colors"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-green-500 text-sm transition-colors"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto min-h-100">
           {isLoading ? (
             <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading customers...</div>
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-border text-[11px] uppercase tracking-wider">
+              <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-slate-200 text-[11px] uppercase tracking-wider">
                 <tr>
                   <th className="px-6 py-4">Customer</th>
                   <th className="px-6 py-4">Contact</th>

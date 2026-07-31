@@ -84,7 +84,7 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
         <CustomerLoginModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       )}
       
-      <div className="flex-grow">
+      <div className="grow">
         <Outlet />
       </div>
 

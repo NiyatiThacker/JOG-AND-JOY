@@ -59,8 +59,8 @@ function AdminLayoutContent() {
  )}
 
  {/* Sidebar */}
- <div className={`w-64 bg-surface border-r border-border flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
- <div className="h-16 px-6 border-b border-border flex items-center justify-between shrink-0">
+ <div className={`w-64 bg-surface border-r border-slate-200 flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+ <div className="h-16 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
   <BrandLogo className="h-12" linkTo="/admin" showTagline={false} animate={true} />
   <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-zinc-400 hover:text-zinc-800">
     <X className="w-5 h-5" />
@@ -89,7 +89,7 @@ function AdminLayoutContent() {
  })}
  </nav>
 
- <div className="p-4 border-t border-border mt-auto">
+ <div className="p-4 border-t border-slate-200 mt-auto">
  <button 
  onClick={logout}
  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold text-text-secondary hover:bg-error/10 hover:text-error w-full"
@@ -103,7 +103,7 @@ function AdminLayoutContent() {
  {/* Main Content */}
  <div className="flex-1 md:ml-64 relative min-h-screen flex flex-col w-full overflow-hidden">
  {/* Top Navbar */}
- <header className="h-16 bg-surface border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
+ <header className="h-16 bg-surface border-b border-slate-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
  <div className="flex items-center gap-3">
    <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 text-zinc-500 hover:text-zinc-800 rounded-lg">
      <Menu className="w-6 h-6" />
@@ -113,14 +113,14 @@ function AdminLayoutContent() {
    <input 
    type="text" 
    placeholder="Search orders, products, etc." 
-   className="w-full bg-zinc-50 border border-border rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-accent-green"
+   className="w-full bg-zinc-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-green-500"
    />
    <svg className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
    </div>
    </div>
  </div>
  <div className="flex items-center gap-2 md:gap-4">
- <Link to="/" className="hidden md:flex items-center gap-2 px-4 py-1.5 border border-border rounded-lg text-sm font-semibold hover:bg-zinc-50 transition-colors">
+ <Link to="/" className="hidden md:flex items-center gap-2 px-4 py-1.5 border border-slate-200 rounded-lg text-sm font-semibold hover:bg-zinc-50 transition-colors">
  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
  Go to Home
  </Link>
@@ -134,8 +134,8 @@ function AdminLayoutContent() {
    </button>
    
    {isNotifOpen && (
-     <div className="absolute right-0 mt-2 w-80 bg-white border border-border rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-       <div className="p-4 border-b border-border flex items-center justify-between bg-zinc-50/80 rounded-t-xl">
+     <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+       <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-zinc-50/80 rounded-t-xl">
          <h3 className="font-bold text-primary-dark">Notifications</h3>
          <div className="flex gap-2">
            <button onClick={markAllRead} className="p-1.5 text-zinc-400 hover:text-accent-green hover:bg-accent-green/10 rounded-md transition-colors" title="Mark all as read">
@@ -173,7 +173,7 @@ function AdminLayoutContent() {
      </div>
    )}
  </div>
- <div className="flex items-center gap-3 pl-4 border-l border-border">
+ <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
  <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-zinc-600 font-bold text-xs uppercase">
    {user?.name ? user.name.substring(0, 2) : 'AD'}
  </div>
@@ -185,7 +185,7 @@ function AdminLayoutContent() {
  </div>
  </header>
 
- <main className="max-w-[1280px] w-full mx-auto space-y-6 px-6 md:px-12 py-8 flex-1">
+ <main className="max-w-7xl w-full mx-auto space-y-6 px-6 md:px-12 py-8 flex-1">
  <Outlet />
  </main>
  </div>

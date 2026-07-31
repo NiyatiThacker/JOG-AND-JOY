@@ -42,7 +42,7 @@ export default function CustomerReviews() {
               return (
                 <SpotlightCard
                   key={index}
-                  className="kids-card p-6 border border-slate-100 flex flex-col justify-between space-y-4 bg-white w-[350px] flex-shrink-0 transform hover:-translate-y-2 hover:shadow-2xl hover:border-slate-200 transition-all duration-300"
+                  className="kids-card p-6 border border-slate-100 flex flex-col justify-between space-y-4 bg-white w-87.5 shrink-0 transform hover:-translate-y-2 hover:shadow-2xl hover:border-slate-200 transition-all duration-300"
                   spotlightColor={spotlightColors[index % spotlightColors.length]}
                 >
                   <div className="space-y-3">

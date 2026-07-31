@@ -38,7 +38,7 @@ export default function ProductCard({ product, onQuickView }) {
   const isFavorited = isInWishlist(activeProduct.id, selectedSize, selectedColor);
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#ECECEC] bg-white shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-[#ECECEC] bg-white shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
 
       {/* Product Image Container */}
       <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#FFF8EC]">
@@ -98,7 +98,7 @@ export default function ProductCard({ product, onQuickView }) {
       </div>
 
       {/* Card Details Body */}
-      <div className="p-5 flex-grow flex flex-col justify-between space-y-3">
+      <div className="p-5 grow flex flex-col justify-between space-y-3">
 
         <div>
           {/* Category & Rating */}

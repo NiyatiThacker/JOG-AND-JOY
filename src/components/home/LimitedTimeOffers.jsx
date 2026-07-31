@@ -18,7 +18,7 @@ export default function LimitedTimeOffers() {
   }, []);
 
   return (
-    <section className="py-12 bg-gradient-to-r from-[#EF4A45] via-rose-500 to-orange-500 text-white relative overflow-hidden shadow-xl">
+    <section className="py-12 bg-linear-to-r from-[#EF4A45] via-rose-500 to-orange-500 text-white relative overflow-hidden shadow-xl">
       {/* Decorative Doodles */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 

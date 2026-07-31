@@ -112,7 +112,7 @@ export default function Products({ pageCategory = null }) {
                 placeholder="Search by product name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#EF4A45]"
+                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-red-500"
               />
             </div>
 
@@ -145,7 +145,7 @@ export default function Products({ pageCategory = null }) {
                 onChange={setSortBy}
                 icon={SlidersHorizontal}
                 className="w-full max-w-[200px] sm:max-w-none sm:w-auto"
-                buttonClassName="!px-3 sm:!px-4"
+                buttonClassName="px-3! sm:px-4!"
               />
             </div>
             </div>

@@ -39,7 +39,7 @@ export default function ShopByAge() {
               >
                 {/* Top Pill & Icon */}
                 <div className="flex justify-between items-center mb-8">
-                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold text-slate-800 bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6]">
+                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6]">
                     {item.badge}
                   </span>
                   <div className="w-10 h-10 rounded-2xl bg-[#FFFDF9] border border-[#ECECEC] text-slate-700 flex items-center justify-center group-hover:bg-[#FF7A59] group-hover:text-white group-hover:border-[#FF7A59] transition-all duration-300 shadow-xs">

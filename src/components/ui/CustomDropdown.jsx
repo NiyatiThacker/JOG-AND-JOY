@@ -42,7 +42,7 @@ export default function CustomDropdown({
   };
 
   return (
-    <div className={`relative inline-block text-left w-full sm:w-auto ${isOpen ? 'z-[100]' : 'z-10'} ${className}`} ref={dropdownRef}>
+    <div className={`relative inline-block text-left w-full sm:w-auto ${isOpen ? 'z-100' : 'z-10'} ${className}`} ref={dropdownRef}>
       {/* Trigger Button */}
       <button
         type="button"
@@ -69,7 +69,7 @@ export default function CustomDropdown({
             animate={{ opacity: 1, y: 4, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute right-0 top-full z-[999] w-full min-w-[210px] bg-white border-2 border-[#FFE0D6] rounded-2xl shadow-2xl p-1.5 space-y-1 drop-shadow-2xl"
+            className="absolute right-0 top-full z-999 w-full min-w-[210px] bg-white border-2 border-[#FFE0D6] rounded-2xl shadow-2xl p-1.5 space-y-1 drop-shadow-2xl"
           >
             {options.map((option) => {
               const isSelected = option.value === value;

@@ -27,7 +27,7 @@ export default function WomenProductCard({ product }) {
   return (
     <div className="flex flex-col group cursor-pointer w-full">
       {/* Image Block */}
-      <div className="relative aspect-[3/4] w-full bg-[#f8f8f8] overflow-hidden mb-4">
+      <div className="relative aspect-3/4 w-full bg-[#f8f8f8] overflow-hidden mb-4">
         <Link to={`/product/${product.id}`} className="absolute inset-0">
           <img
             src={product.image}

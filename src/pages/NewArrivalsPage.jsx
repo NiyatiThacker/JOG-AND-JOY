@@ -82,13 +82,13 @@ export default function NewArrivalsPage() {
 
           {/* Center Headline */}
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-[#FFF3EE] via-[#FFF9E6] to-[#EBF7FF] border border-[#FFE0D6] text-[#FF7A59] font-black text-xs uppercase tracking-wider mb-5 shadow-xs">
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-linear-to-r from-[#FFF3EE] via-[#FFF9E6] to-[#EBF7FF] border border-[#FFE0D6] text-[#FF7A59] font-black text-xs uppercase tracking-wider mb-5 shadow-xs">
               <Sparkles className="w-4 h-4 text-[#FF7A59] animate-pulse" />
               <span>Just Dropped • Season 2026 🌈</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.08] font-heading-primary">
               Elevate Your <span className="font-serif italic font-normal text-slate-800 underline decoration-[#FFD800] decoration-wavy decoration-2">Style</span> With <br />
-              <span className="bg-gradient-to-r from-[#FF7A59] via-[#E65100] to-[#00A3E0] bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[#FF7A59] via-[#E65100] to-[#00A3E0] bg-clip-text text-transparent">
                 Bold New Fashion 🎈
               </span>
             </h1>
@@ -114,7 +114,7 @@ export default function NewArrivalsPage() {
         </div>
 
         {/* DYNAMIC 3D SPHERICAL DOME GALLERY (Replaces Old Grid) */}
-        <div className="w-screen h-[100vh] relative left-1/2 -translate-x-1/2 mb-12 bg-slate-950 sm:bg-white overflow-hidden shadow-sm cursor-grab active:cursor-grabbing border-y border-slate-100">
+        <div className="w-screen h-screen relative left-1/2 -translate-x-1/2 mb-12 bg-slate-950 sm:bg-white overflow-hidden shadow-sm cursor-grab active:cursor-grabbing border-y border-slate-100">
           <DomeGallery 
             images={newArrivalImages} 
             grayscale={true} 

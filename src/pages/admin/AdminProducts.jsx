@@ -327,8 +327,8 @@ export default function AdminProducts() {
 
       {/* Register New Product Form (Toggled) */}
       {showForm && (
-        <div className="bg-white border border-border rounded-xl shadow-sm mb-12 animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className="p-4 border-b border-border flex items-center gap-2">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm mb-12 animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="p-4 border-b border-slate-200 flex items-center gap-2">
             <div className="p-1.5 bg-green-50 rounded-lg">
               <CheckCircle2 className="w-5 h-5 text-accent-green" />
             </div>
@@ -342,11 +342,11 @@ export default function AdminProducts() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-text-secondary mb-2">Product Title *</label>
-                <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" placeholder="e.g. Handmade Terracotta Bowl" required />
+                <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-green-500 outline-none" placeholder="e.g. Handmade Terracotta Bowl" required />
               </div>
               <div>
                 <label className="block text-sm font-bold text-text-secondary mb-2">Category *</label>
-                <select value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" required>
+                <select value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-green-500 outline-none" required>
                   <option value="Kids T-shirt">Kids T-shirt</option>
                   <option value="Kids joggers and tracks">Kids joggers and tracks</option>
                   <option value="Kids shorts and bermudas">Kids shorts and bermudas</option>
@@ -364,7 +364,7 @@ export default function AdminProducts() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-text-secondary mb-2">Brand Name *</label>
-                  <input type="text" value={formData.vendor} onChange={e => setFormData({ ...formData, vendor: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" placeholder="e.g. Mitti" required />
+                  <input type="text" value={formData.vendor} onChange={e => setFormData({ ...formData, vendor: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-green-500 outline-none" placeholder="e.g. Mitti" required />
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-2">
@@ -382,14 +382,14 @@ export default function AdminProducts() {
                       }
                     }} 
                     disabled={formData.variants.length > 1}
-                    className={`w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none ${formData.variants.length > 1 ? 'bg-zinc-50 text-zinc-500 cursor-not-allowed' : ''}`} 
+                    className={`w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-green-500 outline-none ${formData.variants.length > 1 ? 'bg-zinc-50 text-zinc-500 cursor-not-allowed' : ''}`} 
                     placeholder="e.g. 50" 
                     required 
                   />
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center p-4 bg-zinc-50 border border-border rounded-xl">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center p-4 bg-zinc-50 border border-slate-200 rounded-xl">
                 <div className="flex-1">
                   <label className="block text-sm font-bold text-text-secondary mb-3">Seasonal Collections</label>
                   <div className="flex flex-wrap gap-3">
@@ -429,11 +429,11 @@ export default function AdminProducts() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-text-secondary mb-2">Original Price (₹) *</label>
-                  <input type="number" value={formData.originalPrice} onChange={e => setFormData({ ...formData, originalPrice: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" placeholder="e.g. 500" required />
+                  <input type="number" value={formData.originalPrice} onChange={e => setFormData({ ...formData, originalPrice: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-green-500 outline-none" placeholder="e.g. 500" required />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-text-secondary mb-2">Discount (%)</label>
-                  <input type="number" value={formData.discountPercent} onChange={e => setFormData({ ...formData, discountPercent: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none" placeholder="20" />
+                  <input type="number" value={formData.discountPercent} onChange={e => setFormData({ ...formData, discountPercent: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-green-500 outline-none" placeholder="20" />
                   {formData.originalPrice && (
                     <p className="text-xs font-bold text-accent-green mt-2">
                       Final Price: ₹{Math.round(Number(formData.originalPrice) * (1 - Number(formData.discountPercent) / 100))}
@@ -458,7 +458,7 @@ export default function AdminProducts() {
                     accept="image/*" 
                     onChange={handleImageUpload} 
                     disabled={formData.images.length >= 5}
-                    className="w-full px-4 py-2 border border-border rounded-xl focus:border-accent-green outline-none file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 disabled:opacity-50 transition-all text-sm" 
+                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:border-green-500 outline-none file:mr-4      file:font-bold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 disabled:opacity-50 transition-all text-sm" 
                   />
                 </div>
                 
@@ -472,7 +472,7 @@ export default function AdminProducts() {
                       onChange={(e) => setImageUrlInput(e.target.value)}
                       placeholder="https://example.com/image.jpg"
                       disabled={formData.images.length >= 5}
-                      className="flex-grow px-4 py-2 border border-border rounded-xl focus:border-accent-green outline-none disabled:opacity-50 text-sm" 
+                      className="grow px-4 py-2 border border-slate-200 rounded-xl focus:border-green-500 outline-none disabled:opacity-50 text-sm" 
                     />
                     <button 
                       type="button" 
@@ -516,7 +516,7 @@ export default function AdminProducts() {
                         <select 
                           value={idx + 1}
                           onChange={(e) => setSequence(idx, e.target.value)}
-                          className="text-[10px] font-bold text-slate-700 bg-white border border-slate-200 rounded px-1.5 py-0.5 outline-none focus:border-accent-green cursor-pointer"
+                          className="text-[10px] font-bold text-slate-700 bg-white border border-slate-200 rounded px-1.5 py-0.5 outline-none focus:border-green-500 cursor-pointer"
                         >
                           {formData.images.map((_, i) => (
                             <option key={i} value={i + 1}>{i + 1}</option>
@@ -614,14 +614,14 @@ export default function AdminProducts() {
                     placeholder="Hex Code (e.g. #FF0000)" 
                     value={customColorHex}
                     onChange={e => setCustomColorHex(e.target.value)}
-                    className="text-sm font-mono uppercase border border-slate-200 rounded-md px-2 py-1.5 w-28 focus:border-accent-green outline-none"
+                    className="text-sm font-mono uppercase border border-slate-200 rounded-md px-2 py-1.5 w-28 focus:border-green-500 outline-none"
                   />
                   <input 
                     type="text" 
                     placeholder="Color Name (e.g. Mint)" 
                     value={customColorName}
                     onChange={e => setCustomColorName(e.target.value)}
-                    className="text-sm border border-slate-200 rounded-md px-2 py-1.5 w-32 focus:border-accent-green outline-none"
+                    className="text-sm border border-slate-200 rounded-md px-2 py-1.5 w-32 focus:border-green-500 outline-none"
                   />
                   <button 
                     type="button"
@@ -678,7 +678,7 @@ export default function AdminProducts() {
                               min="0"
                               value={variant.stock} 
                               onChange={e => handleUpdateVariant(variant.id, 'stock', e.target.value)}
-                              className="w-full p-2 border border-slate-200 rounded-lg focus:border-accent-green outline-none"
+                              className="w-full p-2 border border-slate-200 rounded-lg focus:border-green-500 outline-none"
                               required
                             />
                           </td>
@@ -689,7 +689,7 @@ export default function AdminProducts() {
                               placeholder="Default"
                               value={variant.price} 
                               onChange={e => handleUpdateVariant(variant.id, 'price', e.target.value)}
-                              className="w-full p-2 border border-slate-200 rounded-lg focus:border-accent-green outline-none"
+                              className="w-full p-2 border border-slate-200 rounded-lg focus:border-green-500 outline-none"
                             />
                           </td>
                           <td className="p-4">
@@ -725,14 +725,14 @@ export default function AdminProducts() {
                     <label className="block text-sm font-bold text-slate-600">Fabric & Material</label>
                     <button type="button" onClick={applyFabricDefault} className="text-[10px] font-bold text-[#EF4A45] hover:underline bg-white px-2 py-1 rounded shadow-sm border border-amber-200">⚡ Auto-fill</button>
                   </div>
-                  <textarea rows="3" value={formData.fabric} onChange={e => setFormData({ ...formData, fabric: e.target.value })} className="w-full px-4 py-3 border border-amber-200 rounded-xl focus:border-[#EF4A45] outline-none resize-none" placeholder="e.g. 100% Bio-Washed Premium Cotton..."></textarea>
+                  <textarea rows="3" value={formData.fabric} onChange={e => setFormData({ ...formData, fabric: e.target.value })} className="w-full px-4 py-3 border border-amber-200 rounded-xl focus:border-red-500 outline-none resize-none" placeholder="e.g. 100% Bio-Washed Premium Cotton..."></textarea>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-bold text-slate-600">Care Instructions</label>
                     <button type="button" onClick={applyCareDefault} className="text-[10px] font-bold text-[#EF4A45] hover:underline bg-white px-2 py-1 rounded shadow-sm border border-amber-200">⚡ Auto-fill</button>
                   </div>
-                  <textarea rows="3" value={formData.care} onChange={e => setFormData({ ...formData, care: e.target.value })} className="w-full px-4 py-3 border border-amber-200 rounded-xl focus:border-[#EF4A45] outline-none resize-none" placeholder="e.g. Machine wash cold..."></textarea>
+                  <textarea rows="3" value={formData.care} onChange={e => setFormData({ ...formData, care: e.target.value })} className="w-full px-4 py-3 border border-amber-200 rounded-xl focus:border-red-500 outline-none resize-none" placeholder="e.g. Machine wash cold..."></textarea>
                 </div>
               </div>
 
@@ -741,13 +741,13 @@ export default function AdminProducts() {
                   <label className="block text-sm font-bold text-slate-600">Shipping & Returns</label>
                   <button type="button" onClick={applyShippingDefault} className="text-[10px] font-bold text-[#EF4A45] hover:underline bg-white px-2 py-1 rounded shadow-sm border border-amber-200">⚡ Auto-fill</button>
                 </div>
-                <textarea rows="2" value={formData.shipping} onChange={e => setFormData({ ...formData, shipping: e.target.value })} className="w-full px-4 py-3 border border-amber-200 rounded-xl focus:border-[#EF4A45] outline-none resize-none" placeholder="e.g. Standard delivery takes 3-5 days..."></textarea>
+                <textarea rows="2" value={formData.shipping} onChange={e => setFormData({ ...formData, shipping: e.target.value })} className="w-full px-4 py-3 border border-amber-200 rounded-xl focus:border-red-500 outline-none resize-none" placeholder="e.g. Standard delivery takes 3-5 days..."></textarea>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-bold text-text-secondary mb-2">Product Description & Overview</label>
-              <textarea rows="4" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none resize-none" placeholder="Rich description of the product..."></textarea>
+              <textarea rows="4" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-green-500 outline-none resize-none" placeholder="Rich description of the product..."></textarea>
             </div>
 
             <button type="submit" disabled={createMut.isPending || updateMut.isPending} className="w-full py-4 bg-[#f39c12] hover:bg-[#e67e22] text-white font-bold rounded-xl transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed">
@@ -758,20 +758,20 @@ export default function AdminProducts() {
       )}
 
       {/* Active Product Listings */}
-      <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden mb-12">
-        <div className="p-4 border-b border-border flex justify-between items-center bg-zinc-50/50">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-12">
+        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-zinc-50/50">
           <h2 className="text-xl font-extrabold text-primary-dark">Active Product Listings</h2>
           <div className="px-3 py-1 bg-zinc-100 text-zinc-500 rounded-lg text-sm font-bold">
             {products.length} Listings Total
           </div>
         </div>
 
-        <div className="overflow-x-auto min-h-[400px]">
+        <div className="overflow-x-auto min-h-100">
           {isLoading ? (
             <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading catalog...</div>
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="bg-white text-zinc-400 font-bold border-b border-border text-[11px] uppercase tracking-widest">
+              <thead className="bg-white text-zinc-400 font-bold border-b border-slate-200 text-[11px] uppercase tracking-widest">
                 <tr>
                   <th className="px-6 py-4">Product Details</th>
                   <th className="px-6 py-4">SKU / Code</th>
@@ -796,7 +796,7 @@ export default function AdminProducts() {
                       <tr key={product.id} className="hover:bg-zinc-50/50 transition-colors group">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 border border-border flex items-center justify-center shrink-0">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-zinc-100 border border-slate-200 flex items-center justify-center shrink-0">
                               {image ? (
                                 <img src={image} alt={product.title} className="w-full h-full object-cover" />
                               ) : (

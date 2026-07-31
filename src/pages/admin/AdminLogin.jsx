@@ -63,20 +63,20 @@ export default function AdminLogin() {
         <ShieldCheck className="w-10 h-10 text-[#222222]" />
       </motion.div>
 
-      <div className="w-full max-w-[1000px] flex flex-col lg:flex-row bg-white rounded-3xl border-2 border-[#222222] shadow-[8px_8px_0px_#222222] overflow-hidden relative z-10">
+      <div className="w-full max-w-250 flex flex-col lg:flex-row bg-white rounded-3xl border-2 border-[#222222] shadow-[8px_8px_0px_#222222] overflow-hidden relative z-10">
         
         {/* Left Side - Branding */}
         <div className="lg:w-5/12 bg-[#FFD800] p-10 flex flex-col justify-center items-center text-center border-b-2 lg:border-b-0 lg:border-r-2 border-[#222222] relative overflow-hidden">
           {/* Abstract circles */}
-          <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-[#EF4A45] rounded-full border-2 border-[#222222] opacity-50" />
-          <div className="absolute bottom-[-30px] left-[-30px] w-24 h-24 bg-[#AEE6FF] rounded-full border-2 border-[#222222] opacity-50" />
+          <div className="absolute -top-12.5 -right-12.5 w-40 h-40 bg-[#EF4A45] rounded-full border-2 border-[#222222] opacity-50" />
+          <div className="absolute -bottom-7.5 -left-7.5 w-24 h-24 bg-[#AEE6FF] rounded-full border-2 border-[#222222] opacity-50" />
 
           <div className="relative z-10">
             <h1 className="text-4xl md:text-5xl font-black text-[#222222] mb-4 tracking-tight leading-tight">
               Jog & Joy<br/>
               <span className="text-[#EF4A45] font-serif italic font-normal">Admin HQ</span>
             </h1>
-            <p className="text-[#222222] font-semibold text-lg max-w-[250px] mx-auto opacity-80">
+            <p className="text-[#222222] font-semibold text-lg max-w-62.5 mx-auto opacity-80">
               Manage the storefront with style and confidence!
             </p>
           </div>
@@ -106,7 +106,7 @@ export default function AdminLogin() {
                   onChange={handleChange}
                   required
                   autoComplete="off"
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:border-[#222222] focus:bg-white transition-all shadow-sm"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:border-slate-900 focus:bg-white transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function AdminLogin() {
                   onChange={handleChange}
                   required
                   autoComplete="new-password"
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:border-[#222222] focus:bg-white transition-all shadow-sm"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:border-slate-900 focus:bg-white transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#EF4A45] text-white font-bold py-4 rounded-xl border-2 border-[#222222] shadow-[0px_4px_0px_#222222] hover:-translate-y-1 hover:shadow-[0px_6px_0px_#222222] active:translate-y-1 active:shadow-[0px_0px_0px_#222222] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+              className="w-full bg-[#EF4A45] text-white font-bold py-4 rounded-xl border-2 border-[#222222] shadow-[0px_4px_0px_#222222] hover:-translate-y-1 hover:shadow-[0px_6px_0px_#222222] active:translate-y-1  transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

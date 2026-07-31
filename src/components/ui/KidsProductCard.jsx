@@ -18,7 +18,7 @@ export default function KidsProductCard({ product }) {
   };
 
   return (
-    <div className="flex flex-col group w-full bg-white transition-all duration-300 rounded-[24px] hover:shadow-xl border border-[#ECECEC] p-3 sm:p-4 pb-6 hover:-translate-y-1">
+    <div className="flex flex-col group w-full bg-white transition-all duration-300 rounded-3xl hover:shadow-xl border border-[#ECECEC] p-3 sm:p-4 pb-6 hover:-translate-y-1">
       {/* Image Block */}
       <div
         className="relative aspect-square w-full bg-[#FFF8EC] rounded-2xl overflow-hidden mb-4"
@@ -52,7 +52,7 @@ export default function KidsProductCard({ product }) {
       </div>
 
       {/* Content Block */}
-      <div className="flex flex-col items-center text-center space-y-2 flex-grow justify-between">
+      <div className="flex flex-col items-center text-center space-y-2 grow justify-between">
         <div className="space-y-1.5 w-full">
           {/* Title */}
           <Link to={`/product/${product.id}`}>

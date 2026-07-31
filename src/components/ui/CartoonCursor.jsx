@@ -127,7 +127,7 @@ export default function CartoonCursor() {
               scale: { type: 'spring', stiffness: 400, damping: 15 },
               opacity: { duration: 0.2 }
             }}
-            className="fixed top-0 left-0 w-8 h-8 pointer-events-none z-[9999] flex items-center justify-center"
+            className="fixed top-0 left-0 w-8 h-8 pointer-events-none z-9999 flex items-center justify-center"
             style={{ willChange: 'transform' }}
           >
             <motion.div
@@ -156,7 +156,7 @@ export default function CartoonCursor() {
               x: { type: 'spring', stiffness: 100, damping: 20, mass: 1 },
               y: { type: 'spring', stiffness: 100, damping: 20, mass: 1 },
             }}
-            className="fixed top-0 left-0 w-3 h-3 pointer-events-none z-[9998] rounded-full bg-white border-2 border-[#1E1E1E]"
+            className="fixed top-0 left-0 w-3 h-3 pointer-events-none z-9998 rounded-full bg-white border-2 border-[#1E1E1E]"
             style={{ willChange: 'transform' }}
           />
         </>

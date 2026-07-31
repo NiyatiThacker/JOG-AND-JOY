@@ -60,7 +60,7 @@ export default function FeaturedCollections() {
                 </div>
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
 
                 {/* Card Footer Info */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white space-y-1">

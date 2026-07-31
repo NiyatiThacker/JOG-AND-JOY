@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 // Pixel-Perfect Vector Instagram Icon with CSS Gradient Container
 const InstagramGradientIcon = () => (
-  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#fdf497] via-[#fd5949] via-[#d6249f] to-[#285AEB] flex items-center justify-center shadow-md shrink-0">
+  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-tr from-[#fdf497] via-[#fd5949] via-[#d6249f] to-[#285AEB] flex items-center justify-center shadow-md shrink-0">
     <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -53,7 +53,7 @@ export default function Footer() {
         </div>
 
         {/* MAIN CONTENT CARD CONTAINER (Rich Warm Cream / Ivory Background) */}
-        <div className="relative bg-gradient-to-br from-[#FFF9EA] via-[#F6EAC9] to-[#EFE1BA] text-[#1B475D] rounded-[2rem] p-8 sm:p-12 shadow-2xl overflow-hidden border-2 border-white/80">
+        <div className="relative bg-linear-to-br from-[#FFF9EA] via-[#F6EAC9] to-[#EFE1BA] text-[#1B475D] rounded-4xl p-8 sm:p-12 shadow-2xl overflow-hidden border-2 border-white/80">
           
           {/* Scalloped Edges */}
           <div className="hidden lg:block absolute -left-4 top-0 bottom-0 w-5 overflow-hidden pointer-events-none select-none">

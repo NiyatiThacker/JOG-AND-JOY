@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 export default function HeroSection({ onOpenSizeGuide }) {
   return (
-    <section className="relative overflow-hidden pt-8 pb-16 lg:py-20 bg-gradient-to-b from-[#FFF8EC] via-[#FFF8EC] to-white">
+    <section className="relative overflow-hidden pt-8 pb-16 lg:py-20 bg-linear-to-b from-[#FFF8EC] via-[#FFF8EC] to-white">
       {/* Decorative Pastel Bubbles */}
       <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-[#AEE6FF]/30 blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-[#FFD6BA]/40 blur-3xl pointer-events-none" />
@@ -58,7 +58,7 @@ export default function HeroSection({ onOpenSizeGuide }) {
             >
               <Link
                 to="/products"
-                className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#EF4A45] to-orange-500 text-white font-extrabold text-base shadow-xl shadow-red-500/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-8 py-4 rounded-full bg-linear-to-r from-[#EF4A45] to-orange-500 text-white font-extrabold text-base shadow-xl shadow-red-500/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
               >
                 <ShoppingBag className="w-5 h-5" />
                 <span>Shop New Collection</span>

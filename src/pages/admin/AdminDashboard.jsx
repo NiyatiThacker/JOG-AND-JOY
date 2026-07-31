@@ -114,7 +114,7 @@ export default function AdminDashboard() {
         <select 
           value={period} 
           onChange={e => setPeriod(e.target.value)}
-          className="px-4 py-2 border border-border bg-white rounded-xl text-sm font-bold text-primary-dark focus:outline-none focus:border-accent-green"
+          className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-sm font-bold text-primary-dark focus:outline-none focus:border-green-500"
         >
           <option value="today">Today</option>
           <option value="week">This Week</option>
@@ -126,19 +126,19 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm relative overflow-hidden">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Total Sales</p>
           <p className="text-2xl font-black text-primary-dark">{formatCurrency(totalSales)}</p>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm relative overflow-hidden">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Total Orders</p>
           <p className="text-2xl font-black text-primary-dark">{totalOrdersCount}</p>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm relative overflow-hidden">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Avg Order Value</p>
           <p className="text-2xl font-black text-primary-dark">{formatCurrency(avgOrderValue)}</p>
         </div>
-        <div className="p-5 bg-white border border-border rounded-2xl shadow-sm relative overflow-hidden">
+        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm relative overflow-hidden">
           <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Customers</p>
           <div className="flex justify-between items-end">
             <div><p className="text-xl font-black text-primary-dark">{newCustomers}</p><p className="text-[10px] font-bold text-zinc-400 uppercase">New</p></div>
@@ -149,9 +149,9 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Sales Chart */}
-        <div className="lg:col-span-2 bg-white border border-border rounded-2xl shadow-sm p-6">
+        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
           <h2 className="text-lg font-bold text-primary-dark mb-6">Sales Overview</h2>
-          <div className="h-[300px] w-full">
+          <div className="h-75 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -166,10 +166,10 @@ export default function AdminDashboard() {
 
         {/* Order Status & Payment */}
         <div className="space-y-6">
-          <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
             <h2 className="text-lg font-bold text-primary-dark mb-4">Order Status</h2>
             {statusData.length > 0 ? (
-              <div className="h-[200px] w-full">
+              <div className="h-50 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={statusData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
@@ -190,7 +190,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           
-          <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
             <h2 className="text-lg font-bold text-primary-dark mb-4">Payment Methods</h2>
             <div className="flex flex-col gap-4">
               <div>
@@ -211,7 +211,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
           <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-accent-green"/> Product Performance</h2>
           <div className="divide-y divide-border">
             {topProducts.length === 0 ? <p className="text-sm text-zinc-400 py-4">No data available.</p> : 
@@ -228,12 +228,12 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
           <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2"><Globe className="w-5 h-5 text-accent-green"/> Sales by Channel</h2>
           <div className="flex flex-col justify-center h-full pb-8">
-             <div className="flex justify-between items-center p-4 bg-zinc-50 rounded-xl border border-border">
+             <div className="flex justify-between items-center p-4 bg-zinc-50 rounded-xl border border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white border border-border rounded-lg flex items-center justify-center"><CreditCard className="w-5 h-5 text-primary-dark"/></div>
+                  <div className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center"><CreditCard className="w-5 h-5 text-primary-dark"/></div>
                   <div><p className="font-bold text-primary-dark">Web Storefront</p><p className="text-xs text-zinc-400">jogandjoy.com</p></div>
                 </div>
                 <div className="text-right">

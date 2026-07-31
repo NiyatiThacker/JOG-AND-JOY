@@ -69,7 +69,7 @@ export default function DistributorNetworkPage() {
             
             {/* Card 1 & 2 Column (Left Stack) */}
             <div className="space-y-4 flex flex-col justify-between h-full">
-              <div className="relative aspect-[4/5] w-full rounded-[28px] overflow-hidden bg-[#FF7A59] p-3 shadow-md group">
+              <div className="relative aspect-4/5 w-full rounded-[28px] overflow-hidden bg-[#FF7A59] p-3 shadow-md group">
                 <img 
                   src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=600&auto=format&fit=crop" 
                   alt="Retail Showroom" 
@@ -82,7 +82,7 @@ export default function DistributorNetworkPage() {
                 </div>
               </div>
 
-              <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-[#FFD5A1] p-3 shadow-sm group">
+              <div className="relative aspect-16/10 w-full rounded-[28px] overflow-hidden bg-[#FFD5A1] p-3 shadow-sm group">
                 <img 
                   src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=600&auto=format&fit=crop" 
                   alt="High Quality Fabrics" 
@@ -96,7 +96,7 @@ export default function DistributorNetworkPage() {
             </div>
 
             {/* Card 3 (Center Left - Tall Pastel Mint Card) */}
-            <div className="relative aspect-[3/4] sm:aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#CFFFE5] p-3 shadow-md group">
+            <div className="relative aspect-3/4 sm:aspect-4/5 lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#CFFFE5] p-3 shadow-md group">
               <img 
                 src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?q=80&w=600&auto=format&fit=crop" 
                 alt="Kids Fashion Stock" 
@@ -109,7 +109,7 @@ export default function DistributorNetworkPage() {
             </div>
 
             {/* Card 4 (Center - Featured Wholesale Spotlight Card with CTA Button) */}
-            <div className="relative aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#FFF3EE] border-2 border-[#FFE0D6] p-4 shadow-xl flex flex-col justify-between text-center group">
+            <div className="relative aspect-4/5 lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#FFF3EE] border-2 border-[#FFE0D6] p-4 shadow-xl flex flex-col justify-between text-center group">
               <div className="relative h-[270px] w-full rounded-2xl overflow-hidden mb-3">
                 <img 
                   src="https://images.unsplash.com/photo-1573855619003-97b4799dcd8b?q=80&w=600&auto=format&fit=crop" 
@@ -132,7 +132,7 @@ export default function DistributorNetworkPage() {
             </div>
 
             {/* Card 5 (Center Right - Tall Pastel Sky Blue Card) */}
-            <div className="relative aspect-[3/4] sm:aspect-[4/5] lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#AEE6FF] p-3 shadow-md group">
+            <div className="relative aspect-3/4 sm:aspect-4/5 lg:h-[400px] w-full rounded-[28px] overflow-hidden bg-[#AEE6FF] p-3 shadow-md group">
               <img 
                 src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop" 
                 alt="Retail Display Store" 
@@ -146,7 +146,7 @@ export default function DistributorNetworkPage() {
 
             {/* Card 6 & 7 Column (Right Stack) */}
             <div className="space-y-4 flex flex-col justify-between h-full">
-              <div className="relative aspect-[4/5] w-full rounded-[28px] overflow-hidden bg-[#E6D6FF] p-3 shadow-md group">
+              <div className="relative aspect-4/5 w-full rounded-[28px] overflow-hidden bg-[#E6D6FF] p-3 shadow-md group">
                 <img 
                   src="https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?q=80&w=600&auto=format&fit=crop" 
                   alt="Retail Support Team" 
@@ -158,7 +158,7 @@ export default function DistributorNetworkPage() {
                 </div>
               </div>
 
-              <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-[#FFE0D6] p-3 shadow-sm group">
+              <div className="relative aspect-16/10 w-full rounded-[28px] overflow-hidden bg-[#FFE0D6] p-3 shadow-sm group">
                 <img 
                   src="https://images.unsplash.com/photo-1556742049-0a674e2d45a0?q=80&w=600&auto=format&fit=crop" 
                   alt="Wholesale Dispatch" 

@@ -19,10 +19,10 @@ export default function NewArrivalProductCard({ product, onQuickView }) {
   };
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#ECECEC] bg-white p-3 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 font-sans">
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-[#ECECEC] bg-white p-3 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 font-sans">
       
       {/* Image Block */}
-      <div className="relative aspect-[4/5] w-full bg-[#FFF8EC] rounded-2xl overflow-hidden mb-3 border border-[#FFE0D6]">
+      <div className="relative aspect-4/5 w-full bg-[#FFF8EC] rounded-2xl overflow-hidden mb-3 border border-[#FFE0D6]">
         <Link to={`/product/${product.id}`} className="absolute inset-0">
           <img
             src={product.image}
@@ -75,7 +75,7 @@ export default function NewArrivalProductCard({ product, onQuickView }) {
       </div>
 
       {/* Details Body */}
-      <div className="px-1 text-left flex flex-col justify-between flex-grow space-y-2">
+      <div className="px-1 text-left flex flex-col justify-between grow space-y-2">
         <div>
           <span className="text-[10px] font-extrabold text-[#FF7A59] bg-[#FFF3EE] px-2 py-0.5 rounded-full uppercase tracking-wider border border-[#FFE0D6] select-none">
             {product.category}

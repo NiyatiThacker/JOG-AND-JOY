@@ -16,7 +16,7 @@ export default function NewsletterSection() {
   return (
     <section className="py-16 bg-[#FFF8EC] relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-[3rem] bg-gradient-to-r from-[#AEE6FF] via-[#E6D6FF] to-[#FFD6BA] p-8 sm:p-12 text-slate-900 shadow-2xl relative overflow-hidden border border-white/60">
+        <div className="rounded-[3rem] bg-linear-to-r from-[#AEE6FF] via-[#E6D6FF] to-[#FFD6BA] p-8 sm:p-12 text-slate-900 shadow-2xl relative overflow-hidden border border-white/60">
           
           <div className="relative z-10 text-center max-w-xl mx-auto space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-white text-[#EF4A45] flex items-center justify-center mx-auto shadow-md">

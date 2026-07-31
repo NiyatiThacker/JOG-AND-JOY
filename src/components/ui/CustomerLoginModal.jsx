@@ -118,7 +118,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                       required={!isLogin}
                       pattern="^[A-Za-z\s]+$"
                       title="Name can only contain letters and spaces"
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-[#EF4A45] focus:bg-white transition-colors"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors"
                     />
                   </div>
 
@@ -135,7 +135,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                       pattern="^[0-9]{10}$"
                       maxLength={10}
                       title="Phone number must be exactly 10 digits"
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-[#EF4A45] focus:bg-white transition-colors"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors"
                     />
                   </div>
 
@@ -149,7 +149,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                       onChange={handleChange}
                       required={!isLogin}
                       rows={2}
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-[#EF4A45] focus:bg-white transition-colors resize-none"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors resize-none"
                     />
                   </div>
                 </motion.div>
@@ -167,7 +167,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-[#EF4A45] focus:bg-white transition-colors"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors"
                 />
               </div>
             </div>
@@ -184,7 +184,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-[#EF4A45] focus:bg-white transition-colors"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors"
                 />
               </div>
             </div>
