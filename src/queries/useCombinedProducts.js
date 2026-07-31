@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useProductsList } from './useProducts';
-import { PRODUCTS } from '../data/productsData';
 
 export function useCombinedProducts() {
   const { data, isLoading } = useProductsList();
@@ -37,8 +36,8 @@ export function useCombinedProducts() {
       };
     });
     
-    // Live products from Admin Panel appear first
-    return [...liveProducts, ...PRODUCTS];
+    // Live products from Admin Panel
+    return [...liveProducts];
   }, [data]);
 
   return { combinedProducts, isLoading };

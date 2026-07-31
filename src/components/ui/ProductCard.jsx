@@ -1,69 +1,40 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Eye, ShoppingBag, Star } from 'lucide-react';
+import { Heart, Eye, ShoppingBag, Star, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
-import { useCombinedProducts } from '../../queries/useCombinedProducts';
+import { flyToCart } from '../../utils/animations';
 
 export default function ProductCard({ product, onQuickView }) {
-  const { combinedProducts } = useCombinedProducts();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const [activeProduct, setActiveProduct] = useState(product);
+  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || '4Y-5Y');
+  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.hex || '#AEE6FF');
 
-  React.useEffect(() => {
-    setActiveProduct(product);
-  }, [product]);
-
-  const [selectedSize, setSelectedSize] = useState(activeProduct.wishlistSize || activeProduct.sizes?.[0] || '4Y-5Y');
-  const [selectedColor, setSelectedColor] = useState(activeProduct.wishlistColor || activeProduct.colors?.[0]?.hex || '#AEE6FF');
-
-  const siblingProducts = combinedProducts?.filter(p => 
-    (activeProduct.groupId && p.groupId === activeProduct.groupId) ||
-    (activeProduct.groupId && String(p.id) === String(activeProduct.groupId)) ||
-    (p.groupId && String(p.groupId) === String(activeProduct.id)) ||
-    String(p.id) === String(activeProduct.id)
-  ) || [activeProduct];
-
-  const globalColors = [];
-  siblingProducts.forEach(sibling => {
-    sibling.colors?.forEach(color => {
-      if (!globalColors.some(c => c.hex === color.hex)) {
-        globalColors.push({ ...color, productId: sibling.id });
-      }
-    });
-  });
-
-  const isFavorited = isInWishlist(activeProduct.id, selectedSize, selectedColor);
+  const isFavorited = isInWishlist(product.id);
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#ECECEC] bg-white shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
-
+    <div className="kids-card group relative flex flex-col justify-between overflow-hidden border border-slate-100/80 bg-white">
+      
       {/* Product Image Container */}
-      <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#FFF8EC]">
-        <Link to={`/product/${activeProduct.id}`}>
+      <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#FFF8EC] rounded-t-2xl">
+        <Link to={`/product/${product.id}`}>
           <img
-            src={activeProduct.image}
-            alt={activeProduct.name}
-            loading="lazy"
-            decoding="async"
+            src={product.image || 'https://images.unsplash.com/photo-1519238263530-99bea67b5115?auto=format&fit=crop&q=80&w=600'}
+            alt={product.title}
             className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop";
-            }}
           />
         </Link>
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-          {activeProduct.discount && (
-            <span className="px-2.5 py-1 rounded-full bg-[#FF7A59] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
-              {activeProduct.discount}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {product.discount && (
+            <span className="px-2.5 py-1 rounded-full bg-[#EF4A45] text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+              {product.discount}
             </span>
           )}
-          {activeProduct.isNew && (
+          {product.isNew && (
             <span className="px-2.5 py-1 rounded-full bg-[#AEE6FF] text-slate-900 text-[10px] font-black uppercase tracking-wider shadow-sm">
               NEW
             </span>
@@ -74,83 +45,78 @@ export default function ProductCard({ product, onQuickView }) {
         <button
           onClick={(e) => {
             e.preventDefault();
-            toggleWishlist(activeProduct.id, selectedSize, selectedColor);
+            toggleWishlist(product.id);
           }}
-          aria-label="Add to Wishlist"
-          className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all duration-200 shadow-md z-10 cursor-pointer ${
-            isFavorited ? 'bg-[#FF7A59] text-white scale-110' : 'bg-white/85 text-slate-700 hover:bg-white hover:scale-105'
+          className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all shadow-md ${
+            isFavorited ? 'bg-[#EF4A45] text-white scale-110' : 'bg-white/80 text-slate-700 hover:bg-white hover:scale-105'
           }`}
           title="Add to Wishlist"
         >
           <Heart className={`w-4 h-4 ${isFavorited ? 'fill-white' : ''}`} />
         </button>
 
-        {/* Quick View Button Hover Overlay */}
-        <div className="absolute inset-x-0 bottom-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 z-10">
+        {/* Hover Action Overlay (Quick View) */}
+        <div className="absolute inset-x-0 bottom-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
           <button
-            onClick={() => onQuickView && onQuickView(activeProduct)}
-            aria-label="Quick View"
-            className="w-full py-2.5 bg-white/90 backdrop-blur-md hover:bg-white text-slate-900 font-extrabold text-xs rounded-full shadow-md flex items-center justify-center gap-1.5 transition-all hover:scale-102 cursor-pointer"
+            onClick={() => onQuickView(product)}
+            className="w-full py-2.5 bg-white/90 backdrop-blur-md hover:bg-white text-slate-900 font-extrabold text-xs rounded-full shadow-lg flex items-center justify-center gap-1.5 transition-all hover:scale-102"
           >
-            <Eye className="w-4 h-4 text-[#FF7A59]" /> Quick View
+            <Eye className="w-4 h-4 text-[#EF4A45]" /> Quick View
           </button>
         </div>
       </div>
 
       {/* Card Details Body */}
-      <div className="p-5 flex-grow flex flex-col justify-between space-y-3">
-
+      <div className="p-5 grow flex flex-col justify-between space-y-3">
+        
         <div>
           {/* Category & Rating */}
           <div className="flex items-center justify-between text-xs mb-1">
             <div className="flex items-center gap-1.5 select-none">
-              <span className="font-extrabold text-[#FF7A59] uppercase tracking-wider text-[10px] bg-[#FFF3EE] px-2.5 py-0.5 rounded-full border border-[#FFE0D6]">
-                {activeProduct.category}
+              <img
+                src="/images/logo.png"
+                alt="J&J"
+                className="w-4 h-4 object-contain rounded-full border border-slate-200"
+                draggable={false}
+              />
+              <span className="font-extrabold text-purple-700 uppercase tracking-wider text-[10px] bg-[#E6D6FF]/40 px-2 py-0.5 rounded-full">
+                {product.categoryId}
               </span>
             </div>
 
             <div className="flex items-center gap-1 text-amber-500 font-black">
               <Star className="w-3.5 h-3.5 fill-amber-400" />
-              <span>{activeProduct.rating}</span>
+              <span>{product.rating || 4.8}</span>
             </div>
           </div>
 
           {/* Product Name */}
-          <Link to={`/product/${activeProduct.id}`}>
-            <h3 className="font-extrabold text-slate-900 text-sm sm:text-base line-clamp-1 group-hover:text-[#FF7A59] transition-colors mt-1">
-              {activeProduct.name}
+          <Link to={`/product/${product.id}`}>
+            <h3 className="font-extrabold text-slate-900 text-sm sm:text-base line-clamp-1 group-hover:text-[#EF4A45] transition-colors mt-1">
+              {product.title}
             </h3>
           </Link>
 
           {/* Price & Savings */}
           <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-lg font-black text-slate-900">₹{activeProduct.price}</span>
-            {activeProduct.originalPrice && (
-              <span className="text-xs font-bold text-slate-400 line-through">₹{activeProduct.originalPrice}</span>
+            <span className="text-lg font-black text-slate-900">₹{product.basePrice}</span>
+            {product.compareAtPrice && (
+              <span className="text-xs font-bold text-slate-400 line-through">₹{product.compareAtPrice}</span>
             )}
           </div>
         </div>
 
         {/* Available Colors & Sizes Preview */}
         <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-
+          
           {/* Color Swatches */}
           <div className="flex items-center gap-1">
-            {globalColors.slice(0, 4).map((col, idx) => (
+            {product.colors?.slice(0, 3).map((col, idx) => (
               <button
                 key={idx}
-                aria-label={`Select color ${col.name}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setSelectedColor(col.hex);
-                  if (String(col.productId) !== String(activeProduct.id)) {
-                    const nextProduct = siblingProducts.find(p => String(p.id) === String(col.productId));
-                    if (nextProduct) setActiveProduct(nextProduct);
-                  }
-                }}
-                className={`w-4 h-4 rounded-full border border-white shadow-xs transition-transform cursor-pointer ${
-                  selectedColor === col.hex ? 'scale-125 ring-2 ring-[#FF7A59]' : 'hover:scale-110'
+                onClick={() => setSelectedColor(col.hex)}
+                className={`w-4 h-4 rounded-full border border-white shadow-xs transition-transform ${
+                  selectedColor === col.hex ? 'scale-125 ring-2 ring-[#EF4A45]' : 'hover:scale-110'
                 }`}
                 style={{ backgroundColor: col.hex }}
                 title={col.name}
@@ -160,7 +126,7 @@ export default function ProductCard({ product, onQuickView }) {
 
           {/* Quick Size Chips */}
           <div className="flex items-center gap-1">
-            {activeProduct.sizes?.slice(0, 2).map((sz, idx) => (
+            {product.sizes?.slice(0, 2).map((sz, idx) => (
               <span key={idx} className="text-[10px] font-extrabold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md">
                 {sz}
               </span>
@@ -173,10 +139,10 @@ export default function ProductCard({ product, onQuickView }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            addToCart(activeProduct, selectedSize, selectedColor, e);
+            flyToCart(e, product.image);
+            addToCart(product, selectedSize, selectedColor);
           }}
-          aria-label="Add To Bag"
-          className="w-full py-2.5 rounded-full bg-slate-900 hover:bg-[#FF7A59] text-white font-extrabold text-xs shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 mt-2 active:scale-95 cursor-pointer"
+          className="w-full py-2.5 rounded-full bg-slate-900 hover:bg-[#EF4A45] text-white font-extrabold text-xs shadow-md transition-colors flex items-center justify-center gap-2 mt-2"
         >
           <ShoppingBag className="w-3.5 h-3.5" />
           <span>Add To Bag</span>

@@ -296,7 +296,7 @@ export default function CategoryGrid() {
                 <div
                   key={cat.label}
                   ref={(el) => { cardsRef.current[idx] = el; }}
-                  className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0"
+                  className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0"
                   style={{ opacity: 0 }} // Pre-hidden to avoid initial flash of unstyled content
                 >
                   <Link

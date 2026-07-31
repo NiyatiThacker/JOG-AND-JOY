@@ -3,6 +3,18 @@ import { Tag, Plus, Trash2, Search, Edit2, CheckCircle2, Clock, X, Percent, Tren
 import { usePromotionsList, useCreatePromotion, useUpdatePromotion, useDeletePromotion } from '../../queries/usePromotions';
 import { useSettingsContext } from '../../context/SettingsContext';
 
+const formatForInput = (isoString) => {
+  if (!isoString) return '';
+  if (isoString.includes('T') && isoString.length === 16) return isoString;
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return '';
+    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  } catch (e) {
+    return '';
+  }
+};
+
 export default function AdminPromotions() {
   const [activeTab, setActiveTab] = useState('active');
   const [search, setSearch] = useState('');
@@ -15,9 +27,10 @@ export default function AdminPromotions() {
   const { data, isLoading } = usePromotionsList();
   let promotions = data?.data || [];
 
-  if (activeTab === 'active') promotions = promotions.filter(p => p.active);
-  if (activeTab === 'scheduled') promotions = promotions.filter(p => !p.active && new Date(p.startsAt) > new Date());
-  if (activeTab === 'expired') promotions = promotions.filter(p => !p.active && new Date(p.expiresAt) < new Date());
+  const now = new Date();
+  if (activeTab === 'active') promotions = promotions.filter(p => p.active && (!p.startsAt || new Date(p.startsAt) <= now) && (!p.expiresAt || new Date(p.expiresAt) >= now));
+  if (activeTab === 'scheduled') promotions = promotions.filter(p => p.startsAt && new Date(p.startsAt) > now);
+  if (activeTab === 'expired') promotions = promotions.filter(p => p.expiresAt && new Date(p.expiresAt) < now);
 
   if (search) {
     const q = search.toLowerCase();
@@ -33,8 +46,17 @@ export default function AdminPromotions() {
 
   const handleOpenEdit = (promo = null) => {
     if (promo) {
+      const formattedPromo = { ...promo };
+      if (formattedPromo.startsAt) {
+        const d = new Date(formattedPromo.startsAt);
+        formattedPromo.startsAt = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+      }
+      if (formattedPromo.expiresAt) {
+        const d = new Date(formattedPromo.expiresAt);
+        formattedPromo.expiresAt = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+      }
       setEditingPromo(promo);
-      setFormData(promo);
+      setFormData(formattedPromo);
     } else {
       setEditingPromo(null);
       setFormData({
@@ -55,10 +77,19 @@ export default function AdminPromotions() {
 
   const handleSave = (e) => {
     e.preventDefault();
+    
+    const payload = { ...formData };
+    if (payload.startsAt) {
+      payload.startsAt = new Date(payload.startsAt).toISOString();
+    }
+    if (payload.expiresAt) {
+      payload.expiresAt = new Date(payload.expiresAt).toISOString();
+    }
+
     if (editingPromo) {
-      updateMut.mutate({ id: editingPromo.id, patch: formData }, { onSuccess: () => setView('list') });
+      updateMut.mutate({ id: editingPromo.id, patch: payload }, { onSuccess: () => setView('list') });
     } else {
-      createMut.mutate({ ...formData, createdAt: new Date().toISOString() }, { onSuccess: () => setView('list') });
+      createMut.mutate({ ...payload, createdAt: new Date().toISOString() }, { onSuccess: () => setView('list') });
     }
   };
 
@@ -77,8 +108,8 @@ export default function AdminPromotions() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => setView('list')} className="px-4 py-2 font-bold text-sm text-text-secondary hover:text-text-primary">Discard</button>
-            <button onClick={handleSave} disabled={createMut.isPending || updateMut.isPending} className="px-6 py-2 bg-primary-dark text-white font-bold text-sm rounded-xl hover:bg-primary-hover shadow-sm">
-              {editingPromo ? 'Save Changes' : 'Create Promotion'}
+            <button onClick={handleSave} disabled={createMut.isPending || updateMut.isPending} className="px-6 py-2 bg-primary-dark text-white font-bold text-sm rounded-xl hover:bg-primary-hover shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+              {(createMut.isPending || updateMut.isPending) ? 'Processing...' : (editingPromo ? 'Save Changes' : 'Create Promotion')}
             </button>
           </div>
         </div>
@@ -118,56 +149,53 @@ export default function AdminPromotions() {
           {/* Value */}
           <div className="bg-white border border-border rounded-2xl shadow-sm p-6 space-y-4">
             <h2 className="text-lg font-bold text-primary-dark">Value & Rules</h2>
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { id: 'percentage', icon: <Percent className="w-4 h-4"/>, label: 'Percentage' },
-                { id: 'flat', icon: <TrendingDown className="w-4 h-4"/>, label: 'Fixed Amount' },
-                { id: 'free_shipping', icon: <Truck className="w-4 h-4"/>, label: 'Free Shipping' },
-                { id: 'buy_x_get_y', icon: <Gift className="w-4 h-4"/>, label: 'Buy X Get Y' }
-              ].map(type => (
-                <button
-                  key={type.id}
-                  type="button"
-                  onClick={() => setFormData({...formData, discountType: type.id})}
-                  className={`p-4 border rounded-xl flex flex-col items-center gap-2 transition-colors ${
-                    formData.discountType === type.id ? 'border-primary-dark bg-primary-dark/5 text-primary-dark' : 'border-border bg-white text-zinc-500 hover:bg-zinc-50'
-                  }`}
-                >
-                  {type.icon}
-                  <span className="text-sm font-bold">{type.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {formData.discountType !== 'free_shipping' && formData.discountType !== 'buy_x_get_y' && (
-              <div className="pt-4">
-                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Discount Value</label>
-                <div className="relative w-1/3">
-                  <input required type="number" value={formData.value} onChange={e => setFormData({...formData, value: Number(e.target.value)})} className="w-full pl-8 pr-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none font-bold" />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">{formData.discountType === 'percentage' ? '%' : '₹'}</span>
+            
+            <div className="pt-4 grid grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Discount Type</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="discountType" value="percentage" checked={formData.discountType === 'percentage'} onChange={e => setFormData({...formData, discountType: e.target.value})} className="text-accent-green focus:ring-accent-green" />
+                    <span className="text-sm font-semibold">Percentage</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="discountType" value="fixed" checked={formData.discountType === 'fixed'} onChange={e => setFormData({...formData, discountType: e.target.value})} className="text-accent-green focus:ring-accent-green" />
+                    <span className="text-sm font-semibold">Fixed Amount</span>
+                  </label>
                 </div>
               </div>
-            )}
+              
+              <div>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Discount Value</label>
+                <div className="relative w-full">
+                  <input required type="number" value={formData.value} onChange={e => setFormData({...formData, value: Number(e.target.value)})} className={`w-full ${formData.discountType === 'percentage' ? 'pl-8' : 'pl-10'} pr-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none font-bold`} />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">
+                    {formData.discountType === 'percentage' ? '%' : '₹'}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Targets */}
-          <div className="bg-white border border-border rounded-2xl shadow-sm p-6 space-y-4">
-            <h2 className="text-lg font-bold text-primary-dark">Applies To</h2>
-            <select value={formData.targetScope} onChange={e => setFormData({...formData, targetScope: e.target.value})} className="w-full max-w-sm px-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:outline-none focus:border-accent-green font-semibold">
-              <option value="entire_order">Entire Order</option>
-              <option value="specific_collections">Specific Collections</option>
-              <option value="specific_products">Specific Products</option>
-            </select>
-          </div>
 
           {/* Activity */}
           <div className="bg-white border border-border rounded-2xl shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-primary-dark">Status</h2>
+              <h2 className="text-lg font-bold text-primary-dark">Status & Schedule</h2>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={formData.active} onChange={e => setFormData({...formData, active: e.target.checked})} className="rounded text-accent-green focus:ring-accent-green w-4 h-4" />
                 <span className="text-sm font-bold">Active</span>
               </label>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Start Date (Optional)</label>
+                <input type="datetime-local" value={formatForInput(formData.startsAt)} onChange={e => setFormData({...formData, startsAt: e.target.value})} className="w-full px-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">End Date (Optional)</label>
+                <input type="datetime-local" value={formatForInput(formData.expiresAt)} onChange={e => setFormData({...formData, expiresAt: e.target.value})} className="w-full px-4 py-2.5 border border-border rounded-xl bg-zinc-50 focus:bg-white focus:border-accent-green outline-none" />
+              </div>
             </div>
           </div>
         </form>
@@ -233,7 +261,7 @@ export default function AdminPromotions() {
                 <tr>
                   <th className="px-6 py-4">Title / Code</th>
                   <th className="px-6 py-4">Type</th>
-                  <th className="px-6 py-4">Target</th>
+
                   <th className="px-6 py-4">Uses</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4 text-right">Actions</th>
@@ -255,16 +283,43 @@ export default function AdminPromotions() {
                         {promo.method === 'code' && <span className="inline-block px-1.5 py-0.5 bg-zinc-100 rounded text-xs font-mono font-bold mt-1">{promo.code}</span>}
                       </td>
                       <td className="px-6 py-4 text-text-secondary capitalize font-semibold">{promo.discountType?.replace('_', ' ')}</td>
-                      <td className="px-6 py-4 text-text-secondary capitalize">{promo.targetScope?.replace('_', ' ')}</td>
+
                       <td className="px-6 py-4 font-mono text-xs">
                         {promo.usageCount || 0} / {promo.usageLimit || '∞'}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
-                          promo.active ? 'bg-success/15 text-success-dark' : 'bg-zinc-200 text-zinc-600'
-                        }`}>
-                          {promo.active ? 'Active' : 'Inactive'}
-                        </span>
+                        {(() => {
+                          const now = new Date();
+                          let status = 'Inactive';
+                          let style = 'bg-zinc-200 text-zinc-600';
+                          if (promo.expiresAt && new Date(promo.expiresAt) < now) {
+                            status = 'Expired';
+                            style = 'bg-red-100 text-red-700';
+                          } else if (promo.startsAt && new Date(promo.startsAt) > now) {
+                            status = 'Scheduled';
+                            style = 'bg-blue-100 text-blue-700';
+                          } else if (promo.active) {
+                            status = 'Active';
+                            style = 'bg-success/15 text-success-dark';
+                          }
+                          return (
+                            <div className="flex flex-col items-start gap-1">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${style}`}>
+                                {status}
+                              </span>
+                              {status === 'Active' && promo.expiresAt && (
+                                <span className="text-[10px] text-zinc-500 font-medium">
+                                  Ends in {Math.ceil((new Date(promo.expiresAt) - now) / (1000 * 60 * 60 * 24))}d
+                                </span>
+                              )}
+                              {status === 'Scheduled' && promo.startsAt && (
+                                <span className="text-[10px] text-zinc-500 font-medium">
+                                  Starts in {Math.ceil((new Date(promo.startsAt) - now) / (1000 * 60 * 60 * 24))}d
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>

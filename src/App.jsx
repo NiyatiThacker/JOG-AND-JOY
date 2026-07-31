@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import AnnouncementBar from './components/layout/AnnouncementBar';
@@ -9,7 +9,9 @@ import FloatingActions from './components/layout/FloatingActions';
 import CartPage from './pages/CartPage';
 import LiveChatDrawer from './components/ui/LiveChatDrawer';
 import UserProfileModal from './components/ui/UserProfileModal';
+import CustomerLoginModal from './components/ui/CustomerLoginModal';
 import Footer from './components/layout/Footer';
+import { useAuth } from './context/AuthContext';
 
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -40,7 +42,7 @@ import AdminFinancials from './pages/admin/AdminFinancials';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-
+  
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [pathname]);
@@ -66,18 +68,25 @@ function ScrollToTop() {
 }
 
 function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsProfileOpen }) {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <div className="min-h-screen w-full overflow-x-hidden relative bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
+    <div className="min-h-screen bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
       <AnnouncementBar />
       <Navbar onOpenProfile={() => setIsProfileOpen(true)} />
-
+      
       <LiveChatDrawer isOpen={isLiveChatOpen} onClose={() => setIsLiveChatOpen(false)} />
-      <UserProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
-
-      <div className="flex-grow">
+      
+      {isAuthenticated ? (
+        <UserProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      ) : (
+        <CustomerLoginModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      )}
+      
+      <div className="grow">
         <Outlet />
       </div>
-
+      
       <Footer />
       <BottomNav onOpenProfile={() => setIsProfileOpen(true)} />
       <FloatingActions onOpenLiveChat={() => setIsLiveChatOpen(true)} />
@@ -85,55 +94,58 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
   );
 }
 
-import CartoonCursor from './components/ui/CartoonCursor';
+import { AuthProvider } from './context/AuthContext';
+import AdminRoute from './components/layout/AdminRoute';
 
 export default function App() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLiveChatOpen, setIsLiveChatOpen] = useState(false);
 
   return (
-    <CartProvider>
-      <WishlistProvider>
-        <Router>
-          <CartoonCursor />
-          <ScrollToTop />
-          <Routes>
-            {/* Admin Routes - Completely Isolated */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="inventory" element={<AdminInventory />} />
-              <Route path="promotions" element={<AdminPromotions />} />
-              <Route path="analytics" element={<AdminAnalytics />} />
-              <Route path="reviews" element={<AdminReviews />} />
-              <Route path="shipping" element={<AdminShipping />} />
-              <Route path="messages" element={<AdminMessages />} />
-              <Route path="financials" element={<AdminFinancials />} />
-              <Route path="settings" element={<AdminSettings />} />
-            </Route>
+    <AuthProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <Router>
+            <ScrollToTop />
+            <Routes>
+              {/* Admin Routes - Completely Isolated */}
+              <Route path="/admin" element={<AdminRoute />}>
+                <Route element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="reviews" element={<AdminReviews />} />
+                  <Route path="shipping" element={<AdminShipping />} />
+                  <Route path="messages" element={<AdminMessages />} />
+                  <Route path="financials" element={<AdminFinancials />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+              </Route>
 
-            {/* Storefront Routes */}
-            <Route element={<StoreLayout isLiveChatOpen={isLiveChatOpen} setIsLiveChatOpen={setIsLiveChatOpen} isProfileOpen={isProfileOpen} setIsProfileOpen={setIsProfileOpen} />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/kids" element={<KidsPage />} />
-              <Route path="/men" element={<Navigate to="/products?category=Male" replace />} />
-              <Route path="/new-arrivals" element={<NewArrivalsPage />} />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/collections" element={<Collections />} />
-              <Route path="/about-us" element={<AboutUs />} />
-              <Route path="/why-us" element={<WhyUs />} />
-              <Route path="/contact-us" element={<ContactUs />} />
-              <Route path="/distributor-network" element={<DistributorNetworkPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </Router>
-      </WishlistProvider>
-    </CartProvider>
+              {/* Storefront Routes */}
+              <Route element={<StoreLayout isLiveChatOpen={isLiveChatOpen} setIsLiveChatOpen={setIsLiveChatOpen} isProfileOpen={isProfileOpen} setIsProfileOpen={setIsProfileOpen} />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/kids" element={<KidsPage />} />
+                <Route path="/new-arrivals" element={<NewArrivalsPage />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/collections" element={<Collections />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/why-us" element={<WhyUs />} />
+                <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/distributor-network" element={<DistributorNetworkPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </Router>
+        </WishlistProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }

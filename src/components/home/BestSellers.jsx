@@ -1,11 +1,18 @@
 import React from 'react';
 import ProductCard from '../ui/ProductCard';
-import { useCombinedProducts } from '../../queries/useCombinedProducts';
+import { useProductsList } from '../../queries/useProducts';
 import { Sparkles, Flame } from 'lucide-react';
 
 export default function BestSellers({ onQuickView }) {
-  const { combinedProducts } = useCombinedProducts();
-  const bestSellers = combinedProducts.filter((p) => p.isBestSeller);
+  const { data: productsResponse, isLoading } = useProductsList();
+  const PRODUCTS = productsResponse?.data || [];
+  
+  // Since we mapped mock data to DB schema, we don't have isBestSeller flag natively,
+  // Let's filter by the tag 'Best Seller' or just take top 4 items
+  const bestSellers = PRODUCTS.filter((p) => p.productType === 'Best Seller').slice(0, 4);
+  if (bestSellers.length === 0 && PRODUCTS.length > 0) {
+    bestSellers.push(...PRODUCTS.slice(0, 4));
+  }
 
   return (
     <section className="pt-6 pb-16 bg-white relative">
@@ -25,11 +32,15 @@ export default function BestSellers({ onQuickView }) {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {bestSellers.map((product) => (
-            <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-slate-200 border-t-[#EF4A45] rounded-full animate-spin"></div></div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {bestSellers.map((product) => (
+              <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
+            ))}
+          </div>
+        )}
 
       </div>
     </section>

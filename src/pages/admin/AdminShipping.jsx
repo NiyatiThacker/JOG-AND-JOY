@@ -34,11 +34,7 @@ export default function AdminShipping() {
   };
 
   const tabs = [
-    { id: 'queue', icon: <Truck className="w-4 h-4" />, label: 'Fulfillment Queue' },
-    { id: 'shipments', icon: <FileText className="w-4 h-4" />, label: 'Shipments' },
-    { id: 'zones', icon: <Globe className="w-4 h-4" />, label: 'Shipping Zones & Rates' },
-    { id: 'carriers', icon: <Link className="w-4 h-4" />, label: 'Carriers' },
-    { id: 'packaging', icon: <Box className="w-4 h-4" />, label: 'Packaging' },
+    { id: 'queue', icon: <Truck className="w-4 h-4" />, label: 'Fulfillment Queue' }
   ];
 
   return (
@@ -73,9 +69,7 @@ export default function AdminShipping() {
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          {activeTab === 'queue' ? (
-            <>
-              <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-white p-4 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-white p-4 gap-4">
                 <h2 className="text-lg font-bold text-primary-dark">Ready to Pack & Ship</h2>
                 <div className="relative w-full sm:w-64">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -143,14 +137,6 @@ export default function AdminShipping() {
                   </table>
                 )}
               </div>
-            </>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-zinc-400">
-              {tabs.find(t => t.id === activeTab)?.icon && React.cloneElement(tabs.find(t => t.id === activeTab).icon, { className: 'w-12 h-12 mb-4 opacity-20' })}
-              <h3 className="text-lg font-bold text-primary-dark mb-1">{tabs.find(t => t.id === activeTab)?.label}</h3>
-              <p className="text-sm max-w-md">This sub-module is fully architected in the data layer (Feature 04) and waiting for specific UI components.</p>
-            </div>
-          )}
         </div>
       </div>
     </div>

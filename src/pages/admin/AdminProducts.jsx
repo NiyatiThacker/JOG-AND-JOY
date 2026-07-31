@@ -177,7 +177,9 @@ export default function AdminProducts() {
       categoryId: formData.categoryId,
       vendor: formData.vendor,
       price: calculatedPrice,
+      basePrice: calculatedPrice,
       originalPrice: Number(formData.originalPrice),
+      compareAtPrice: Number(formData.originalPrice),
       description: formData.description,
       fabric: formData.fabric,
       care: formData.care,
@@ -204,7 +206,6 @@ export default function AdminProducts() {
         onSuccess: resetForm
       });
     } else {
-      productPayload.isNew = true;
       createMut.mutate(productPayload, {
         onSuccess: resetForm
       });
@@ -315,21 +316,6 @@ export default function AdminProducts() {
           </div>
 
           <form onSubmit={handleSave} className="p-6 space-y-6">
-            {!editingId && (
-              <div className="mb-6 pb-6 border-b border-slate-100">
-                <label className="block text-sm font-bold text-text-secondary mb-2">Create as Variant of Existing Product</label>
-                <select
-                  onChange={(e) => handleLoadTemplate(e.target.value)}
-                  className="w-full md:w-1/2 px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none"
-                >
-                  <option value="">-- Start Fresh (New Product) --</option>
-                  {products.map(p => (
-                    <option key={p.id} value={p.id}>{p.title}</option>
-                  ))}
-                </select>
-                <p className="text-xs text-slate-400 mt-2">This will link the new listing with the selected product, allowing them to share color swatches on the storefront!</p>
-              </div>
-            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -688,8 +674,8 @@ export default function AdminProducts() {
               <textarea rows="4" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-4 py-3 border border-border rounded-xl focus:border-accent-green outline-none resize-none" placeholder="Rich description of the product..."></textarea>
             </div>
 
-            <button type="submit" disabled={createMut.isPending || updateMut.isPending} className="w-full py-4 bg-[#f39c12] hover:bg-[#e67e22] text-white font-bold rounded-xl transition-colors text-lg">
-              {editingId ? 'Update Product Listing' : 'Submit Product Listing'}
+            <button type="submit" disabled={createMut.isPending || updateMut.isPending} className="w-full py-4 bg-[#f39c12] hover:bg-[#e67e22] text-white font-bold rounded-xl transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              {(createMut.isPending || updateMut.isPending) ? 'Processing...' : (editingId ? 'Update Product Listing' : 'Submit Product Listing')}
             </button>
           </form>
         </div>

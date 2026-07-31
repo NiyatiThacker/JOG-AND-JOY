@@ -1,6 +1,6 @@
 import * as mockApi from '../mockApi';
 
-const TABLE = 'customers';
+const TABLE = 'users';
 
 export const customersApi = {
   list: (params) => mockApi.list(TABLE, params),

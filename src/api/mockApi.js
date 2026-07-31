@@ -1,80 +1,139 @@
-import { Db } from './db';
-import { nanoid } from 'nanoid';
+import { supabase } from '../lib/supabase';
 
-const LATENCY_MS = 350;
-const ERROR_RATE = 0; // set to e.g. 0.05 in dev to test error handling paths
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function simulateNetwork() {
-  await delay(LATENCY_MS + Math.random() * 200);
-  if (Math.random() < ERROR_RATE) {
-    throw new Error('Simulated network error');
+// Helper to handle Supabase errors
+const handleResponse = (response) => {
+  if (response.error) {
+    console.error('Supabase Error:', response.error);
+    throw new Error(response.error.message);
   }
-}
+  return response.data;
+};
 
 export async function list(table, params = {}) {
-  await simulateNetwork();
-  let records = Db.readTable(table);
   const { page = 1, pageSize = 20, sort, ...filters } = params;
 
+  let query = supabase.from(table).select('*', { count: 'exact' });
+
+  // Apply filters
   Object.entries(filters).forEach(([key, value]) => {
     if (value === undefined || value === '' || value === null) return;
+    
     if (key === 'search') {
-      const q = String(value).toLowerCase();
-      records = records.filter((r) =>
-        JSON.stringify(r).toLowerCase().includes(q)
-      );
+      // Very basic text search (Note: For real apps, you'd configure Full Text Search in Postgres)
+      // This is a placeholder since Supabase doesn't support generic JSON stringify search natively
+      // You'd typically search specific columns like `title.ilike.%${value}%`
+      // For now, we'll try to find an 'id' or 'name' or 'title' match
+      query = query.or(`id.ilike.%${value}%,title.ilike.%${value}%,name.ilike.%${value}%`);
+    } else if (Array.isArray(value)) {
+      query = query.in(key, value);
     } else {
-      records = records.filter((r) => r[key] === value);
+      query = query.eq(key, value);
     }
   });
 
+  // Apply sorting
   if (sort) {
-    const dir = sort.startsWith('-') ? -1 : 1;
+    const dir = sort.startsWith('-') ? false : true;
     const key = sort.replace('-', '');
-    records = [...records].sort((a, b) => (a[key] > b[key] ? dir : -dir));
+    query = query.order(key, { ascending: dir });
+  } else {
+    // Default sort by created_at desc
+    query = query.order('createdAt', { ascending: false });
   }
 
-  const total = records.length;
-  const start = (page - 1) * pageSize;
-  const data = records.slice(start, start + pageSize);
-  return { data, total, page, pageSize };
+  // Apply pagination
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  query = query.range(from, to);
+
+  const { data, error, count } = await query;
+  
+  if (error) {
+    console.error(`Supabase List Error [${table}]:`, error);
+    throw new Error(error.message);
+  }
+
+  return { data, total: count || 0, page, pageSize };
 }
 
 export async function get(table, id) {
-  await simulateNetwork();
-  const records = Db.readTable(table);
-  const record = records.find((r) => r.id === id);
-  if (!record) throw new Error(`${table} record ${id} not found`);
-  return record;
+  const { data, error } = await supabase
+    .from(table)
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error(`Supabase Get Error [${table}]:`, error);
+    throw new Error(error.message);
+  }
+  return data;
 }
 
 export async function create(table, payload) {
-  await simulateNetwork();
-  const records = Db.readTable(table);
   const now = new Date().toISOString();
-  const record = { id: nanoid(), createdAt: now, updatedAt: now, ...payload };
-  records.push(record);
-  Db.writeTable(table, records);
-  return record;
+  
+  // Clean payload from undefined values which Supabase rejects
+  const cleanPayload = Object.fromEntries(
+    Object.entries(payload).filter(([_, v]) => v !== undefined)
+  );
+
+  if (!cleanPayload.id) {
+    cleanPayload.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+  }
+  
+  const record = { 
+    ...cleanPayload,
+    createdAt: now, 
+    updatedAt: now 
+  };
+
+  let query = supabase.from(table).insert([record]);
+  
+  // Guest orders will fail RLS if we try to SELECT after INSERT. 
+  // We can safely omit the select for orders since we already know the payload.
+  if (table !== 'orders') {
+    query = query.select().single();
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error(`Supabase Create Error [${table}]:`, error);
+    throw new Error(error.message);
+  }
+  
+  return data || record;
 }
 
 export async function update(table, id, patch) {
-  await simulateNetwork();
-  const records = Db.readTable(table);
-  const idx = records.findIndex((r) => r.id === id);
-  if (idx === -1) throw new Error(`${table} record ${id} not found`);
-  records[idx] = { ...records[idx], ...patch, updatedAt: new Date().toISOString() };
-  Db.writeTable(table, records);
-  return records[idx];
+  const cleanPatch = Object.fromEntries(
+    Object.entries(patch).filter(([_, v]) => v !== undefined)
+  );
+
+  const { data, error } = await supabase
+    .from(table)
+    .update({ ...cleanPatch, updatedAt: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error(`Supabase Update Error [${table}]:`, error);
+    throw new Error(error.message);
+  }
+  return data;
 }
 
 export async function remove(table, id) {
-  await simulateNetwork();
-  const records = Db.readTable(table).filter((r) => r.id !== id);
-  Db.writeTable(table, records);
+  const { error } = await supabase
+    .from(table)
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error(`Supabase Delete Error [${table}]:`, error);
+    throw new Error(error.message);
+  }
   return { id };
 }

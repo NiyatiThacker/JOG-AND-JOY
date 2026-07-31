@@ -49,7 +49,7 @@ export default function LiveChatDrawer({ isOpen, onClose }) {
           className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between border-l border-slate-100"
         >
           {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-[#AEE6FF] via-[#FFD6BA] to-[#E6D6FF] flex items-center justify-between border-b border-white/60">
+          <div className="p-4 bg-linear-to-r from-[#AEE6FF] via-[#FFD6BA] to-[#E6D6FF] flex items-center justify-between border-b border-white/60">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white text-slate-800 flex items-center justify-center shadow-md">
                 <Bot className="w-5 h-5 text-[#EF4A45]" />
@@ -72,7 +72,7 @@ export default function LiveChatDrawer({ isOpen, onClose }) {
           </div>
 
           {/* Messages Container */}
-          <div className="p-4 flex-grow overflow-y-auto space-y-4 bg-[#FFF8EC]">
+          <div className="p-4 grow overflow-y-auto space-y-4 bg-[#FFF8EC]">
             {messages.map((msg, idx) => (
               <div
                 key={idx}

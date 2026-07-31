@@ -89,12 +89,12 @@ export default function CartPage() {
                             <div className="flex items-center gap-4">
                               <button 
                                 onClick={() => removeFromCart(item.id, item.size, item.color)}
-                                className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-400 hover:text-white hover:bg-[#EF4A45] transition-colors flex-shrink-0"
+                                className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-400 hover:text-white hover:bg-[#EF4A45] transition-colors shrink-0"
                                 title="Remove Item"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
-                              <div className="w-20 h-24 rounded-xl overflow-hidden bg-slate-50 flex-shrink-0 border border-slate-100">
+                              <div className="w-20 h-24 rounded-xl overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                               </div>
                               <div className="flex flex-col">

@@ -1,46 +1,41 @@
 import React from 'react';
-import CardNav from './CardNav';
-
+import StaggeredMenu from './StaggeredMenu';
+import { useAuth } from '../../context/AuthContext';
 export default function Navbar({ onOpenProfile }) {
-  const navItems = [
-    {
-      label: "Shop",
-      bgColor: "#FFD800",
-      textColor: "#0f172a",
-      links: [
-        { label: "New Arrivals", href: "/new-arrivals", ariaLabel: "New Arrivals" },
-        { label: "All Products", href: "/products", ariaLabel: "All Products" },
-        { label: "Kids Wear", href: "/kids", ariaLabel: "Kids Wear" },
-        { label: "Best Sellers", href: "/products", ariaLabel: "Best Sellers" }
-      ]
-    },
-    {
-      label: "Explore",
-      bgColor: "#AEE6FF",
-      textColor: "#0f172a",
-      links: [
-        { label: "About Us", href: "/about-us", ariaLabel: "About Us" },
-        { label: "Why Choose Us", href: "/why-us", ariaLabel: "Why Choose Us" },
-        { label: "Contact Us", href: "/contact-us", ariaLabel: "Contact Us" }
-      ]
-    },
-    {
-      label: "Business",
-      bgColor: "#EF4A45",
-      textColor: "#ffffff",
-      links: [
-        { label: "Distributors", href: "/distributor-network", ariaLabel: "Distributors" }
-      ]
-    }
+  const { user } = useAuth();
+  const menuItems = [
+    { label: "Home", link: "/" },
+    { label: "Products", link: "/products" },
+    { label: "New Arrivals", link: "/new-arrivals" },
+    { label: "Kids Wear", link: "/kids" },
+    { label: "About Us", link: "/about-us" },
+    { label: "Why Choose Us", link: "/why-us" },
+    { label: "Contact Us", link: "/contact-us" },
+    { label: "Distributors", link: "/distributor-network" },
+  ];
+
+  if (user?.role === 'ADMIN') {
+    menuItems.push({ label: "Admin Dashboard", link: "/admin" });
+  }
+
+  const socialItems = [
+    { label: 'Instagram', link: 'https://instagram.com/jognjoy' },
+    { label: 'Facebook', link: 'https://facebook.com/jognjoy' },
+    { label: 'WhatsApp', link: 'https://wa.me/917922139665' }
   ];
 
   return (
-    <div className="sticky top-0 w-full h-[96px] md:h-[96px] max-md:h-[72px] bg-[#FFF8EC] block select-none z-50 shadow-sm">
-      <CardNav
-        items={navItems}
-        baseColor="transparent"
+    <div className="relative w-full h-[96px] md:h-[96px] max-md:h-[72px] bg-[#FFF8EC] block select-none z-40">
+      <StaggeredMenu
+        position="left"
+        items={menuItems}
+        socialItems={socialItems}
+        displaySocials={true}
+        displayItemNumbering={true}
         menuButtonColor="#2D2D2D"
         openMenuButtonColor="#EF4A45"
+        changeMenuColorOnOpen={true}
+        colors={['#FFD800', '#AEE6FF', '#EF4A45']}
         accentColor="#EF4A45"
         onOpenProfile={onOpenProfile}
       />

@@ -2,25 +2,34 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import BrandLogo from '../../components/ui/BrandLogo';
 import { LayoutDashboard, ShoppingBag, PackageSearch, Settings, LogOut, Package, Tag, BarChart3, Star, Truck, MessageSquare, IndianRupee, Bell, BellOff, CheckCircle } from 'lucide-react';
-import { AdminProvider, useAdmin } from '../../context/AdminContext';
+import { useAuth as useAdmin } from '../../context/AuthContext';
 import AdminLogin from './AdminLogin';
 import { SettingsProvider, useSettingsContext } from '../../context/SettingsContext';
 import { UIProvider } from '../../context/UIContext';
+import { useRecentActivity } from '../../queries/useRecentActivity';
 
 function AdminLayoutContent() {
- const location = useLocation();
- const { isAuthenticated, logout } = useAdmin();
- const { settings } = useSettingsContext();
+  const location = useLocation();
+  const { user, logout } = useAdmin();
+  const isAuthenticated = user && user.role === 'ADMIN';
+  const { settings } = useSettingsContext();
 
- const [isNotifOpen, setIsNotifOpen] = useState(false);
- const [isNotifMuted, setIsNotifMuted] = useState(false);
- const [notifications, setNotifications] = useState([
-   { id: 1, text: 'New order #1043 received', time: '5m ago', read: false },
-   { id: 2, text: 'Low stock on Kids T-Shirt (M)', time: '1h ago', read: false },
-   { id: 3, text: 'New customer review pending', time: '2h ago', read: true },
- ]);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isNotifMuted, setIsNotifMuted] = useState(false);
+  const [readState, setReadState] = useState({}); // Track read notifications locally
+  
+  const { activities } = useRecentActivity();
+  
+  const notifications = activities.map(a => ({
+    ...a,
+    read: readState[a.id] ?? a.read
+  }));
 
- const markAllRead = () => setNotifications(notifications.map(n => ({...n, read: true})));
+  const markAllRead = () => {
+    const newReadState = { ...readState };
+    activities.forEach(a => { newReadState[a.id] = true; });
+    setReadState(newReadState);
+  };
 
  const navItems = [
  { name: 'Overview', path: '/admin', icon: LayoutDashboard },
@@ -122,33 +131,40 @@ function AdminLayoutContent() {
            </button>
          </div>
        </div>
-       <div className="max-h-80 overflow-y-auto">
-         {notifications.length === 0 ? (
-           <div className="p-8 text-center text-zinc-400 text-sm">No notifications</div>
-         ) : (
-           <div className="divide-y divide-border">
-             {notifications.map(n => (
-               <div key={n.id} className={`p-4 hover:bg-zinc-50 transition-colors ${!n.read ? 'bg-accent-green/5' : ''}`}>
-                 <div className="flex justify-between items-start gap-3">
-                   <div className="flex-1">
-                     <p className={`text-sm ${!n.read ? 'font-bold text-primary-dark' : 'text-zinc-600 font-medium'}`}>{n.text}</p>
-                     <p className="text-xs text-zinc-400 mt-1">{n.time}</p>
-                   </div>
-                   {!n.read && <span className="w-2 h-2 bg-accent-green rounded-full mt-1 shrink-0"></span>}
-                 </div>
-               </div>
-             ))}
-           </div>
-         )}
-       </div>
+        <div className="max-h-80 overflow-y-auto">
+          {notifications.length === 0 ? (
+            <div className="p-8 text-center text-zinc-400 text-sm">No notifications</div>
+          ) : (
+            <div className="divide-y divide-border">
+              {notifications.map(n => (
+                <Link 
+                  key={n.id} 
+                  to={`/admin/orders?orderId=${n.sourceId}`}
+                  onClick={() => setIsNotifOpen(false)}
+                  className={`block p-4 hover:bg-zinc-50 transition-colors ${!n.read ? 'bg-accent-green/5' : ''}`}
+                >
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="flex-1">
+                      <p className={`text-sm ${!n.read ? 'font-bold text-primary-dark' : 'text-zinc-600 font-medium'}`}>{n.title}</p>
+                      <p className="text-xs text-zinc-400 mt-1">{n.time}</p>
+                    </div>
+                    {!n.read && <span className="w-2 h-2 bg-accent-green rounded-full mt-1 shrink-0"></span>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
      </div>
    )}
  </div>
  <div className="flex items-center gap-3 pl-4 border-l border-border">
- <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-zinc-600 font-bold text-xs">AD</div>
+ <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-zinc-600 font-bold text-xs uppercase">
+   {user?.name ? user.name.substring(0, 2) : 'AD'}
+ </div>
  <div className="hidden sm:block">
- <p className="text-sm font-bold text-text-primary leading-none">Administrator</p>
- <p className="text-xs text-text-secondary mt-1">{settings?.storeName || 'Jog & Joy'}</p>
+ <p className="text-sm font-bold text-text-primary leading-none truncate w-28">{user?.name || 'Administrator'}</p>
+ <p className="text-xs text-text-secondary mt-1 truncate w-28">{user?.email}</p>
  </div>
  </div>
  </div>
@@ -163,13 +179,11 @@ function AdminLayoutContent() {
 }
 
 export default function AdminLayout() {
- return (
- <AdminProvider>
- <SettingsProvider>
- <UIProvider>
- <AdminLayoutContent />
- </UIProvider>
- </SettingsProvider>
- </AdminProvider>
- );
+  return (
+    <SettingsProvider>
+      <UIProvider>
+        <AdminLayoutContent />
+      </UIProvider>
+    </SettingsProvider>
+  );
 }

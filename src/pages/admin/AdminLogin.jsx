@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { useAdmin } from '../../context/AdminContext';
+import { useAuth as useAdmin } from '../../context/AuthContext';
 import { ShieldCheck, Lock, Mail, User, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminLogin() {
-  const { login, register } = useAdmin();
-  const [isLogin, setIsLogin] = useState(true);
+  const { login } = useAdmin();
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
   });
@@ -27,13 +25,8 @@ export default function AdminLogin() {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     let success = false;
-    if (isLogin) {
-      success = login(formData.email, formData.password);
-      if (!success) setError('Invalid credentials. Please try again.');
-    } else {
-      success = register(formData.name, formData.email, formData.password);
-      if (!success) setError('Registration failed. Please try again.');
-    }
+    success = await login(formData.email, formData.password);
+    if (!success) setError('Invalid credentials. Please try again.');
     
     setIsLoading(false);
   };
@@ -91,43 +84,15 @@ export default function AdminLogin() {
 
         {/* Right Side - Form */}
         <div className="lg:w-7/12 p-8 md:p-12 bg-white relative">
-          <div className="mb-8">
             <h2 className="text-3xl font-black text-[#222222] mb-2">
-              {isLogin ? 'Welcome Back 👋' : 'Join the Team 🚀'}
+              Welcome Back 👋
             </h2>
             <p className="text-gray-500 font-medium">
-              {isLogin 
-                ? 'Enter your admin credentials to continue.' 
-                : 'Register a new admin account to get started.'}
+              Enter your admin credentials to continue.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <AnimatePresence mode="popLayout">
-              {!isLogin && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0, y: -20 }}
-                  animate={{ opacity: 1, height: 'auto', y: 0 }}
-                  exit={{ opacity: 0, height: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <label className="block text-sm font-bold text-[#222222] mb-1.5">Full Name</label>
-                  <div className="relative">
-                    <User className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      name="name"
-                      placeholder="Jane Doe"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required={!isLogin}
-                      className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:border-[#222222] focus:bg-white transition-all shadow-sm"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             <div>
               <label className="block text-sm font-bold text-[#222222] mb-1.5">Email Address</label>
@@ -182,29 +147,12 @@ export default function AdminLogin() {
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
+                  Sign In
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </button>
           </form>
-
-          <div className="mt-8 text-center text-[#222222] font-medium">
-            <p>
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <button
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setError('');
-                  setFormData({ name: '', email: '', password: '' });
-                }}
-                className="text-[#EF4A45] hover:text-[#d33a36] font-bold underline decoration-2 underline-offset-4 transition-colors"
-              >
-                {isLogin ? 'Register now' : 'Sign in instead'}
-              </button>
-            </p>
-          </div>
-        </div>
 
       </div>
     </div>

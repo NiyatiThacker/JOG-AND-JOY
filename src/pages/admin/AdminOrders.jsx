@@ -1,17 +1,43 @@
-import React, { useState } from 'react';
-import { Search, Eye, X, MapPin, Calendar, CreditCard, Package, AlertCircle, ArrowLeft, MoreHorizontal, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Eye, X, MapPin, Calendar, CreditCard, Package, AlertCircle, ArrowLeft, MoreHorizontal, ShieldAlert, FileText, CheckCircle2, Check } from 'lucide-react';
 import { useOrdersList, useUpdateOrder } from '../../queries/useOrders';
 import { useSettingsContext } from '../../context/SettingsContext';
+
+import { useSearchParams } from 'react-router-dom';
 
 export default function AdminOrders() {
   const [activeTab, setActiveTab] = useState('unfulfilled');
   const [search, setSearch] = useState('');
   const [view, setView] = useState('list');
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showDraftModal, setShowDraftModal] = useState(false);
-  const [draftData, setDraftData] = useState({ customerEmail: '', items: [] });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [searchParams] = useSearchParams();
   
   const { formatCurrency, formatDate } = useSettingsContext();
+
+  const { data, isLoading } = useOrdersList({ pageSize: 1000 });
+  
+  useEffect(() => {
+    const orderIdParam = searchParams.get('orderId');
+    if (orderIdParam && data?.data && view === 'list') {
+      const target = data.data.find(o => o.id === orderIdParam || o.orderNumber === orderIdParam);
+      if (target) {
+        setSelectedOrder(target);
+        setView('detail');
+      }
+    }
+  }, [searchParams, data, view]);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   const filters = {};
   if (activeTab === 'unfulfilled') filters.fulfillmentStatus = 'unfulfilled';
@@ -20,11 +46,18 @@ export default function AdminOrders() {
   }
   if (search) filters.search = search;
   
-  const { data, isLoading } = useOrdersList(filters);
   let orders = data?.data || [];
-
-  if (activeTab === 'returns') {
-    orders = []; // Mock Returns/RMA tab
+  if (Object.keys(filters).length > 0) {
+    orders = orders.filter(o => {
+      let matches = true;
+      if (filters.fulfillmentStatus && o.fulfillmentStatus !== filters.fulfillmentStatus) matches = false;
+      if (filters.status && o.status !== filters.status) matches = false;
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        if (!JSON.stringify(o).toLowerCase().includes(q)) matches = false;
+      }
+      return matches;
+    });
   }
 
   const updateMut = useUpdateOrder();
@@ -33,6 +66,8 @@ export default function AdminOrders() {
     setSelectedOrder(order);
     setView('detail');
   };
+
+  const showToast = (msg) => setToastMessage(msg);
 
   const handleStatusChange = (newStatus) => {
     if (selectedOrder) {
@@ -45,13 +80,17 @@ export default function AdminOrders() {
           statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
         } 
       }, {
-        onSuccess: (updated) => setSelectedOrder(updated)
+        onSuccess: (updated) => {
+          setSelectedOrder(updated);
+          setIsMenuOpen(false);
+          showToast(`Order marked as ${newStatus}`);
+        }
       });
     }
   };
 
-  const handleRefund = () => {
-    if (selectedOrder && window.confirm('Are you sure you want to refund this order?')) {
+  const executeRefund = () => {
+    if (selectedOrder) {
       const historyEntry = { status: 'REFUNDED', timestamp: new Date().toISOString(), note: 'Order refunded by admin' };
       updateMut.mutate({
         id: selectedOrder.id,
@@ -61,26 +100,38 @@ export default function AdminOrders() {
           statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
         }
       }, {
-        onSuccess: (updated) => setSelectedOrder(updated)
+        onSuccess: (updated) => {
+          setSelectedOrder(updated);
+          setShowRefundModal(false);
+          showToast('Order refunded successfully');
+        }
       });
     }
   };
 
-  const handleFulfill = () => {
+
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
     if (selectedOrder) {
-      const historyEntry = { status: 'SHIPPED', timestamp: new Date().toISOString(), note: 'Items fulfilled' };
       updateMut.mutate({
         id: selectedOrder.id,
         patch: {
-          fulfillmentStatus: 'fulfilled',
-          status: 'SHIPPED',
-          statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
+          shippingAddress: {
+            ...selectedOrder.shippingAddress,
+            ...editFormData
+          }
         }
       }, {
-        onSuccess: (updated) => setSelectedOrder(updated)
+        onSuccess: (updated) => {
+          setSelectedOrder(updated);
+          setShowEditModal(false);
+          showToast('Order details updated');
+        }
       });
     }
   };
+
 
   const handleTagAdd = (e) => {
     if (e.key === 'Enter' && e.target.value.trim() !== '') {
@@ -126,21 +177,37 @@ export default function AdminOrders() {
             <p className="text-sm text-text-secondary mt-1">{formatDate(o.createdAt)} from {o.channel?.replace('_', ' ')}</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <button onClick={handleRefund} className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Refund</button>
-            <button className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Edit</button>
-            <div className="relative group">
-              <button className="p-2 bg-primary-dark text-white rounded-xl shadow-sm hover:bg-primary-hover">
+            <button onClick={() => setShowRefundModal(true)} className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50">Refund</button>
+            <button 
+              onClick={() => {
+                setEditFormData(o.shippingAddress || {});
+                setShowEditModal(true);
+              }} 
+              className="px-4 py-2 text-sm font-bold bg-white border border-border rounded-xl shadow-sm hover:bg-zinc-50"
+            >
+              Edit
+            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                className="p-2 bg-primary-dark text-white rounded-xl shadow-sm hover:bg-primary-hover"
+              >
                 <MoreHorizontal className="w-5 h-5" />
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                <div className="p-1">
-                  {['PROCESSING', 'ON_HOLD', 'CANCELLED'].map(st => (
-                    <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
-                      Mark as {st.replace('_', ' ')}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {isMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20">
+                    <div className="p-1">
+                      {['PROCESSING', 'SHIPPED', 'DELIVERED', 'ON_HOLD', 'CANCELLED'].map(st => (
+                        <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
+                          Mark as {st.replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -150,7 +217,7 @@ export default function AdminOrders() {
             {/* Line Items */}
             <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden p-6">
               <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2">
-                <Package className="w-5 h-5 text-accent-green" /> Unfulfilled ({o.items?.length || 0})
+                <Package className="w-5 h-5 text-accent-green" /> Ordered Items ({o.items?.length || 0})
               </h2>
               <div className="space-y-4">
                 {o.items?.map((item, i) => (
@@ -166,9 +233,6 @@ export default function AdminOrders() {
                     </div>
                   </div>
                 ))}
-              </div>
-              <div className="mt-6 flex justify-end">
-                <button onClick={handleFulfill} className="px-6 py-2 bg-primary-dark text-white rounded-xl font-bold text-sm shadow-sm hover:bg-primary-hover">Fulfill Items</button>
               </div>
             </div>
 
@@ -235,15 +299,77 @@ export default function AdminOrders() {
                 {o.tags?.map(t => <span key={t} className="px-2 py-1 bg-zinc-100 rounded text-xs font-bold text-text-secondary">{t}</span>)}
               </div>
 
-              <hr className="border-border my-4" />
-              <h2 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-3">Fraud Analysis</h2>
-              <div className={`p-3 rounded-lg flex items-start gap-3 ${o.riskLevel === 'high' ? 'bg-error/10 text-error' : o.riskLevel === 'medium' ? 'bg-warning/10 text-warning-dark' : 'bg-success/10 text-success-dark'}`}>
-                <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
-                <p className="text-sm font-bold">{o.riskLevel === 'high' ? 'High Risk' : o.riskLevel === 'medium' ? 'Medium Risk' : 'Low Risk'}</p>
-              </div>
+
             </div>
           </div>
         </div>
+
+
+        {/* Edit Modal */}
+        {showEditModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95">
+              <div className="flex justify-between items-center p-6 border-b border-border">
+                <h2 className="text-xl font-bold text-primary-dark">Edit Order Details</h2>
+                <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-zinc-100 rounded-full transition-colors"><X className="w-5 h-5 text-text-secondary" /></button>
+              </div>
+              <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1">Customer Name</label>
+                  <input required type="text" value={editFormData.name || ''} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1">Address</label>
+                  <input required type="text" value={editFormData.line1 || ''} onChange={e => setEditFormData({...editFormData, line1: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-text-secondary mb-1">City</label>
+                    <input required type="text" value={editFormData.city || ''} onChange={e => setEditFormData({...editFormData, city: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-text-secondary mb-1">State</label>
+                    <input required type="text" value={editFormData.state || ''} onChange={e => setEditFormData({...editFormData, state: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1">Pincode</label>
+                  <input required type="text" value={editFormData.postalCode || ''} onChange={e => setEditFormData({...editFormData, postalCode: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:border-accent-green" />
+                </div>
+                <div className="pt-4 flex gap-3">
+                  <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 py-2.5 border border-border text-primary-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
+                  <button type="submit" className="flex-1 py-2.5 bg-primary-dark text-white font-bold rounded-xl hover:bg-primary-hover">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Refund Modal */}
+        {showRefundModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 p-6 text-center">
+              <div className="w-12 h-12 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-bold text-primary-dark mb-2">Process Refund?</h2>
+              <p className="text-sm text-text-secondary mb-6">Are you sure you want to refund this order? This action cannot be undone and will mark the order as cancelled.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowRefundModal(false)} className="flex-1 py-2.5 border border-border text-primary-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
+                <button onClick={executeRefund} className="flex-1 py-2.5 bg-error text-white font-bold rounded-xl hover:bg-red-600">Refund</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Toast */}
+        {toastMessage && (
+          <div className="fixed bottom-4 right-4 bg-primary-dark text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-5 z-50">
+            <CheckCircle2 className="w-5 h-5 text-accent-green" />
+            <p className="text-sm font-bold">{toastMessage}</p>
+          </div>
+        )}
+
       </div>
     );
   }
@@ -257,9 +383,7 @@ export default function AdminOrders() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Orders</h1>
           <p className="text-xs text-text-secondary mt-1">Lifecycle, fulfillment, and returns</p>
         </div>
-        <button onClick={() => setShowDraftModal(true)} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-border text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
-          Create draft order
-        </button>
+
       </div>
 
       <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
@@ -272,8 +396,7 @@ export default function AdminOrders() {
               { id: 'SHIPPED', label: 'Shipped' },
               { id: 'DELIVERED', label: 'Delivered' },
               { id: 'CANCELLED', label: 'Cancelled' },
-              { id: 'ON_HOLD', label: 'On Hold' },
-              { id: 'returns', label: 'Returns' }
+              { id: 'ON_HOLD', label: 'On Hold' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -353,49 +476,6 @@ export default function AdminOrders() {
           )}
         </div>
       </div>
-
-      {showDraftModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-border flex justify-between items-center bg-zinc-50">
-              <h2 className="font-extrabold text-lg text-primary-dark">Create Draft Order</h2>
-              <button onClick={() => setShowDraftModal(false)} className="p-2 bg-white rounded-lg border border-border hover:bg-zinc-100 transition-colors">
-                <X className="w-4 h-4 text-zinc-500" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Customer Email</label>
-                <input type="email" value={draftData.customerEmail} onChange={e => setDraftData({...draftData, customerEmail: e.target.value})} className="w-full px-4 py-2 border border-border rounded-xl bg-zinc-50 focus:border-accent-green outline-none" placeholder="customer@example.com" />
-              </div>
-              <div className="p-4 bg-zinc-50 border border-border rounded-xl">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-bold text-primary-dark">Items</span>
-                  <button onClick={() => setDraftData({...draftData, items: [...draftData.items, { titleSnapshot: '', unitPrice: 0, quantity: 1 }]})} className="text-xs font-bold text-accent-green hover:underline">+ Add Custom Item</button>
-                </div>
-                {draftData.items.length === 0 ? (
-                  <p className="text-xs text-text-secondary italic">No items added.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {draftData.items.map((item, idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
-                        <input type="text" placeholder="Item name" value={item.titleSnapshot} onChange={e => { const newItems = [...draftData.items]; newItems[idx].titleSnapshot = e.target.value; setDraftData({...draftData, items: newItems}); }} className="flex-1 px-2 py-1 text-sm border border-border rounded" />
-                        <input type="number" placeholder="Price" value={item.unitPrice} onChange={e => { const newItems = [...draftData.items]; newItems[idx].unitPrice = Number(e.target.value); setDraftData({...draftData, items: newItems}); }} className="w-20 px-2 py-1 text-sm border border-border rounded" />
-                        <input type="number" placeholder="Qty" value={item.quantity} onChange={e => { const newItems = [...draftData.items]; newItems[idx].quantity = Number(e.target.value); setDraftData({...draftData, items: newItems}); }} className="w-16 px-2 py-1 text-sm border border-border rounded" />
-                        <button onClick={() => { const newItems = draftData.items.filter((_, i) => i !== idx); setDraftData({...draftData, items: newItems}); }} className="text-error hover:bg-error/10 p-1 rounded"><X className="w-3 h-3"/></button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="p-4 border-t border-border bg-zinc-50 flex justify-end gap-3">
-              <button onClick={() => setShowDraftModal(false)} className="px-4 py-2 text-sm font-bold text-text-secondary hover:text-primary-dark transition-colors">Cancel</button>
-              <button onClick={() => { alert('Draft order created!'); setShowDraftModal(false); setDraftData({ customerEmail: '', items: [] }); }} className="px-6 py-2 bg-primary-dark text-white rounded-xl font-bold text-sm shadow-sm hover:bg-primary-hover transition-colors">Save Draft</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

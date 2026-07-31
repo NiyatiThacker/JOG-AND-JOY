@@ -4,7 +4,7 @@ import { useReviewsList, useUpdateReview } from '../../queries/useReviews';
 import { useOrder } from '../../queries/useOrders';
 
 export default function AdminReviews() {
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   const [selectedReview, setSelectedReview] = useState(null);
   const [replyText, setReplyText] = useState('');
@@ -15,11 +15,16 @@ export default function AdminReviews() {
   );
 
   const filters = {};
-  if (activeTab !== 'all') filters.status = activeTab;
   if (search) filters.search = search;
   
   const { data, isLoading } = useReviewsList(filters);
-  const reviews = data?.data || [];
+  let reviews = data?.data || [];
+
+  if (activeTab === 'answered') {
+    reviews = reviews.filter(r => r.merchantReply?.body);
+  } else if (activeTab === 'unanswered') {
+    reviews = reviews.filter(r => !r.merchantReply?.body);
+  }
   
   const updateMut = useUpdateReview();
 
@@ -68,11 +73,9 @@ export default function AdminReviews() {
           <div className="flex flex-col sm:flex-row justify-between items-center border-b border-border bg-zinc-50/50 p-4 gap-4">
             <div className="flex overflow-x-auto w-full hide-scrollbar gap-2">
               {[
-                { id: 'pending', label: 'Pending Moderation' },
                 { id: 'all', label: 'All Reviews' },
-                { id: 'approved', label: 'Approved' },
-                { id: 'rejected', label: 'Rejected' },
-                { id: 'spam', label: 'Spam' }
+                { id: 'answered', label: 'Answered' },
+                { id: 'unanswered', label: 'Needs Attention' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -160,12 +163,16 @@ export default function AdminReviews() {
                 <h4 className="text-xs font-bold text-blue-900 uppercase tracking-widest mb-3 flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Verified Purchase</h4>
                 <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                   <div className="text-blue-700">
-                    <span className="opacity-70 text-[10px] uppercase block mb-0.5">Order ID</span>
-                    <span className="font-bold">{selectedReview.orderId || 'N/A'}</span>
+                    <span className="opacity-70 text-[10px] uppercase block mb-0.5">Product ID</span>
+                    <span className="font-bold">{selectedReview.productId || 'N/A'}</span>
                   </div>
                   <div className="text-blue-700">
-                    <span className="opacity-70 text-[10px] uppercase block mb-0.5">Customer Email</span>
-                    <span className="font-bold line-clamp-1">{selectedReview.customerEmail || 'N/A'}</span>
+                    <span className="opacity-70 text-[10px] uppercase block mb-0.5">Customer Name / Email</span>
+                    <span className="font-bold line-clamp-1">{selectedReview.customerName || selectedReview.customerEmail || 'N/A'}</span>
+                  </div>
+                  <div className="text-blue-700">
+                    <span className="opacity-70 text-[10px] uppercase block mb-0.5">Order ID</span>
+                    <span className="font-bold">{selectedReview.orderId || 'N/A'}</span>
                   </div>
                 </div>
 
