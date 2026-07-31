@@ -345,11 +345,11 @@ export default function UserProfileModal({ isOpen, onClose }) {
               )}
 
               <button
-                onClick={async () => {
-                  await logout();
+                onClick={() => {
+                  logout();
                   onClose();
                 }}
-                className="w-full mt-2 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-black flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-4 rounded-2xl font-bold text-[15px] text-slate-400 flex items-center justify-center gap-2 hover:text-rose-500 hover:bg-rose-50/50 transition-all duration-200"
               >
                 <LogOut className="w-4 h-4" /> Sign Out
               </button>
