@@ -40,7 +40,8 @@
   left: 0;
   right: 0;
   top: 96px; /* Matches desktop header height */
-  bottom: 0;
+  bottom: auto;
+  height: max-content;
   padding: 1rem 2rem 1.5rem;
   display: flex;
   align-items: stretch;

@@ -136,9 +136,9 @@ export default function AdminAnalytics() {
     <div className="w-full animate-in fade-in duration-300 pb-12">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <span className="text-[10px] text-accent-green font-bold uppercase tracking-widest font-mono">Reporting</span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Analytics</h1>
-          <p className="text-xs text-text-secondary mt-1">Data driven insights and custom reports</p>
+          <span className="text-[10px] text-blue-600 font-bold uppercase tracking-widest font-mono">Reporting</span>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-text-dark mt-0.5">Analytics</h1>
+          <p className="text-xs text-text-muted mt-1">Data driven insights and custom reports</p>
         </div>
         <div className="flex items-center gap-3">
           <select
@@ -152,7 +152,7 @@ export default function AdminAnalytics() {
             <option value="year">This Year</option>
             <option value="all">All Time</option>
           </select>
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-primary-dark rounded-xl font-bold text-sm hover:bg-zinc-50 shadow-sm transition-all">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-text-dark rounded-xl font-bold text-sm hover:bg-bg-base transition-colors shadow-sm transition-all">
             <Download className="w-4 h-4" />
             Export
           </button>
@@ -161,43 +161,43 @@ export default function AdminAnalytics() {
 
       {/* Global KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Total Sales</p>
+        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Total Sales</p>
           <div className="flex items-end gap-3">
-            <p className="text-2xl font-black text-primary-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue || 0)}</p>
+            <p className="text-2xl font-black text-text-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue || 0)}</p>
           </div>
         </div>
-        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Avg Order Value</p>
+        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Avg Order Value</p>
           <div className="flex items-end gap-3">
-            <p className="text-2xl font-black text-primary-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue / (summary?.totalOrders || 1) || 0)}</p>
+            <p className="text-2xl font-black text-text-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue / (summary?.totalOrders || 1) || 0)}</p>
           </div>
         </div>
-        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Total Orders</p>
+        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Total Orders</p>
           <div className="flex items-end gap-3">
-            <p className="text-2xl font-black text-primary-dark">{totalOrdersCount}</p>
+            <p className="text-2xl font-black text-text-dark">{totalOrdersCount}</p>
           </div>
         </div>
-        <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Returning Customer Rate</p>
+        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Returning Customer Rate</p>
           <div className="flex items-end gap-3">
-            <p className="text-2xl font-black text-primary-dark">{returningRate}%</p>
+            <p className="text-2xl font-black text-text-dark">{returningRate}%</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-125">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-125">
         {/* Sidebar Tabs */}
         <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-slate-200 p-4 space-y-1">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-3 ${activeTab === tab.id ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' : 'text-text-secondary hover:bg-zinc-100/50 hover:text-text-primary'
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold transition-colors flex items-center gap-3 ${activeTab === tab.id ? 'bg-white border border-slate-200 shadow-sm text-text-dark' : 'text-text-muted hover:bg-zinc-100/50 hover:text-text-primary'
                 }`}
             >
-              <span className={activeTab === tab.id ? 'text-accent-green' : ''}>{tab.icon}</span>
+              <span className={activeTab === tab.id ? 'text-blue-600' : ''}>{tab.icon}</span>
               {tab.label}
             </button>
           ))}
@@ -206,7 +206,7 @@ export default function AdminAnalytics() {
         {/* Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
-            <h2 className="text-lg font-bold text-primary-dark">{tabs.find(t => t.id === activeTab)?.label} Overview</h2>
+            <h2 className="text-lg font-bold text-text-dark">{tabs.find(t => t.id === activeTab)?.label} Overview</h2>
           </div>
 
           <div className="p-6">
@@ -217,25 +217,25 @@ export default function AdminAnalytics() {
                     {chartData.map((d, i) => (
                       <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
                         <div 
-                          className={`w-full rounded-t-sm relative transition-colors ${d.value > 0 ? 'bg-accent-green/20 group-hover:bg-accent-green' : 'bg-zinc-100 group-hover:bg-zinc-200'}`} 
+                          className={`w-full rounded-t-sm relative transition-colors ${d.value > 0 ? 'bg-blue-600/20 group-hover:bg-blue-600' : 'bg-zinc-100 group-hover:bg-zinc-200'}`} 
                           style={{ height: `${Math.max((d.value / maxVal) * 100, 2)}%`, minHeight: '4px' }}
                         >
                           <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800 text-white px-2 py-1 rounded whitespace-nowrap z-10">
                             {formatCurrency(d.value)}
                           </span>
                         </div>
-                        <span className="text-xs text-text-secondary font-bold">{d.label}</span>
+                        <span className="text-xs text-text-muted font-bold">{d.label}</span>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 border border-slate-200 rounded-xl bg-white">
-                    <h3 className="font-bold text-sm mb-4 text-primary-dark">Sales by Channel</h3>
+                    <h3 className="font-bold text-sm mb-4 text-text-dark">Sales by Channel</h3>
                     <div className="space-y-3">
                       <div>
                         <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Online Store</span><span>{onlinePercent}%</span></div>
-                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-accent-green transition-all" style={{width: `${onlinePercent}%`}}></div></div>
+                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-blue-600 transition-all" style={{width: `${onlinePercent}%`}}></div></div>
                       </div>
                       <div>
                         <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Point of Sale (POS)</span><span>{posPercent}%</span></div>
@@ -244,15 +244,15 @@ export default function AdminAnalytics() {
                     </div>
                   </div>
                   <div className="p-4 border border-slate-200 rounded-xl bg-white">
-                    <h3 className="font-bold text-sm mb-4 text-primary-dark">Gross vs Net Sales</h3>
+                    <h3 className="font-bold text-sm mb-4 text-text-dark">Gross vs Net Sales</h3>
                     <div className="flex flex-col justify-center h-full space-y-4 pb-4">
                       <div>
-                         <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Gross Sales</p>
-                         <p className="text-xl font-black text-primary-dark">{formatCurrency(grossSales)}</p>
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-1">Gross Sales</p>
+                         <p className="text-xl font-black text-text-dark">{formatCurrency(grossSales)}</p>
                       </div>
                       <div>
-                         <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Net Sales <span className="lowercase font-medium opacity-70">(after discounts)</span></p>
-                         <p className="text-xl font-black text-accent-green">{formatCurrency(netSales)}</p>
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-1">Net Sales <span className="lowercase font-medium opacity-70">(after discounts)</span></p>
+                         <p className="text-xl font-black text-blue-600">{formatCurrency(netSales)}</p>
                       </div>
                     </div>
                   </div>
@@ -260,18 +260,18 @@ export default function AdminAnalytics() {
               </div>
             ) : activeTab === 'products' ? (
               <div className="space-y-4">
-                <h3 className="font-bold text-primary-dark mb-4">Top Products by Units Sold</h3>
+                <h3 className="font-bold text-text-dark mb-4">Top Products by Units Sold</h3>
                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-zinc-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-text-secondary">
-                      <tr><th className="px-4 py-3">Product</th><th className="px-4 py-3 text-right">Units</th><th className="px-4 py-3 text-right">Revenue</th></tr>
+                    <thead className="border-b border-slate-100 text-xs font-bold text-zinc-500">
+                      <tr><th className="px-5 py-3 font-medium">Product</th><th className="px-5 py-3 font-medium text-right">Units</th><th className="px-5 py-3 font-medium text-right">Revenue</th></tr>
                     </thead>
-                    <tbody className="divide-y divide-border">
+                    <tbody className="divide-y divide-slate-100">
                       {topProducts.length === 0 ? (
-                        <tr><td colSpan="3" className="px-4 py-3 text-center text-text-secondary">No product data available.</td></tr>
+                        <tr><td colSpan="3" className="px-4 py-3 text-center text-text-muted">No product data available.</td></tr>
                       ) : topProducts.map((p, idx) => (
-                        <tr key={idx} className="hover:bg-zinc-50">
-                          <td className="px-4 py-3 font-bold text-primary-dark line-clamp-1">{p.name || 'Unknown Product'}</td>
+                        <tr key={idx} className="hover:bg-zinc-50/50 transition-colors">
+                          <td className="px-4 py-3 font-bold text-text-dark line-clamp-1">{p.name || 'Unknown Product'}</td>
                           <td className="px-4 py-3 text-right">{p.units}</td>
                           <td className="px-4 py-3 text-right">{formatCurrency(p.revenue)}</td>
                         </tr>
@@ -283,16 +283,16 @@ export default function AdminAnalytics() {
             ) : activeTab === 'customers' ? (
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 border border-slate-200 rounded-xl bg-white text-center">
-                  <Users className="w-8 h-8 text-primary-dark mx-auto mb-2" />
-                  <p className="text-3xl font-black text-primary-dark">{filteredCustomers.length}</p>
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mt-1">Total Customers</p>
+                  <Users className="w-8 h-8 text-text-dark mx-auto mb-2" />
+                  <p className="text-3xl font-black text-text-dark">{filteredCustomers.length}</p>
+                  <p className="text-xs font-bold text-text-muted uppercase tracking-widest mt-1">Total Customers</p>
                 </div>
                 <div className="p-4 border border-slate-200 rounded-xl bg-white text-center">
-                  <TrendingUp className="w-8 h-8 text-accent-green mx-auto mb-2" />
-                  <p className="text-3xl font-black text-primary-dark">
+                  <TrendingUp className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                  <p className="text-3xl font-black text-text-dark">
                     {filteredCustomers.length > 0 ? (filteredOrders.length / filteredCustomers.length).toFixed(1) : '0'}
                   </p>
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mt-1">Avg Orders / Customer</p>
+                  <p className="text-xs font-bold text-text-muted uppercase tracking-widest mt-1">Avg Orders / Customer</p>
                 </div>
               </div>
             ) : null}

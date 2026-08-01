@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef, useState, useCallback, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import { Search, Heart, User, ShoppingBag, Home } from '../ui/CustomIcons';
 import BrandLogo from '../ui/BrandLogo';
 import { useCart } from '../../context/CartContext';
@@ -83,7 +84,7 @@ const CardNav = ({
       contentEl.offsetHeight; // trigger reflow
 
       const isMobile = window.matchMedia('(max-width: 768px)').matches;
-      const topBar = isMobile ? 72 : 96;
+      const topBar = isMobile ? 64 : 80;
       const padding = 16;
       const contentHeight = contentEl.scrollHeight;
 
@@ -103,7 +104,7 @@ const CardNav = ({
     if (!navEl) return null;
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const baseHeight = isMobile ? 72 : 96;
+    const baseHeight = isMobile ? 64 : 80;
 
     gsap.set(navEl, { height: baseHeight, overflow: 'hidden' });
     gsap.set(cardsRef.current, { y: 50, opacity: 0 });
@@ -305,7 +306,7 @@ const CardNav = ({
               onClick={toggleMenu}
               type="button"
             >
-              <span className="sm-toggle-textWrap" aria-hidden="true">
+              <span className="sm-toggle-textWrap hidden md:inline-block" aria-hidden="true">
                 <span ref={textInnerRef} className="sm-toggle-textInner">
                   {textLines.map((l, i) => (
                     <span className="sm-toggle-line" key={i}>
@@ -314,21 +315,25 @@ const CardNav = ({
                   ))}
                 </span>
               </span>
-              <span ref={iconRef} className="sm-icon" aria-hidden="true">
+              <span className="md:hidden flex items-center justify-center text-slate-800 p-1.5 rounded-full hover:bg-slate-100 transition-colors">
+                {isExpanded ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </span>
+              <span ref={iconRef} className="sm-icon hidden md:inline-flex" aria-hidden="true">
                 <span ref={plusHRef} className="sm-icon-line" />
                 <span ref={plusVRef} className="sm-icon-line sm-icon-line-v" />
               </span>
             </button>
 
-            <div className="sm-logo" aria-label="Logo">
-              <BrandLogo className="h-8 md:h-10" showTagline={false} animate={true} />
-            </div>
+          </div>
+
+          <div className="sm-logo absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" aria-label="Logo">
+            <BrandLogo className="h-8 md:h-10" showTagline={false} animate={true} />
           </div>
 
           <div className="sm-header-right">
             <Link
               to="/"
-              className="action-btn"
+              className="action-btn hidden md:flex"
               title="Home"
               onClick={() => {
                 if (isExpanded) closeMenu();
@@ -377,7 +382,7 @@ const CardNav = ({
 
             <Link
               to="/cart"
-              className="card-nav-cta-button"
+              className="card-nav-cta-button hidden md:flex"
               title="Bag"
               onClick={() => {
                 if (isExpanded) closeMenu();
@@ -385,7 +390,7 @@ const CardNav = ({
             >
               <div className="cta-content">
                 <ShoppingBag className="w-4 h-4" />
-                <span className="hidden-mobile">Bag</span>
+                <span className="font-bold">Bag</span>
                 {cartTotalCount > 0 && (
                   <span className="cta-badge">
                     {cartTotalCount}

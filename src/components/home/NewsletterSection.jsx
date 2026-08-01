@@ -48,7 +48,7 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="py-16 bg-[#FAF8F5] relative overflow-hidden">
+    <section className="py-16 bg-white relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Soft Light Green / Mint Pastel Card Container */}

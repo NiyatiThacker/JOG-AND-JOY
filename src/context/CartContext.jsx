@@ -1,9 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { usePromotionsList } from '../queries/usePromotions';
+import { useSettings } from '../queries/useSettings';
+import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
+import ToastContainer from '../components/ui/ToastContainer';
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
+  const { user } = useAuth();
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('kids_cart');
@@ -14,25 +19,84 @@ export function CartProvider({ children }) {
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code: 'KIDS20', discountPercent: 20 }
-  const [toastMessage, setToastMessage] = useState(null);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
+  // Sync Cart to Supabase whenever it changes and user is logged in
   useEffect(() => {
+    const syncToCloud = async () => {
+      if (user?.id && !isSyncing) {
+        await supabase.from('users').update({ cart }).eq('id', user.id);
+      }
+    };
+    
     try {
       localStorage.setItem('kids_cart', JSON.stringify(cart));
-    } catch {
-      // ignore
-    }
-  }, [cart]);
+    } catch {}
+    
+    syncToCloud();
+  }, [cart, user?.id]);
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
+  // Load and merge Cart from Supabase when user logs in
+  useEffect(() => {
+    const fetchAndMergeCart = async () => {
+      if (!user?.id) {
+        // User logged out, clear cart to prevent leakage
+        setCart([]);
+        localStorage.removeItem('kids_cart');
+        return;
+      }
+
+      setIsSyncing(true);
+      const { data, error } = await supabase
+        .from('users')
+        .select('cart')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && data) {
+        const remoteCart = data.cart || [];
+        
+        // Merge logic: Combine local cart (built while logged out) with remote cart
+        setCart(prevLocal => {
+          if (prevLocal.length === 0) return remoteCart;
+          
+          let merged = [...remoteCart];
+          prevLocal.forEach(localItem => {
+            const existingIdx = merged.findIndex(
+              (item) => item.id === localItem.id && item.size === localItem.size && item.color === localItem.color
+            );
+            if (existingIdx > -1) {
+               // If item exists in both, keep the highest quantity or sum them
+               merged[existingIdx].quantity = Math.max(merged[existingIdx].quantity, localItem.quantity);
+            } else {
+               merged.push(localItem);
+            }
+          });
+          
+          // Save merged cart back to cloud immediately
+          supabase.from('users').update({ cart: merged }).eq('id', user.id);
+          return merged;
+        });
+      }
+      setIsSyncing(false);
+    };
+
+    fetchAndMergeCart();
+  }, [user?.id]);
+
+  const showToast = (msg, type = 'success', description = '') => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, msg, type, description }]);
     setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
   };
-
-
+  
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   const addToCart = (product, selectedSize = '4Y-5Y', selectedColor = '#AEE6FF') => {
     const rawPrice = product.price ?? 499;
@@ -66,7 +130,6 @@ export function CartProvider({ children }) {
       }
     });
 
-
     showToast(`Added ${product.name} to bag!`);
     setIsCartOpen(true);
   };
@@ -88,7 +151,8 @@ export function CartProvider({ children }) {
   };
 
   const { data: promosData } = usePromotionsList();
-  
+  const { data: settingsData } = useSettings();
+  const settings = settingsData || {};
   const applyCoupon = (code) => {
     const promos = promosData?.data || [];
     const matchedPromo = promos.find(p => p.code?.toUpperCase() === code.trim().toUpperCase() && p.active === true);
@@ -121,6 +185,10 @@ export function CartProvider({ children }) {
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = cart.reduce((sum, item) => sum + item.numericPrice * item.quantity, 0);
   
+  const baseShippingRate = settings.baseShippingRate ?? 99;
+  const freeShippingThreshold = settings.freeShippingThreshold ?? 999;
+  const expressShippingRate = settings.expressShippingRate ?? 149;
+
   let discountAmount = 0;
   if (appliedCoupon) {
     if (appliedCoupon.discountPercent) {
@@ -129,7 +197,7 @@ export function CartProvider({ children }) {
       discountAmount = Math.min(cartSubtotal, appliedCoupon.discountFixed);
     }
   }
-  const shippingFee = cartSubtotal >= 999 || appliedCoupon?.freeShipping ? 0 : (cartSubtotal > 0 ? 99 : 0);
+  const shippingFee = cartSubtotal >= freeShippingThreshold || appliedCoupon?.freeShipping ? 0 : (cartSubtotal > 0 ? baseShippingRate : 0);
   const cartGrandTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
 
   return (
@@ -146,20 +214,17 @@ export function CartProvider({ children }) {
         cartSubtotal,
         discountAmount,
         shippingFee,
+        expressShippingRate,
         cartGrandTotal,
         appliedCoupon,
         applyCoupon,
         removeCoupon,
-        toastMessage,
+        removeToast,
         showToast
       }}
     >
       {children}
-      {toastMessage && (
-        <div className="fixed bottom-20 right-6 z-50 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-slate-700 animate-bounce">
-          <span>✨ {toastMessage}</span>
-        </div>
-      )}
+      <ToastContainer toasts={toasts} removeToast={removeToast} position="bottom-right" />
     </CartContext.Provider>
   );
 }

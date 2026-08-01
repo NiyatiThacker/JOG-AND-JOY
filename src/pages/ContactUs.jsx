@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, ArrowRight, User, Play, ChevronRight, ChevronLeft, Star, MessageSquare, Clock, Sparkles, X, Building2, Globe, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 import { Input, Textarea } from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
@@ -68,6 +69,7 @@ export default function ContactUs() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const testimonials = [
     {
@@ -113,7 +115,7 @@ export default function ContactUs() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
@@ -127,7 +129,33 @@ export default function ContactUs() {
       return;
     }
 
-    setIsModalOpen(true);
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from('messages').insert([{
+        id: crypto.randomUUID(),
+        customerName: formData.name,
+        customerEmail: formData.email,
+        subject: formData.inquiryType,
+        message: `Mobile: ${formData.mobile}\n\n${formData.comment}`,
+        status: 'unread'
+      }]);
+
+      if (error) throw error;
+      
+      setIsModalOpen(true);
+      setFormData({
+        name: '',
+        mobile: '',
+        email: '',
+        inquiryType: 'general',
+        comment: ''
+      });
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      alert('Sorry, there was an error sending your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleNextTestimonial = () => {
@@ -673,14 +701,17 @@ export default function ContactUs() {
                 <div className="pt-2">
                   <motion.button 
                     type="submit" 
+                    disabled={isSubmitting}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
-                    className="w-full bg-linear-to-r from-[#FF5500] via-[#FF6B00] to-[#FF4500] text-white font-black text-lg py-4 rounded-2xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all flex items-center justify-center gap-3 cursor-pointer group border-2 border-white/40"
+                    className="w-full bg-linear-to-r from-[#FF5500] via-[#FF6B00] to-[#FF4500] text-white font-black text-lg py-4 rounded-2xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all flex items-center justify-center gap-3 cursor-pointer group border-2 border-white/40 disabled:opacity-70"
                   >
-                    <span>Submit Message</span>
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">
-                      <Send className="w-4 h-4 text-white" />
-                    </div>
+                    <span>{isSubmitting ? 'Sending...' : 'Submit Message'}</span>
+                    {!isSubmitting && (
+                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">
+                        <Send className="w-4 h-4 text-white" />
+                      </div>
+                    )}
                   </motion.button>
                 </div>
 

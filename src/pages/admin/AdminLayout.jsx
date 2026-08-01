@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import BrandLogo from '../../components/ui/BrandLogo';
-import { LayoutDashboard, ShoppingBag, PackageSearch, Settings, LogOut, Package, Tag, BarChart3, Star, Truck, MessageSquare, IndianRupee, Bell, BellOff, CheckCircle, Users, Menu, X } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, PackageSearch, Settings, LogOut, Package, Tag, BarChart3, Star, Truck, MessageSquare, IndianRupee, Bell, BellOff, CheckCircle, Users, Menu, X, Home } from 'lucide-react';
 import { useAuth as useAdmin } from '../../context/AuthContext';
 import AdminLogin from './AdminLogin';
 import { SettingsProvider, useSettingsContext } from '../../context/SettingsContext';
@@ -41,7 +41,6 @@ function AdminLayoutContent() {
  { name: 'Promotions', path: '/admin/promotions', icon: Tag },
  { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
  { name: 'Reviews', path: '/admin/reviews', icon: Star },
- { name: 'Shipping', path: '/admin/shipping', icon: Truck },
  { name: 'Messages', path: '/admin/messages', icon: MessageSquare },
  { name: 'Financials', path: '/admin/financials', icon: IndianRupee },
  { name: 'Settings', path: '/admin/settings', icon: Settings },
@@ -52,23 +51,23 @@ function AdminLayoutContent() {
  }
 
  return (
- <div className="min-h-screen bg-bg-main text-text-primary admin-theme flex">
+ <div className="min-h-screen bg-slate-50 text-text-primary admin-theme flex">
  
  {isMobileMenuOpen && (
    <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
  )}
 
  {/* Sidebar */}
- <div className={`w-64 bg-surface border-r border-slate-200 flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+ <div className={`w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
  <div className="h-16 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
   <BrandLogo className="h-12" linkTo="/admin" showTagline={false} animate={true} />
-  <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-zinc-400 hover:text-zinc-800">
+  <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
     <X className="w-5 h-5" />
   </button>
  </div>
  
  <nav className="mt-4 px-4 flex-1 flex flex-col gap-1 overflow-y-auto pb-4 custom-scrollbar">
- <div className="mb-2 px-2 text-[10px] font-bold text-text-secondary uppercase tracking-wider">Management</div>
+ <div className="mb-2 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Management</div>
  {navItems.map((item) => {
  const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
  const Icon = item.icon;
@@ -78,32 +77,39 @@ function AdminLayoutContent() {
  to={item.path}
  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold ${
  isActive 
- ? 'bg-accent-green/10 text-accent-green' 
- : 'text-text-secondary hover:bg-zinc-100 hover:text-text-primary'
+  ? 'bg-blue-50 text-blue-700' 
+  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
  }`}
  >
- <Icon className="w-4 h-4" />
+ <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
  {item.name}
  </Link>
  );
  })}
  </nav>
 
- <div className="p-4 border-t border-slate-200 mt-auto">
+ <div className="p-4 border-t border-slate-200 mt-auto flex flex-col gap-1">
+ <Link 
+ to="/"
+ className="md:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 w-full"
+ >
+ <Home className="w-5 h-5 text-slate-400" />
+ Go to Storefront
+ </Link>
  <button 
  onClick={logout}
- className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold text-text-secondary hover:bg-error/10 hover:text-error w-full"
+ className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold text-slate-600 hover:bg-red-50 hover:text-red-600 w-full"
  >
- <LogOut className="w-5 h-5" />
+ <LogOut className="w-5 h-5 text-slate-400" />
  Logout
  </button>
  </div>
  </div>
 
  {/* Main Content */}
- <div className="flex-1 md:ml-64 relative min-h-screen flex flex-col w-full overflow-hidden">
+ <div className="flex-1 md:ml-64 relative min-h-screen flex flex-col w-full overflow-hidden bg-slate-50">
  {/* Top Navbar */}
- <header className="h-16 bg-surface border-b border-slate-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
+ <header className="h-16 bg-white border-b border-slate-100 shadow-sm flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
  <div className="flex items-center gap-3">
    <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 text-zinc-500 hover:text-zinc-800 rounded-lg">
      <Menu className="w-6 h-6" />
@@ -113,7 +119,7 @@ function AdminLayoutContent() {
    <input 
    type="text" 
    placeholder="Search orders, products, etc." 
-   className="w-full bg-zinc-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-green-500"
+   className="w-full bg-zinc-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-blue-600"
    />
    <svg className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
    </div>
@@ -138,7 +144,7 @@ function AdminLayoutContent() {
        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-zinc-50/80 rounded-t-xl">
          <h3 className="font-bold text-primary-dark">Notifications</h3>
          <div className="flex gap-2">
-           <button onClick={markAllRead} className="p-1.5 text-zinc-400 hover:text-accent-green hover:bg-accent-green/10 rounded-md transition-colors" title="Mark all as read">
+           <button onClick={markAllRead} className="p-1.5 text-zinc-400 hover:text-blue-600 hover:bg-blue-600/10 rounded-md transition-colors" title="Mark all as read">
              <CheckCircle className="w-4 h-4" />
            </button>
            <button onClick={() => setIsNotifMuted(!isNotifMuted)} className={`p-1.5 rounded-md transition-colors ${isNotifMuted ? 'text-warning-dark bg-warning/10 hover:bg-warning/20' : 'text-zinc-400 hover:bg-zinc-200'}`} title={isNotifMuted ? 'Unmute' : 'Mute alerts'}>
@@ -156,14 +162,14 @@ function AdminLayoutContent() {
                   key={n.id} 
                   to={`/admin/orders?orderId=${n.sourceId}`}
                   onClick={() => setIsNotifOpen(false)}
-                  className={`block p-4 hover:bg-zinc-50 transition-colors ${!n.read ? 'bg-accent-green/5' : ''}`}
+                  className={`block p-4 hover:bg-zinc-50 transition-colors ${!n.read ? 'bg-blue-600/5' : ''}`}
                 >
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex-1">
                       <p className={`text-sm ${!n.read ? 'font-bold text-primary-dark' : 'text-zinc-600 font-medium'}`}>{n.title}</p>
                       <p className="text-xs text-zinc-400 mt-1">{n.time}</p>
                     </div>
-                    {!n.read && <span className="w-2 h-2 bg-accent-green rounded-full mt-1 shrink-0"></span>}
+                    {!n.read && <span className="w-2 h-2 bg-blue-600 rounded-full mt-1 shrink-0"></span>}
                   </div>
                 </Link>
               ))}

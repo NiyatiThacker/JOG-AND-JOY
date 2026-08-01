@@ -11,10 +11,10 @@ export default function Wishlist() {
   const { combinedProducts } = useCombinedProducts();
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
-  const favoritedProducts = wishlist.map(w => {
-    const p = combinedProducts.find(cp => String(cp.id) === String(w.id));
+  const favoritedProducts = wishlist.map(id => {
+    const p = combinedProducts.find(cp => String(cp.id) === String(id));
     if (!p) return null;
-    return { ...p, wishlistSize: w.size, wishlistColor: w.color };
+    return p;
   }).filter(Boolean);
 
   return (

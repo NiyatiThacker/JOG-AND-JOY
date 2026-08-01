@@ -48,3 +48,6 @@ ALTER TABLE promotions ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Enable all access for all users" ON promotions;
 CREATE POLICY "Enable all access for all users" ON promotions FOR ALL USING (true);
 
+-- Update Users Table for Cart Sync
+ALTER TABLE users ADD COLUMN IF NOT EXISTS cart JSONB;
+

@@ -7,31 +7,9 @@ import CustomDropdown from '../components/ui/CustomDropdown';
 import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import ShopByAge from '../components/home/ShopByAge';
-import ImageTrail from '../components/home/ImageTrail';
-import denimBg from "../assets/hero-bg-denim.jpg";
-import denimBgMobile from "../assets/hero-bg-denim-mobile.jpg";
-import tshirt from "../assets/cutout-tshirt.png";
-import shorts from "../assets/cutout-shorts.png";
-import sun from "../assets/cutout-sun.png";
-import cloud from "../assets/cutout-cloud.png";
-import star from "../assets/cutout-star.png";
 
-const cutouts = [
-  { src: sun, className: "top-[6%] left-[4%] w-16 sm:w-20 md:w-36 z-2", rotDeg: -10, fromX: "-80px", fromY: "-60px", delay: "0s", label: "Smiling sun" },
-  { src: cloud, className: "top-[10%] right-[6%] w-16 sm:w-24 md:w-44 z-2", rotDeg: 8, fromX: "90px", fromY: "-70px", delay: "0.15s", label: "Happy cloud" },
-  { src: tshirt, className: "bottom-[14%] sm:bottom-[10%] left-[4%] sm:left-[6%] w-20 sm:w-24 md:w-40 z-2", rotDeg: -14, fromX: "-90px", fromY: "90px", delay: "0.30s", label: "Striped t-shirt" },
-  { src: shorts, className: "bottom-[14%] sm:bottom-[10%] right-[4%] sm:right-[6%] w-20 sm:w-24 md:w-40 z-2", rotDeg: 12, fromX: "90px", fromY: "90px", delay: "0.45s", label: "Yellow shorts" },
-  { src: star, className: "top-[38%] sm:top-[44%] right-[4%] w-12 sm:w-14 md:w-24 z-2", rotDeg: 18, fromX: "100px", fromY: "0px", delay: "0.60s", label: "Cheerful star" },
-];
 
-const trailImages = [
-  "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1471286174574-e9627710ee7e?w=400&h=400&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1502224562085-639556652f33?w=400&h=400&fit=crop&q=80",
-];
+
 const kidsSortOptions = [
   { label: 'Recommended', value: 'Recommended' },
   { label: 'Price: Low to High', value: 'Price: Low to High' },
@@ -239,65 +217,18 @@ export default function KidsPage() {
         justifyContent: 'center',
         marginBottom: '0'
       }}>
-        {/* Desktop Background */}
-        <div className="absolute inset-0 max-md:hidden z-0" style={{
-          backgroundImage: `url(${denimBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center"
-        }} />
-
-        {/* Mobile Background */}
-        <div className="absolute inset-0 md:hidden z-0" style={{
-          backgroundImage: `url(${denimBgMobile})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center"
-        }} />
-        
-        {/* Background Subtle Grid Pattern */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          opacity: 0.05,
-          backgroundImage: "linear-gradient(#1a1a1a 1px, transparent 1px), linear-gradient(90deg, #1a1a1a 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-          pointerEvents: "none"
-        }} />
-
-        {/* Image Trail interactive overlay */}
-        <div className="max-md:hidden" style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 1,
-          pointerEvents: "auto"
-        }}>
-          <ImageTrail items={trailImages} variant={1} />
+        {/* Background Video Swapped from Home */}
+        <div className="absolute inset-0 z-0 flex items-center bg-black">
+          <video
+            src="/videos/kids-hero-new.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            onCanPlay={(e) => { e.currentTarget.playbackRate = 2; }}
+            className="w-full h-full object-cover block opacity-90"
+          />
         </div>
-
-        {/* Floating Animated Cutouts */}
-        {cutouts.map((c, i) => (
-          <div
-            key={i}
-            className={`absolute ${c.className} group cursor-pointer transition-transform duration-200 ease-out hover:scale-110 hover:-translate-y-1 focus-visible:scale-110 focus-visible:-translate-y-1 focus-visible:outline-none`}
-            tabIndex={0}
-            role="img"
-            aria-label={c.label}
-          >
-            <img
-              src={c.src}
-              alt=""
-              className="animate-cutout-shake drop-shadow-xl group-hover:drop-shadow-2xl transition-[filter] duration-200 pointer-events-none select-none w-full h-full"
-              style={
-                {
-                  "--rot-deg": c.rotDeg,
-                  "--from-x": c.fromX,
-                  "--from-y": c.fromY,
-                  animationDelay: c.delay,
-                  transformOrigin: "center",
-                }
-              }
-            />
-          </div>
-        ))}
 
         {/* Hero Content */}
         <div style={{
@@ -373,29 +304,7 @@ export default function KidsPage() {
           </a>
         </div>
 
-        {/* Interactive mouse trail hint in corner */}
-        <div className="max-md:hidden" style={{
-          position: "absolute",
-          bottom: "30px",
-          right: "30px",
-          fontSize: "0.85rem",
-          fontWeight: 500,
-          color: "#475569",
-          pointerEvents: "none",
-          zIndex: 5,
-          display: "flex",
-          alignItems: "center",
-          gap: "8px"
-        }}>
-          <span style={{
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            backgroundColor: "var(--color-accent)",
-            display: "inline-block"
-          }} />
-          Move mouse to reveal trail
-        </div>
+
       </div>
 
       {/* Products Section Anchor */}

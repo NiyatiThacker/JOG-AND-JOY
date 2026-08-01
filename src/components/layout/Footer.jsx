@@ -38,19 +38,6 @@ export default function Footer() {
     <footer className="bg-[#1B475D] text-[#EEE5C2] pt-12 pb-10 px-4 sm:px-6 lg:px-12 relative overflow-hidden font-sans">
       <div className="max-w-7xl mx-auto space-y-10">
         
-        {/* TOP INSTAGRAM FOLLOW BAR */}
-        <div className="flex items-center justify-center gap-3.5 text-xl sm:text-3xl font-extrabold tracking-tight text-[#EEE5C2] select-none">
-          <span className="text-[#EEE5C2]/95 font-medium">Follow us on</span>
-          <a 
-            href="https://instagram.com/jogandjoy_official" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center gap-2.5 hover:opacity-90 transition-opacity"
-          >
-            <InstagramGradientIcon />
-            <span className="font-black text-[#EEE5C2] tracking-tight">Jog&Joy_Official</span>
-          </a>
-        </div>
 
         {/* MAIN CONTENT CARD CONTAINER (Rich Warm Cream / Ivory Background) */}
         <div className="relative bg-linear-to-br from-[#FFF9EA] via-[#F6EAC9] to-[#EFE1BA] text-[#1B475D] rounded-4xl p-8 sm:p-12 shadow-2xl overflow-hidden border-2 border-white/80">

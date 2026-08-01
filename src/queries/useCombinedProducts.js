@@ -30,6 +30,8 @@ export function useCombinedProducts() {
         shipping: p.shipping,
         sizes: p.sizes || ['4Y-5Y', '5Y-6Y', '7Y-8Y'],
         colors: p.colors || [],
+        variants: p.variants || [],
+        groupId: p.groupId || null,
         stock: p.variants?.[0]?.stock || p.stock || 10,
         rating: p.rating || 4.8,
         reviewsCount: p.reviewsCount || 24

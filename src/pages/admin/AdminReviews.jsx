@@ -61,13 +61,13 @@ export default function AdminReviews() {
     <div className="w-full animate-in fade-in duration-300 pb-12">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <span className="text-[10px] text-accent-green font-bold uppercase tracking-widest font-mono">Feedback</span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Reviews</h1>
-          <p className="text-xs text-text-secondary mt-1">Moderation queue and replies</p>
+          <span className="text-[10px] text-blue-600 font-bold uppercase tracking-widest font-mono">Feedback</span>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-text-dark mt-0.5">Reviews</h1>
+          <p className="text-xs text-text-muted mt-1">Moderation queue and replies</p>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-[600px]">
         {/* Main Content Area */}
         <div className={`flex-1 flex flex-col min-w-0 ${selectedReview ? 'hidden md:flex md:w-2/3 md:border-r border-slate-200' : 'w-full'}`}>
           <div className="flex flex-col sm:flex-row justify-between items-center border-b border-slate-200 bg-zinc-50/50 p-4 gap-4">
@@ -82,8 +82,8 @@ export default function AdminReviews() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                     activeTab === tab.id 
-                      ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' 
-                      : 'text-text-secondary hover:text-text-primary hover:bg-zinc-100/50'
+                      ? 'bg-white border border-slate-200 shadow-sm text-text-dark' 
+                      : 'text-text-muted hover:text-text-primary hover:bg-zinc-100/50'
                   }`}
                 >
                   {tab.label}
@@ -97,19 +97,19 @@ export default function AdminReviews() {
               <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading reviews...</div>
             ) : (
               <table className="w-full text-left text-sm">
-                <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-slate-200 text-[11px] uppercase tracking-wider">
+                <thead className="border-b border-slate-100 text-xs font-bold text-zinc-500">
                   <tr>
-                    <th className="px-6 py-4">Rating</th>
-                    <th className="px-6 py-4">Review</th>
-                    <th className="px-6 py-4">Status</th>
+                    <th className="px-5 py-3 font-medium">Rating</th>
+                    <th className="px-5 py-3 font-medium">Review</th>
+                    <th className="px-5 py-3 font-medium">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-slate-100">
                   {reviews.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="p-12 text-center text-text-secondary">
+                      <td colSpan="3" className="p-12 text-center text-text-muted">
                         <MessageSquare className="w-8 h-8 mx-auto mb-3 opacity-20" />
-                        <p className="font-bold text-primary-dark">No reviews found.</p>
+                        <p className="font-bold text-text-dark">No reviews found.</p>
                       </td>
                     </tr>
                   ) : (
@@ -120,13 +120,13 @@ export default function AdminReviews() {
                         className={`transition-colors cursor-pointer group ${selectedReview?.id === review.id ? 'bg-primary-dark/5' : 'hover:bg-zinc-50/50'}`}
                       >
                         <td className="px-6 py-4">
-                          <div className="flex text-accent-green">
+                          <div className="flex text-blue-600">
                             {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-current' : 'text-zinc-200'}`} />)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="font-bold text-primary-dark line-clamp-1">{review.title || 'Untitled Review'}</p>
-                          <p className="text-xs text-text-secondary line-clamp-1 mt-0.5">{review.body}</p>
+                          <p className="font-bold text-text-dark line-clamp-1">{review.title || 'Untitled Review'}</p>
+                          <p className="text-xs text-text-muted line-clamp-1 mt-0.5">{review.body}</p>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
@@ -151,8 +151,8 @@ export default function AdminReviews() {
         {selectedReview && (
           <div className="w-full md:w-1/3 bg-zinc-50/50 flex flex-col h-full md:min-h-[600px] border-l border-slate-200 animate-in slide-in-from-right-8 duration-300">
             <div className="p-4 flex justify-between items-center border-b border-slate-200 bg-white">
-              <h2 className="font-bold text-primary-dark">Review Details</h2>
-              <button onClick={() => setSelectedReview(null)} className="p-2 text-zinc-400 hover:text-primary-dark rounded-lg hover:bg-zinc-100">
+              <h2 className="font-bold text-text-dark">Review Details</h2>
+              <button onClick={() => setSelectedReview(null)} className="p-2 text-zinc-400 hover:text-text-dark rounded-lg hover:bg-zinc-100">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -217,13 +217,13 @@ export default function AdminReviews() {
 
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="flex text-accent-green">
+                  <div className="flex text-blue-600">
                     {[...Array(5)].map((_, i) => <Star key={i} className={`w-5 h-5 ${i < selectedReview.rating ? 'fill-current' : 'text-zinc-200'}`} />)}
                   </div>
-                  <span className="font-bold text-sm text-primary-dark ml-2">{selectedReview.rating}/5</span>
+                  <span className="font-bold text-sm text-text-dark ml-2">{selectedReview.rating}/5</span>
                 </div>
-                <h3 className="text-lg font-bold text-primary-dark mb-2">{selectedReview.title || 'Untitled'}</h3>
-                <p className="text-sm text-text-secondary leading-relaxed bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="text-lg font-bold text-text-dark mb-2">{selectedReview.title || 'Untitled'}</h3>
+                <p className="text-sm text-text-muted leading-relaxed bg-white p-4 rounded-xl border border-slate-100 shadow-sm transition-all">
                   {selectedReview.body}
                 </p>
                 {selectedReview.media?.length > 0 && (
@@ -238,8 +238,8 @@ export default function AdminReviews() {
               </div>
 
               {selectedReview.status === 'pending' && (
-                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3">
-                  <h4 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Moderation Actions</h4>
+                <div className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm transition-all space-y-3">
+                  <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Moderation Actions</h4>
                   <div className="flex flex-col gap-2">
                     <button onClick={() => handleStatusChange('approved')} className="flex items-center justify-center gap-2 w-full py-2 bg-success text-white rounded-lg font-bold text-sm hover:bg-success-dark">
                       <Check className="w-4 h-4" /> Approve
@@ -256,13 +256,13 @@ export default function AdminReviews() {
 
               {selectedReview.status === 'approved' && (
                 <div className="space-y-3">
-                  <h4 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Merchant Reply</h4>
+                  <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Merchant Reply</h4>
                   <textarea 
                     rows="3"
                     value={replyText}
                     onChange={e => { setReplyText(e.target.value); setReplySuccess(false); }}
                     placeholder="Write a public reply..."
-                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-green-500"
+                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-600"
                   ></textarea>
                   <button 
                     onClick={handleSaveReply}

@@ -114,15 +114,23 @@ export default function ProductDetails() {
   useEffect(() => {
     if (product) {
       setActiveImage(product.image);
-      setSelectedSize(product.sizes?.[0] || '4Y-5Y');
-      setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
+      
+      const inStockVariant = product.variants?.find(v => Number(v.stock) > 0);
+      
+      if (inStockVariant) {
+        setSelectedSize(inStockVariant.size);
+        setSelectedColor(inStockVariant.colorHex);
+      } else {
+        setSelectedSize(product.sizes?.[0] || '4Y-5Y');
+        setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
+      }
       setQuantity(1);
       window.scrollTo(0, 0);
     }
   }, [product]);
 
   const activeVariantImage = product?.variants?.find(
-    (v) => v.colorHex === selectedColor && v.size === selectedSize
+    (v) => v.colorHex?.toLowerCase() === selectedColor?.toLowerCase() && v.size === selectedSize
   )?.image;
 
   useEffect(() => {
@@ -176,11 +184,11 @@ export default function ProductDetails() {
   };
 
   const activeVariant = product.variants?.find(
-    (v) => v.colorHex === selectedColor && v.size === selectedSize
+    (v) => v.colorHex?.toLowerCase() === selectedColor?.toLowerCase() && v.size === selectedSize
   );
 
   const displayPrice = activeVariant?.price || product.price;
-  const displayStock = activeVariant ? activeVariant.stock : product.stock;
+  const displayStock = activeVariant ? Number(activeVariant.stock) : Number(product.stock);
 
   const isFavorited = isInWishlist(product.id, selectedSize, selectedColor);
 

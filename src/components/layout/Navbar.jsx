@@ -46,12 +46,12 @@ export default function Navbar({ onOpenProfile }) {
   }
 
   return (
-    <div className="sticky top-0 w-full h-24 md:h-24 max-md:h-18 bg-[#FFF8EC] block select-none z-50 shadow-sm">
+    <div className="sticky top-0 w-full h-16 md:h-20 bg-white block select-none z-50 shadow-md transition-all duration-300">
       <CardNav
         items={navItems}
         baseColor="transparent"
-        menuButtonColor="#2D2D2D"
-        openMenuButtonColor="#EF4A45"
+        menuButtonColor="#0f172a"
+        openMenuButtonColor="#0f172a"
         accentColor="#EF4A45"
         onOpenProfile={onOpenProfile}
       />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Package, MapPin, Heart, LogOut, CheckCircle2, ChevronRight, RotateCcw, Edit2, Save, Loader2 } from 'lucide-react';
+import { X, User, Package, MapPin, Heart, LogOut, CheckCircle2, ChevronRight, RotateCcw, Edit2, Save, Loader2, FileText } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useOrdersList, useUpdateOrder } from '../../queries/useOrders';
 import { useAuth } from '../../context/AuthContext';
@@ -83,6 +83,40 @@ export default function UserProfileModal({ isOpen, onClose }) {
       });
       refetch();
     }
+  };
+
+  const handleDownloadInvoice = (order) => {
+    const invoiceText = `
+========================================
+             JOG & JOY
+         Official Invoice
+========================================
+Order ID: ${order.orderNumber}
+Date: ${order.date}
+Status: ${order.status}
+Customer: ${order.shippingAddress?.name || user?.name || 'Customer'}
+Email: ${order.shippingAddress?.email || user?.email || 'N/A'}
+
+SHIPPING ADDRESS:
+${order.shippingAddress?.line1 || 'N/A'}
+${order.shippingAddress?.city || 'N/A'}, ${order.shippingAddress?.state || 'N/A'} ${order.shippingAddress?.postalCode || ''}
+
+ITEMS:
+${order.items.map(item => `- ${item.quantity}x ${item.titleSnapshot || item.name} @ ₹${item.unitPrice} = ₹${item.unitPrice * item.quantity}`).join('\n')}
+
+----------------------------------------
+Total Paid: ${order.total}
+Payment Method: ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online'}
+========================================
+Thank you for shopping with Jog & Joy!
+    `;
+    const blob = new Blob([invoiceText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Invoice_${order.orderNumber}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -257,13 +291,16 @@ export default function UserProfileModal({ isOpen, onClose }) {
                     )}
 
                     {/* Footer Actions */}
-                    {order.status === 'DELIVERED' && (
-                      <div className="pt-2 flex justify-end">
+                    <div className="pt-2 flex justify-end gap-2">
+                      <button onClick={() => handleDownloadInvoice(order)} className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-bold transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                        <FileText className="w-3.5 h-3.5" /> Download Invoice
+                      </button>
+                      {order.status === 'DELIVERED' && (
                         <button onClick={() => handleRequestReturn(order.id)} className="flex items-center gap-1.5 text-xs text-[#EF4A45] hover:text-red-700 font-bold transition-colors bg-white px-3 py-1.5 rounded-lg border border-red-100 shadow-sm">
                           <RotateCcw className="w-3.5 h-3.5" /> Request Return
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (

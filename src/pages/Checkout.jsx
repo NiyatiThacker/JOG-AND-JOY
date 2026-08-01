@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import {
   MapPin,
@@ -10,16 +10,21 @@ import {
   ShieldCheck,
   ChevronRight,
   ShoppingBag,
-  ArrowLeft
+  ArrowLeft,
+  UserCircle
 } from 'lucide-react';
 import { useCreateOrder } from '../queries/useOrders';
 import { useAuth } from '../context/AuthContext';
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { cart, cartSubtotal, discountAmount, shippingFee, cartGrandTotal, clearCart } = useCart();
+  const { cart, cartSubtotal, discountAmount, shippingFee, expressShippingRate, cartGrandTotal, clearCart } = useCart();
   const createOrder = useCreateOrder();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  
+  // Try to grab the modal trigger if it was provided via Outlet
+  const outletContext = useOutletContext();
+  const setIsProfileOpen = outletContext?.setIsProfileOpen || (() => {});
 
   const [step, setStep] = useState(1); // 1: Address | 2: Shipping | 3: Payment | 4: Order Confirmed
   const [formData, setFormData] = useState({
@@ -37,6 +42,18 @@ export default function Checkout() {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState(null);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        address: prev.address || user.address || ''
+      }));
+    }
+  }, [user]);
 
   const validateStep1 = () => {
     const newErrors = {};
@@ -74,9 +91,9 @@ export default function Checkout() {
       channel: 'Web Storefront',
       subtotal: cartSubtotal,
       discountAmount: discountAmount,
-      shippingCost: shippingFee,
+      shippingCost: formData.shippingMethod === 'express' ? shippingFee + expressShippingRate : shippingFee,
       tax: 0,
-      total: cartGrandTotal,
+      total: formData.shippingMethod === 'express' ? cartGrandTotal + expressShippingRate : cartGrandTotal,
       items: cart.map(item => ({
         id: item.id,
         productId: item.id,
@@ -88,6 +105,8 @@ export default function Checkout() {
       })),
       shippingAddress: {
         name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
         line1: formData.address,
         city: formData.city,
         state: formData.state,
@@ -117,6 +136,28 @@ export default function Checkout() {
     setIsOrderPlaced(true);
     clearCart();
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#FFF8EC] py-16 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 text-center space-y-4 animate-in zoom-in-95">
+          <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center mx-auto shadow-sm">
+            <UserCircle className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900">Login Required</h2>
+          <p className="text-xs text-slate-500 font-semibold pb-4 leading-relaxed">
+            To ensure the security of your order and to sync your cart, please log in or create an account to proceed with checkout.
+          </p>
+          <button
+            onClick={() => setIsProfileOpen(true)}
+            className="block w-full py-3.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition-colors"
+          >
+            Log In / Create Account
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!isOrderPlaced && cart.length === 0) {
     return (
@@ -186,18 +227,7 @@ export default function Checkout() {
           </h1>
         </div>
 
-        {/* Step Progress Stepper */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-8 max-w-2xl mx-auto grid grid-cols-3 gap-2 text-center text-xs font-black">
-          <div className={`py-2 rounded-xl transition-colors ${step >= 1 ? 'bg-[#AEE6FF] text-slate-900' : 'bg-slate-100 text-slate-400'}`}>
-            1. Address
-          </div>
-          <div className={`py-2 rounded-xl transition-colors ${step >= 2 ? 'bg-[#AEE6FF] text-slate-900' : 'bg-slate-100 text-slate-400'}`}>
-            2. Shipping
-          </div>
-          <div className={`py-2 rounded-xl transition-colors ${step >= 3 ? 'bg-[#AEE6FF] text-slate-900' : 'bg-slate-100 text-slate-400'}`}>
-            3. Payment
-          </div>
-        </div>
+
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -205,203 +235,183 @@ export default function Checkout() {
           {/* Left Form Columns */}
           <div className="lg:col-span-7 space-y-6">
             
-            {/* Step 1: Shipping Address */}
-            {step === 1 && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 space-y-4">
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[#EF4A45]" /> Shipping Address
-                </h3>
+            {/* Section 1: Contact & Delivery Address */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-4">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <MapPin className="w-5 h-5 text-[#EF4A45]" /> 1. Contact & Delivery
+              </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold text-slate-700">
-                  <div>
-                    <label className="block mb-1">Full Name</label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.fullName ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
-                    />
-                    {errors.fullName && <p className="text-red-500 text-[10px] mt-1">{errors.fullName}</p>}
-                  </div>
-                  <div>
-                    <label className="block mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
-                    />
-                    {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email}</p>}
-                  </div>
-                  <div>
-                    <label className="block mb-1">Phone Number</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
-                    />
-                    {errors.phone && <p className="text-red-500 text-[10px] mt-1">{errors.phone}</p>}
-                  </div>
-                  <div>
-                    <label className="block mb-1">Pincode</label>
-                    <input
-                      type="text"
-                      name="pincode"
-                      value={formData.pincode}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.pincode ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
-                    />
-                    {errors.pincode && <p className="text-red-500 text-[10px] mt-1">{errors.pincode}</p>}
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block mb-1">Flat / House No / Street Address</label>
-                    <input
-                      type="text"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.address ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
-                    />
-                    {errors.address && <p className="text-red-500 text-[10px] mt-1">{errors.address}</p>}
-                  </div>
-                  <div>
-                    <label className="block mb-1">City</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.city ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
-                    />
-                    {errors.city && <p className="text-red-500 text-[10px] mt-1">{errors.city}</p>}
-                  </div>
-                  <div>
-                    <label className="block mb-1">State</label>
-                    <input
-                      type="text"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.state ? 'border-red-500' : 'border-slate-200 focus:border-red-500'} font-bold focus:outline-none`}
-                    />
-                    {errors.state && <p className="text-red-500 text-[10px] mt-1">{errors.state}</p>}
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold text-slate-700">
+                <div>
+                  <label className="block mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.fullName ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                  />
+                  {errors.fullName && <p className="text-red-500 text-[10px] mt-1">{errors.fullName}</p>}
                 </div>
+                <div>
+                  <label className="block mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                  />
+                  {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email}</p>}
+                </div>
+                <div>
+                  <label className="block mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                  />
+                  {errors.phone && <p className="text-red-500 text-[10px] mt-1">{errors.phone}</p>}
+                </div>
+                <div>
+                  <label className="block mb-1">Pincode</label>
+                  <input
+                    type="text"
+                    name="pincode"
+                    value={formData.pincode}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.pincode ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                  />
+                  {errors.pincode && <p className="text-red-500 text-[10px] mt-1">{errors.pincode}</p>}
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block mb-1">Flat / House No / Street Address</label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.address ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                  />
+                  {errors.address && <p className="text-red-500 text-[10px] mt-1">{errors.address}</p>}
+                </div>
+                <div>
+                  <label className="block mb-1">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.city ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                  />
+                  {errors.city && <p className="text-red-500 text-[10px] mt-1">{errors.city}</p>}
+                </div>
+                <div>
+                  <label className="block mb-1">State</label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.state ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                  />
+                  {errors.state && <p className="text-red-500 text-[10px] mt-1">{errors.state}</p>}
+                </div>
+              </div>
+            </div>
 
-                <button
-                  onClick={handleContinueToShipping}
-                  className="w-full mt-4 py-3.5 rounded-full bg-[#EF4A45] text-white font-extrabold text-sm shadow-md hover:bg-red-600 transition-colors"
+            {/* Section 2: Shipping Method */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-4">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <Truck className="w-5 h-5 text-sky-500" /> 2. Delivery Method
+              </h3>
+
+              <div className="space-y-3">
+                <label
+                  onClick={() => setFormData({ ...formData, shippingMethod: 'standard' })}
+                  className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
+                    formData.shippingMethod === 'standard' ? 'border-sky-500 bg-sky-50/50 ring-2 ring-sky-500/30' : 'border-slate-200 bg-slate-50'
+                  }`}
                 >
-                  Continue To Shipping →
-                </button>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.shippingMethod === 'standard' ? 'border-sky-500' : 'border-slate-300'}`}>
+                      {formData.shippingMethod === 'standard' && <div className="w-2.5 h-2.5 rounded-full bg-sky-500" />}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-slate-900 text-sm">Standard Delivery</h4>
+                      <p className="text-xs text-slate-500 font-medium">Delivery in 4-6 business days</p>
+                    </div>
+                  </div>
+                  <span className="font-black text-slate-900 text-sm">{shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}</span>
+                </label>
+
+                <label
+                  onClick={() => setFormData({ ...formData, shippingMethod: 'express' })}
+                  className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
+                    formData.shippingMethod === 'express' ? 'border-[#EF4A45] bg-red-50/50 ring-2 ring-[#EF4A45]/30' : 'border-slate-200 bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.shippingMethod === 'express' ? 'border-[#EF4A45]' : 'border-slate-300'}`}>
+                      {formData.shippingMethod === 'express' && <div className="w-2.5 h-2.5 rounded-full bg-[#EF4A45]" />}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                        Priority Express <span className="bg-amber-400 text-white text-[9px] px-1.5 py-0.5 rounded-md">FAST</span>
+                      </h4>
+                      <p className="text-xs text-slate-500 font-medium">Delivery in 1-2 business days</p>
+                    </div>
+                  </div>
+                  <span className="font-black text-[#EF4A45] text-sm">+₹{expressShippingRate}</span>
+                </label>
               </div>
-            )}
+            </div>
 
-            {/* Step 2: Shipping Method */}
-            {step === 2 && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 space-y-4">
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-sky-600" /> Select Shipping Method
-                </h3>
+            {/* Section 3: Payment Method */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-4">
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <CreditCard className="w-5 h-5 text-emerald-500" /> 3. Payment
+              </h3>
 
-                <div className="space-y-3">
-                  <label
-                    onClick={() => setFormData({ ...formData, shippingMethod: 'express' })}
-                    className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
-                      formData.shippingMethod === 'express' ? 'border-[#EF4A45] bg-red-50/50 ring-2 ring-[#EF4A45]/30' : 'border-slate-200 bg-slate-50'
-                    }`}
-                  >
-                    <div>
-                      <h4 className="font-extrabold text-slate-900 text-sm">Express Delivery (3-4 Days)</h4>
-                      <p className="text-xs text-slate-500 font-medium">Free on orders over ₹999</p>
+              <div className="space-y-3">
+                <label
+                  onClick={() => setFormData({ ...formData, paymentMethod: 'upi' })}
+                  className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
+                    formData.paymentMethod === 'upi' ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/30' : 'border-slate-200 bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.paymentMethod === 'upi' ? 'border-emerald-500' : 'border-slate-300'}`}>
+                      {formData.paymentMethod === 'upi' && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}
                     </div>
-                    <span className="font-black text-slate-900 text-sm">{shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}</span>
-                  </label>
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={() => setStep(1)}
-                    className="w-1/3 py-3 rounded-full bg-slate-100 text-slate-700 font-extrabold text-xs"
-                  >
-                    ← Back
-                  </button>
-                  <button
-                    onClick={() => setStep(3)}
-                    className="w-2/3 py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md hover:bg-red-600"
-                  >
-                    Continue To Payment →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Payment Method */}
-            {step === 3 && (
-              <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 space-y-4">
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-emerald-600" /> Choose Payment Option
-                </h3>
-
-                <div className="space-y-3">
-                  <label
-                    onClick={() => setFormData({ ...formData, paymentMethod: 'upi' })}
-                    className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
-                      formData.paymentMethod === 'upi' ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/30' : 'border-slate-200 bg-slate-50'
-                    }`}
-                  >
                     <div>
-                      <h4 className="font-extrabold text-slate-900 text-sm">Instant UPI / GPay / PhonePe / Paytm</h4>
-                      <p className="text-xs text-slate-500 font-medium">Fast & 100% Secure Instant Payment</p>
+                      <h4 className="font-extrabold text-slate-900 text-sm">Instant UPI / Cards</h4>
+                      <p className="text-xs text-slate-500 font-medium">GPay, PhonePe, Paytm, Visa, Mastercard</p>
                     </div>
-                    <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-2.5 py-0.5 rounded-full">Recommended</span>
-                  </label>
+                  </div>
+                  <span className="text-xs font-black text-emerald-600 bg-emerald-100 px-2.5 py-0.5 rounded-full">Secure</span>
+                </label>
 
-                  <label
-                    onClick={() => setFormData({ ...formData, paymentMethod: 'card' })}
-                    className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
-                      formData.paymentMethod === 'card' ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/30' : 'border-slate-200 bg-slate-50'
-                    }`}
-                  >
-                    <div>
-                      <h4 className="font-extrabold text-slate-900 text-sm">Credit / Debit Card</h4>
-                      <p className="text-xs text-slate-500 font-medium">Visa, Mastercard, RuPay</p>
+                <label
+                  onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })}
+                  className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
+                    formData.paymentMethod === 'cod' ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/30' : 'border-slate-200 bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.paymentMethod === 'cod' ? 'border-emerald-500' : 'border-slate-300'}`}>
+                      {formData.paymentMethod === 'cod' && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}
                     </div>
-                  </label>
-
-                  <label
-                    onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })}
-                    className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${
-                      formData.paymentMethod === 'cod' ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/30' : 'border-slate-200 bg-slate-50'
-                    }`}
-                  >
                     <div>
-                      <h4 className="font-extrabold text-slate-900 text-sm">Cash On Delivery (COD)</h4>
+                      <h4 className="font-extrabold text-slate-900 text-sm">Cash On Delivery</h4>
                       <p className="text-xs text-slate-500 font-medium">Pay cash upon parcel arrival</p>
                     </div>
-                  </label>
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={() => setStep(2)}
-                    className="w-1/3 py-3 rounded-full bg-slate-100 text-slate-700 font-extrabold text-xs"
-                  >
-                    ← Back
-                  </button>
-                  <button
-                    onClick={handlePlaceOrder}
-                    className="w-2/3 py-3.5 rounded-full bg-linear-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm shadow-xl hover:scale-102 transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <ShieldCheck className="w-5 h-5" /> Pay & Place Order (₹{cartGrandTotal})
-                  </button>
-                </div>
+                  </div>
+                </label>
               </div>
-            )}
+            </div>
 
           </div>
 
@@ -436,14 +446,31 @@ export default function Checkout() {
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span>Shipping Charges</span>
+                  <span>Standard Shipping</span>
                   <span className="text-slate-900 font-black">{shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}</span>
                 </div>
+                {formData.shippingMethod === 'express' && (
+                  <div className="flex justify-between">
+                    <span>Priority Express</span>
+                    <span className="text-[#EF4A45] font-black">+₹{expressShippingRate}</span>
+                  </div>
+                )}
                 <div className="flex justify-between pt-2 border-t border-slate-100 text-base font-black text-slate-900">
                   <span>Total Payable</span>
-                  <span className="text-[#EF4A45]">₹{cartGrandTotal}</span>
+                  <span className="text-[#EF4A45]">₹{formData.shippingMethod === 'express' ? cartGrandTotal + expressShippingRate : cartGrandTotal}</span>
                 </div>
               </div>
+
+              <button
+                onClick={() => {
+                  if (validateStep1()) {
+                    handlePlaceOrder();
+                  }
+                }}
+                className="w-full mt-4 py-4 rounded-2xl bg-linear-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm shadow-xl hover:scale-102 transition-all flex items-center justify-center gap-1.5"
+              >
+                <ShieldCheck className="w-5 h-5" /> Pay & Place Order (₹{formData.shippingMethod === 'express' ? cartGrandTotal + expressShippingRate : cartGrandTotal})
+              </button>
 
               <div className="p-3 rounded-2xl bg-amber-50 border border-amber-100 text-[11px] font-bold text-slate-600 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" /> 100% Buyer Protection & Money Back Guarantee

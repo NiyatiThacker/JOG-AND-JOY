@@ -37,7 +37,6 @@ import AdminInventory from './pages/admin/AdminInventory';
 import AdminPromotions from './pages/admin/AdminPromotions';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminReviews from './pages/admin/AdminReviews';
-import AdminShipping from './pages/admin/AdminShipping';
 import AdminMessages from './pages/admin/AdminMessages';
 import AdminFinancials from './pages/admin/AdminFinancials';
 
@@ -72,7 +71,7 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden relative bg-[#FFF8EC] text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
+    <div className="min-h-screen w-full relative bg-white text-slate-800 flex flex-col font-sans selection:bg-[#AEE6FF] selection:text-slate-900 pb-16 md:pb-0">
       <AnnouncementBar />
       <Navbar onOpenProfile={() => setIsProfileOpen(true)} />
 
@@ -85,7 +84,7 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
       )}
       
       <div className="grow">
-        <Outlet />
+        <Outlet context={{ setIsProfileOpen, setIsLiveChatOpen }} />
       </div>
 
       <Footer />
@@ -122,25 +121,6 @@ export default function App() {
                   <Route path="promotions" element={<AdminPromotions />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="reviews" element={<AdminReviews />} />
-                  <Route path="shipping" element={<AdminShipping />} />
-                  <Route path="messages" element={<AdminMessages />} />
-                  <Route path="financials" element={<AdminFinancials />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
-              </Route>
-
-              {/* Admin Routes - Completely Isolated */}
-              <Route path="/admin" element={<AdminRoute />}>
-                <Route element={<AdminLayout />}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="customers" element={<AdminCustomers />} />
-                  <Route path="inventory" element={<AdminInventory />} />
-                  <Route path="promotions" element={<AdminPromotions />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="reviews" element={<AdminReviews />} />
-                  <Route path="shipping" element={<AdminShipping />} />
                   <Route path="messages" element={<AdminMessages />} />
                   <Route path="financials" element={<AdminFinancials />} />
                   <Route path="settings" element={<AdminSettings />} />
