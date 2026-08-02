@@ -96,7 +96,6 @@ function StoreLayout({ isLiveChatOpen, setIsLiveChatOpen, isProfileOpen, setIsPr
 
 import { AuthProvider } from './context/AuthContext';
 import AdminRoute from './components/layout/AdminRoute';
-import CartoonCursor from './components/ui/CartoonCursor';
 
 export default function App() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -107,7 +106,6 @@ export default function App() {
       <CartProvider>
         <WishlistProvider>
           <Router>
-            <CartoonCursor />
             <ScrollToTop />
             <Routes>
               {/* Admin Routes - Completely Isolated */}
