@@ -241,8 +241,8 @@ export default function AdminProducts() {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     
-    if (formData.images.length + files.length > 5) {
-      alert("Maximum 5 pictures allowed. Please select fewer images.");
+    if (formData.images.length + files.length > 7) {
+      alert("Maximum 7 pictures allowed. Please select fewer images.");
       e.target.value = '';
       return;
     }
@@ -262,8 +262,8 @@ export default function AdminProducts() {
 
   const handleAddImageUrl = () => {
     if (!imageUrlInput.trim()) return;
-    if (formData.images.length >= 5) {
-      alert("Maximum 5 pictures allowed.");
+    if (formData.images.length >= 7) {
+      alert("Maximum 7 pictures allowed.");
       return;
     }
     setFormData(prev => ({ ...prev, images: [...prev.images, imageUrlInput.trim()] }));
@@ -445,7 +445,7 @@ export default function AdminProducts() {
 
             <div className="md:col-span-3">
               <label className="block text-sm font-bold text-text-muted mb-2">
-                Product Images (Max 5) <span className="font-normal text-xs ml-2 text-slate-400">First image is the Main Picture</span>
+                Product Images (Max 7) <span className="font-normal text-xs ml-2 text-slate-400">First image is the Main Picture</span>
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
@@ -457,7 +457,7 @@ export default function AdminProducts() {
                     multiple 
                     accept="image/*" 
                     onChange={handleImageUpload} 
-                    disabled={formData.images.length >= 5}
+                    disabled={formData.images.length >= 7}
                     className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:border-blue-600 outline-none file:mr-4      file:font-bold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 disabled:opacity-50 transition-all text-sm" 
                   />
                 </div>
@@ -471,13 +471,13 @@ export default function AdminProducts() {
                       value={imageUrlInput}
                       onChange={(e) => setImageUrlInput(e.target.value)}
                       placeholder="https://example.com/image.jpg"
-                      disabled={formData.images.length >= 5}
+                      disabled={formData.images.length >= 7}
                       className="grow px-4 py-2 border border-slate-200 rounded-xl focus:border-blue-600 outline-none disabled:opacity-50 text-sm" 
                     />
                     <button 
                       type="button" 
                       onClick={handleAddImageUrl}
-                      disabled={formData.images.length >= 5 || !imageUrlInput.trim()}
+                      disabled={formData.images.length >= 7 || !imageUrlInput.trim()}
                       className="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 flex items-center gap-1 shrink-0 text-sm transition-colors"
                     >
                       <LinkIcon className="w-4 h-4" /> Add

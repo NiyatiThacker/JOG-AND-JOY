@@ -80,7 +80,7 @@ export default function Products({ pageCategory = null }) {
   }, [selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
 
   return (
-    <div className="min-h-screen bg-[#FFF8EC] pb-20">
+    <div className="min-h-screen bg-white pb-20">
       
       {/* Kids Hero Section */}
       {pageCategory === 'Kids' && <CategoryHero />}

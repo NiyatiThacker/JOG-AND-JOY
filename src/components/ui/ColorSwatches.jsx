@@ -11,7 +11,7 @@ const defaultColors = [
 export default function ColorSwatches({ selectedColor, onSelectColor, colors = defaultColors }) {
   return (
     <div className="space-y-2">
-      <div className="text-xs font-bold text-slate-700">COLOR OPTIONS</div>
+      <div className="text-[15px] font-semibold text-black">Colour</div>
       <div className="flex items-center space-x-2.5">
         {colors.map((c) => {
           const isSelected = selectedColor === c.hex;
