@@ -221,7 +221,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
-                setFormData({ name: '', email: '', password: '' });
+                setFormData({ name: '', email: '', password: '', phone: '', address: '' });
               }}
               className="text-[#EF4A45] hover:underline font-bold"
             >
