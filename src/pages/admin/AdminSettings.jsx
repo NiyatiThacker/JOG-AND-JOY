@@ -54,7 +54,7 @@ export default function AdminSettings() {
         </button>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-[700px]">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-175">
         
         {/* Vertical Tabs */}
         <div className="w-full md:w-64 shrink-0 bg-zinc-50/50 border-r border-slate-200 p-4 space-y-1">
@@ -88,11 +88,11 @@ export default function AdminSettings() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Store Name</label>
-                        <input type="text" value={formData.storeName || ''} onChange={e => setFormData({...formData, storeName: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 focus:bg-white outline-none" />
+                        <input type="text" value={formData.storeName || ''} onChange={e => setFormData({...formData, storeName: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 focus:bg-white outline-none" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Contact Email</label>
-                        <input type="email" value={formData.contactEmail || ''} onChange={e => setFormData({...formData, contactEmail: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 focus:bg-white outline-none" />
+                        <input type="email" value={formData.contactEmail || ''} onChange={e => setFormData({...formData, contactEmail: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 focus:bg-white outline-none" />
                       </div>
                     </div>
                   </section>
@@ -102,7 +102,7 @@ export default function AdminSettings() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Currency</label>
-                        <select value={formData.currency || ''} onChange={e => setFormData({...formData, currency: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none">
+                        <select value={formData.currency || ''} onChange={e => setFormData({...formData, currency: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none">
                           <option value="INR">INR (₹)</option>
                           <option value="USD">USD ($)</option>
                           <option value="EUR">EUR (€)</option>
@@ -110,21 +110,21 @@ export default function AdminSettings() {
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Timezone</label>
-                        <select value={formData.timezone || ''} onChange={e => setFormData({...formData, timezone: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none">
+                        <select value={formData.timezone || ''} onChange={e => setFormData({...formData, timezone: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none">
                           <option value="Asia/Kolkata">Asia/Kolkata</option>
                           <option value="UTC">UTC</option>
                         </select>
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Weight Unit</label>
-                        <select value={formData.weightUnit || 'kg'} onChange={e => setFormData({...formData, weightUnit: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none">
+                        <select value={formData.weightUnit || 'kg'} onChange={e => setFormData({...formData, weightUnit: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none">
                           <option value="kg">Kilograms (kg)</option>
                           <option value="lb">Pounds (lb)</option>
                         </select>
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Dimension Unit</label>
-                        <select value={formData.dimensionUnit || 'cm'} onChange={e => setFormData({...formData, dimensionUnit: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none">
+                        <select value={formData.dimensionUnit || 'cm'} onChange={e => setFormData({...formData, dimensionUnit: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none">
                           <option value="cm">Centimeters (cm)</option>
                           <option value="in">Inches (in)</option>
                         </select>
@@ -157,11 +157,11 @@ export default function AdminSettings() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Order Edit Window (Hours)</label>
-                        <input type="number" value={formData.orderEditWindowHours || 0} onChange={e => setFormData({...formData, orderEditWindowHours: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none" />
+                        <input type="number" value={formData.orderEditWindowHours || 0} onChange={e => setFormData({...formData, orderEditWindowHours: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Abandoned Cart Trigger (Hours)</label>
-                        <input type="number" value={formData.abandonedCartThresholdHours || 4} onChange={e => setFormData({...formData, abandonedCartThresholdHours: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none" />
+                        <input type="number" value={formData.abandonedCartThresholdHours || 4} onChange={e => setFormData({...formData, abandonedCartThresholdHours: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none" />
                       </div>
                     </div>
                   </section>
@@ -175,15 +175,15 @@ export default function AdminSettings() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Base Standard Rate (₹)</label>
-                        <input type="number" value={formData.baseShippingRate ?? 99} onChange={e => setFormData({...formData, baseShippingRate: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none" />
+                        <input type="number" value={formData.baseShippingRate ?? 99} onChange={e => setFormData({...formData, baseShippingRate: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Free Shipping Threshold (₹)</label>
-                        <input type="number" value={formData.freeShippingThreshold ?? 999} onChange={e => setFormData({...formData, freeShippingThreshold: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none" />
+                        <input type="number" value={formData.freeShippingThreshold ?? 999} onChange={e => setFormData({...formData, freeShippingThreshold: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Express Delivery Add-on (₹)</label>
-                        <input type="number" value={formData.expressShippingRate ?? 149} onChange={e => setFormData({...formData, expressShippingRate: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none" />
+                        <input type="number" value={formData.expressShippingRate ?? 149} onChange={e => setFormData({...formData, expressShippingRate: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none" />
                       </div>
                     </div>
                   </section>
@@ -197,14 +197,14 @@ export default function AdminSettings() {
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Tax Mode</label>
-                        <select value={formData.taxMode || 'exclusive'} onChange={e => setFormData({...formData, taxMode: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none">
+                        <select value={formData.taxMode || 'exclusive'} onChange={e => setFormData({...formData, taxMode: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none">
                           <option value="exclusive">Prices exclude tax (Added at checkout)</option>
                           <option value="inclusive">Prices include tax</option>
                         </select>
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Base Tax Rate (%)</label>
-                        <input type="number" value={formData.taxRatePercent || 0} onChange={e => setFormData({...formData, taxRatePercent: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:border-blue-600 outline-none" />
+                        <input type="number" value={formData.taxRatePercent || 0} onChange={e => setFormData({...formData, taxRatePercent: Number(e.target.value)})} className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-zinc-50 focus:ring-1 focus:ring-blue-600 outline-none" />
                       </div>
                     </div>
                     <label className="flex items-center gap-3 cursor-pointer mt-4">

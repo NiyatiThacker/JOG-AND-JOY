@@ -43,17 +43,17 @@ export default function LimitedTimeOffers() {
             
             {/* Clock Boxes */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex flex-col items-center bg-white/20 backdrop-blur-md p-2 sm:p-3.5 rounded-xl sm:rounded-2xl min-w-[50px] sm:min-w-[70px] border border-white/30">
+              <div className="flex flex-col items-center bg-white/20 backdrop-blur-md p-2 sm:p-3.5 rounded-xl sm:rounded-2xl min-w-12.5 sm:min-w-17.5 border border-white/30">
                 <span className="text-xl sm:text-3xl font-black">{String(timeLeft.hours).padStart(2, '0')}</span>
                 <span className="text-[8px] sm:text-[10px] uppercase font-bold text-white/80">Hours</span>
               </div>
               <span className="text-xl sm:text-2xl font-black">:</span>
-              <div className="flex flex-col items-center bg-white/20 backdrop-blur-md p-2 sm:p-3.5 rounded-xl sm:rounded-2xl min-w-[50px] sm:min-w-[70px] border border-white/30">
+              <div className="flex flex-col items-center bg-white/20 backdrop-blur-md p-2 sm:p-3.5 rounded-xl sm:rounded-2xl min-w-12.5 sm:min-w-17.5 border border-white/30">
                 <span className="text-xl sm:text-3xl font-black">{String(timeLeft.minutes).padStart(2, '0')}</span>
                 <span className="text-[8px] sm:text-[10px] uppercase font-bold text-white/80">Mins</span>
               </div>
               <span className="text-xl sm:text-2xl font-black">:</span>
-              <div className="flex flex-col items-center bg-white/20 backdrop-blur-md p-2 sm:p-3.5 rounded-xl sm:rounded-2xl min-w-[50px] sm:min-w-[70px] border border-white/30">
+              <div className="flex flex-col items-center bg-white/20 backdrop-blur-md p-2 sm:p-3.5 rounded-xl sm:rounded-2xl min-w-12.5 sm:min-w-17.5 border border-white/30">
                 <span className="text-xl sm:text-3xl font-black">{String(timeLeft.seconds).padStart(2, '0')}</span>
                 <span className="text-[8px] sm:text-[10px] uppercase font-bold text-white/80">Secs</span>
               </div>

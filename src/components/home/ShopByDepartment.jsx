@@ -6,6 +6,7 @@ import newArrivalsDesktop from '../../assets/new-arrivals-desktop-custom.png';
 import allProductsCustom from '../../assets/all-products-custom.jpg';
 import allProductsDesktop from '../../assets/all-products-desktop.png';
 import kidsWearMobile from '../../assets/kids-wear-mobile.png';
+import kidsWearTab from '../../assets/kids-wear-tab.jpg';
 import kidsWearDesktop from '../../assets/kids-wear-desktop.png';
 
 const departments = [
@@ -25,6 +26,7 @@ const departments = [
     title: 'Kids Wear',
     link: '/kids',
     image: kidsWearMobile,
+    tabImage: kidsWearTab,
     desktopImage: kidsWearDesktop
   },
   {
@@ -44,8 +46,10 @@ export default function ShopByDepartment() {
               className="sbd-figure"
               style={{
                 '--bg-mobile': `url(${dept.image})`,
+                '--bg-tab': dept.tabImage ? `url(${dept.tabImage})` : `url(${dept.desktopImage || dept.image})`,
                 '--bg-desktop': `url(${dept.desktopImage || dept.image})`,
                 '--bg-pos-desktop': dept.title === 'New Arrival' ? 'center 20%' : (dept.title === 'All Products' ? 'center 25%' : (dept.title === 'Kids Wear' ? 'center 25%' : 'center')),
+                '--bg-pos-tab': dept.title === 'Kids Wear' ? 'center 60px' : 'center',
                 '--bg-pos-mobile': 'center'
               }}
             >

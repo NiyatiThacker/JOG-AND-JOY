@@ -89,7 +89,7 @@ export default function AdminMessages() {
                 placeholder="Search messages..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-zinc-50 focus:outline-none focus:bg-white focus:border-blue-600 text-sm transition-colors"
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-zinc-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-600 text-sm transition-colors"
               />
             </div>
             <div className="flex bg-zinc-100 p-1 rounded-xl">
@@ -205,7 +205,7 @@ export default function AdminMessages() {
 
               {/* Reply Box */}
               <div className="p-4 border-t border-slate-200 bg-white shrink-0">
-                <div className="border border-slate-200 rounded-xl overflow-hidden focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 transition-shadow">
+                <div className="border border-slate-200 rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-blue-600 focus-within:ring-1 focus-within:ring-blue-600 transition-shadow">
                   <div className="flex items-center gap-2 p-2 border-b border-slate-200 bg-zinc-50">
                     <button onClick={handleInsertCanned} className="p-1.5 text-zinc-500 hover:text-text-dark hover:bg-zinc-200 rounded-lg" title="Insert Canned Response"><FileTerminal className="w-4 h-4" /></button>
                     <label className="flex items-center gap-1.5 ml-auto text-xs font-bold text-zinc-500 cursor-pointer">

@@ -46,6 +46,13 @@
 
 @media (min-width: 768px) {
   .sbd-figure {
+    background-image: var(--bg-tab, var(--bg-desktop, var(--bg-mobile)));
+    background-position: var(--bg-pos-tab, center);
+  }
+}
+
+@media (min-width: 1024px) {
+  .sbd-figure {
     background-image: var(--bg-desktop, var(--bg-mobile));
     background-position: var(--bg-pos-desktop, center);
   }

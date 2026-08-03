@@ -66,7 +66,7 @@ export default function WhyChooseUs() {
         {/* MOBILE VIEW: Full Image Banner */}
         <div className="sm:hidden relative mt-6 mb-2">
           
-          <div className="rounded-[32px] overflow-hidden shadow-2xl border-4 border-[#A5B890]/30 bg-[#A5B890]">
+          <div className="rounded-4xl overflow-hidden shadow-2xl border-4 border-[#A5B890]/30 bg-[#A5B890]">
             <img
               src={whyChooseUsMobile}
               alt="Why Choose Us"

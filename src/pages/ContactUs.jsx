@@ -625,7 +625,7 @@ export default function ContactUs() {
                       value={formData.name}
                       onChange={handleChange}
                       error={errors.name}
-                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:ring-1 focus:ring-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                     />
                   </div>
 
@@ -642,7 +642,7 @@ export default function ContactUs() {
                       value={formData.mobile}
                       onChange={handleChange}
                       error={errors.mobile}
-                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:ring-1 focus:ring-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                     />
                   </div>
                 </div>
@@ -662,7 +662,7 @@ export default function ContactUs() {
                       value={formData.email}
                       onChange={handleChange}
                       error={errors.email}
-                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                      className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:ring-1 focus:ring-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                     />
                   </div>
 
@@ -693,7 +693,7 @@ export default function ContactUs() {
                     value={formData.comment}
                     onChange={handleChange}
                     error={errors.comment}
-                    className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
+                    className="bg-white border-2 border-orange-200/80 rounded-2xl text-slate-900 font-bold placeholder-slate-400 focus:ring-1 focus:ring-orange-500 focus:ring-4 focus:ring-[#FF5500]/15 shadow-sm text-sm py-3.5"
                   />
                 </div>
 
@@ -735,7 +735,7 @@ export default function ContactUs() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* Left Tall Card: Head Office Flagship */}
-          <div className="lg:col-span-6 relative rounded-3xl overflow-hidden min-h-[420px] bg-slate-900 group shadow-xl border-4 border-white">
+          <div className="lg:col-span-6 relative rounded-3xl overflow-hidden min-h-105 bg-slate-900 group shadow-xl border-4 border-white">
             <img 
               src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop" 
               alt="Hoodie Collection Flagship Store" 
@@ -843,7 +843,7 @@ export default function ContactUs() {
             {[...testimonials, ...testimonials, ...testimonials].map((item, idx) => (
               <div 
                 key={idx}
-                className="w-[340px] sm:w-[440px] bg-white p-8 rounded-[2.5rem] border-2 border-orange-200/80 shadow-md hover:shadow-2xl hover:border-[#FF5500] transition-all duration-300 flex flex-col justify-between space-y-6 shrink-0 group text-left"
+                className="w-85 sm:w-110 bg-white p-8 rounded-[2.5rem] border-2 border-orange-200/80 shadow-md hover:shadow-2xl hover:border-[#FF5500] transition-all duration-300 flex flex-col justify-between space-y-6 shrink-0 group text-left"
               >
                 <div className="flex items-center justify-between">
                   <div className="text-4xl font-serif text-[#FF5500] opacity-80 leading-none group-hover:scale-110 transition-transform">“</div>
@@ -894,7 +894,7 @@ export default function ContactUs() {
         </div>
 
         {/* Video Player Box */}
-        <div className="relative w-full h-[400px] sm:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl group border-4 border-white">
+        <div className="relative w-full h-100 sm:h-125 rounded-[2.5rem] overflow-hidden shadow-2xl group border-4 border-white">
           <img 
             src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop" 
             alt="Jog and Joy Brand Story" 

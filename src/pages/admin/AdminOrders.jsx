@@ -34,8 +34,12 @@ export default function AdminOrders() {
   }, [searchParams, data, view]);
 
   const filters = {};
-  if (['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'ON_HOLD'].includes(activeTab)) {
-    filters.status = activeTab;
+  if (['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'ON_HOLD', 'RETURNS'].includes(activeTab)) {
+    if (activeTab === 'RETURNS') {
+      filters.returns = true;
+    } else {
+      filters.status = activeTab;
+    }
   }
   if (search) filters.search = search;
   
@@ -47,6 +51,9 @@ export default function AdminOrders() {
       if (filters.search) {
         const q = filters.search.toLowerCase();
         if (!JSON.stringify(o).toLowerCase().includes(q)) matches = false;
+      }
+      if (filters.returns && !['RETURN_REQUESTED', 'EXCHANGE_REQUESTED', 'RETURN_APPROVED', 'EXCHANGE_APPROVED', 'RETURN_REJECTED'].includes(o.status)) {
+        matches = false;
       }
       return matches;
     });
@@ -98,12 +105,23 @@ export default function AdminOrders() {
     if (selectedOrder) {
       const historyEntry = { status: newStatus, timestamp: new Date().toISOString(), note: 'Status updated by admin' };
       
+      const patchData = { 
+        status: newStatus,
+        statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
+      };
+
+      // Auto-sync payment status based on the new lifecycle state
+      if (newStatus === 'DELIVERED') {
+        patchData.paymentStatus = 'paid';
+      } else if (newStatus === 'RETURN_APPROVED' || newStatus === 'REFUNDED') {
+        patchData.paymentStatus = 'refunded';
+      } else if (newStatus === 'CANCELLED') {
+        patchData.paymentStatus = selectedOrder.paymentStatus === 'paid' ? 'refunded' : 'cancelled';
+      }
+      
       updateMut.mutate({ 
         id: selectedOrder.id, 
-        patch: { 
-          status: newStatus,
-          statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
-        } 
+        patch: patchData 
       }, {
         onSuccess: (updated) => {
           setSelectedOrder(updated);
@@ -251,8 +269,10 @@ export default function AdminOrders() {
               <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-md ${
                 o.status === 'DELIVERED' ? 'bg-success/15 text-success-dark' : 
                 o.status === 'SHIPPED' ? 'bg-info/15 text-info-dark' : 
-                o.status === 'CANCELLED' ? 'bg-error/10 text-error' : 
-                o.status === 'ON_HOLD' ? 'bg-warning/15 text-warning-dark' : 'bg-zinc-200 text-zinc-600'
+                ['CANCELLED', 'RETURN_REJECTED'].includes(o.status) ? 'bg-error/10 text-error' : 
+                ['ON_HOLD', 'RETURN_REQUESTED', 'EXCHANGE_REQUESTED'].includes(o.status) ? 'bg-warning/15 text-warning-dark' : 
+                ['RETURN_APPROVED', 'EXCHANGE_APPROVED'].includes(o.status) ? 'bg-purple-100 text-purple-700' :
+                'bg-zinc-200 text-zinc-600'
               }`}>
                 {o.status.replace('_', ' ')}
               </span>
@@ -280,7 +300,7 @@ export default function AdminOrders() {
                 <FileText className="w-4 h-4" />
                 Print Packing Slip
               </button>
-              {!['DELIVERED', 'CANCELLED', 'REFUNDED'].includes(o.status) && (
+              {!['DELIVERED', 'CANCELLED', 'REFUNDED', 'RETURN_APPROVED', 'EXCHANGE_APPROVED', 'RETURN_REJECTED'].includes(o.status) && (
                 <div className="relative">
                   <button 
                     onClick={() => setIsMenuOpen(!isMenuOpen)} 
@@ -315,6 +335,46 @@ export default function AdminOrders() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
+            {/* Return Request Banner */}
+            {o.returnRequest && (
+              <div className={`border rounded-2xl p-5 ${
+                o.status === 'RETURN_REQUESTED' || o.status === 'EXCHANGE_REQUESTED' 
+                  ? 'bg-amber-50 border-amber-200'
+                  : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900 flex items-center gap-2 mb-1">
+                      <ShieldAlert className={`w-5 h-5 ${o.status.includes('REQUESTED') ? 'text-amber-600' : 'text-slate-500'}`} />
+                      {o.returnRequest.type === 'RETURN' ? 'Refund' : 'Exchange'} Request
+                    </h2>
+                    <p className="text-sm font-bold text-slate-700">Reason: <span className="text-slate-900 font-medium">{o.returnRequest.reason}</span></p>
+                    {o.returnRequest.comments && (
+                      <p className="text-sm text-slate-600 mt-2 italic">"{o.returnRequest.comments}"</p>
+                    )}
+                  </div>
+                  
+                  {/* Action Buttons for Pending Requests */}
+                  {(o.status === 'RETURN_REQUESTED' || o.status === 'EXCHANGE_REQUESTED') && (
+                    <div className="flex flex-col gap-2 shrink-0 ml-4">
+                      <button 
+                        onClick={() => handleStatusChange(o.returnRequest.type === 'RETURN' ? 'RETURN_APPROVED' : 'EXCHANGE_APPROVED')}
+                        className="px-4 py-2 bg-green-600 text-white font-bold rounded-xl text-sm hover:bg-green-700 transition-colors"
+                      >
+                        Approve {o.returnRequest.type}
+                      </button>
+                      <button 
+                        onClick={() => handleStatusChange('RETURN_REJECTED')}
+                        className="px-4 py-2 bg-white border border-red-200 text-red-600 font-bold rounded-xl text-sm hover:bg-red-50 transition-colors"
+                      >
+                        Reject Request
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Line Items */}
             <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden p-6">
               <h2 className="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
@@ -402,7 +462,7 @@ export default function AdminOrders() {
                   type="text" 
                   placeholder="Enter tracking number..."
                   defaultValue={o.shippingAddress?.trackingNumber || ''}
-                  className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+                  className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
                 <button 
                   onClick={() => {
@@ -452,7 +512,7 @@ export default function AdminOrders() {
             {/* Tags & Risk */}
             <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all p-6">
               <h2 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3">Tags</h2>
-              <input type="text" placeholder="Add a tag and press Enter..." onKeyDown={handleTagAdd} className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-green-500 mb-2" />
+              <input type="text" placeholder="Add a tag and press Enter..." onKeyDown={handleTagAdd} className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-500 mb-2" />
               <div className="flex flex-wrap gap-2">
                 {o.tags?.map(t => <span key={t} className="px-2 py-1 bg-zinc-100 rounded text-xs font-bold text-text-muted">{t}</span>)}
               </div>
@@ -474,25 +534,25 @@ export default function AdminOrders() {
               <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-text-muted mb-1">Customer Name</label>
-                  <input required type="text" value={editFormData.name || ''} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                  <input required type="text" value={editFormData.name || ''} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-text-muted mb-1">Address</label>
-                  <input required type="text" value={editFormData.line1 || ''} onChange={e => setEditFormData({...editFormData, line1: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                  <input required type="text" value={editFormData.line1 || ''} onChange={e => setEditFormData({...editFormData, line1: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-text-muted mb-1">City</label>
-                    <input required type="text" value={editFormData.city || ''} onChange={e => setEditFormData({...editFormData, city: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                    <input required type="text" value={editFormData.city || ''} onChange={e => setEditFormData({...editFormData, city: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-text-muted mb-1">State</label>
-                    <input required type="text" value={editFormData.state || ''} onChange={e => setEditFormData({...editFormData, state: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                    <input required type="text" value={editFormData.state || ''} onChange={e => setEditFormData({...editFormData, state: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-text-muted mb-1">Pincode</label>
-                  <input required type="text" value={editFormData.postalCode || ''} onChange={e => setEditFormData({...editFormData, postalCode: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                  <input required type="text" value={editFormData.postalCode || ''} onChange={e => setEditFormData({...editFormData, postalCode: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                 </div>
                 <div className="pt-4 flex gap-3">
                   <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 py-2.5 border border-slate-200 text-text-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
@@ -528,9 +588,9 @@ export default function AdminOrders() {
   const allOrders = data?.data || [];
   const totalOrders = allOrders.length;
   const pendingOrders = allOrders.filter(o => o.status === 'PROCESSING' || o.status === 'PENDING').length;
-  const shippedOrders = allOrders.filter(o => o.status === 'SHIPPED').length;
+  const returnRequests = allOrders.filter(o => o.status === 'RETURN_REQUESTED' || o.status === 'EXCHANGE_REQUESTED').length;
   const totalRevenue = allOrders
-    .filter(o => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
+    .filter(o => !['CANCELLED', 'REFUNDED', 'RETURN_APPROVED'].includes(o.status))
     .reduce((sum, o) => sum + (o.total || 0), 0);
 
   // LIST VIEW
@@ -558,9 +618,10 @@ export default function AdminOrders() {
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Processing</p>
           <p className="text-3xl font-extrabold text-warning-dark">{pendingOrders}</p>
         </div>
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Shipped</p>
-          <p className="text-3xl font-extrabold text-info-dark">{shippedOrders}</p>
+        <div className="bg-white border border-amber-200 bg-amber-50 rounded-xl p-6 shadow-sm transition-all relative overflow-hidden">
+          {returnRequests > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full animate-pulse m-4"></span>}
+          <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2">Returns / Exchanges</p>
+          <p className="text-3xl font-extrabold text-amber-900">{returnRequests}</p>
         </div>
         <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Revenue</p>
@@ -577,6 +638,7 @@ export default function AdminOrders() {
               { id: 'PROCESSING', label: 'Processing' },
               { id: 'SHIPPED', label: 'Shipped' },
               { id: 'DELIVERED', label: 'Delivered' },
+              { id: 'RETURNS', label: 'Returns & Exchanges' },
               { id: 'CANCELLED', label: 'Cancelled' },
               { id: 'ON_HOLD', label: 'On Hold' }
             ].map(tab => (
@@ -601,7 +663,7 @@ export default function AdminOrders() {
             placeholder="Search orders..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-green-500 text-sm transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-green-500 text-sm transition-colors"
           />
         </div>
       </div>
@@ -666,7 +728,7 @@ export default function AdminOrders() {
                                     statusHistory: [...(order.statusHistory || []), historyEntry]
                                   } 
                                 }, {
-                                  onSuccess: () => showToast(`Order ${order.id} marked as ${newStatus}`)
+                                  onSuccess: () => addToast(`Order ${order.id} marked as ${newStatus}`, 'success')
                                 });
                               }}
                               className={`inline-flex items-center px-2.5 py-1.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border-none outline-none focus:ring-2 focus:ring-blue-600/50 pr-6 ${

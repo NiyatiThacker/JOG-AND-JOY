@@ -11,7 +11,7 @@ export default function ToastContainer({ toasts, removeToast, position = 'bottom
   };
 
   return (
-    <div className={`fixed z-[100] flex flex-col gap-3 pointer-events-none ${positionClasses[position]}`}>
+    <div className={`fixed z-100 flex flex-col gap-3 pointer-events-none ${positionClasses[position]}`}>
       <AnimatePresence>
         {toasts.map((toast) => {
           const isError = toast.type === 'error';
@@ -24,7 +24,7 @@ export default function ToastContainer({ toasts, removeToast, position = 'bottom
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
               layout
-              className={`pointer-events-auto flex items-start gap-3 min-w-[280px] max-w-[380px] p-4 rounded-2xl shadow-xl shadow-black/5 border backdrop-blur-md ${
+              className={`pointer-events-auto flex items-start gap-3 min-w-70 max-w-95 p-4 rounded-2xl shadow-xl shadow-black/5 border backdrop-blur-md ${
                 isError 
                   ? 'bg-red-50/95 border-red-200 text-red-900' 
                   : isInfo

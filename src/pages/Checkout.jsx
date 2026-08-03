@@ -39,9 +39,37 @@ export default function Checkout() {
     paymentMethod: 'upi' // 'upi' | 'card' | 'cod'
   });
 
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [showManualAddress, setShowManualAddress] = useState(true);
+
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState(null);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || ''
+      }));
+      
+      const addresses = user.addresses || (user.address ? [{ id: 'legacy-1', label: 'Home', line1: user.address, isDefault: true }] : []);
+      if (addresses.length > 0) {
+        const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+        setSelectedAddressId(defaultAddr.id);
+        setShowManualAddress(false);
+        setFormData(prev => ({
+          ...prev,
+          address: defaultAddr.line1,
+          city: defaultAddr.city || '',
+          state: defaultAddr.state || '',
+          pincode: defaultAddr.postalCode || ''
+        }));
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -60,13 +88,31 @@ export default function Checkout() {
     if (!formData.fullName.trim()) newErrors.fullName = 'Full Name is required';
     if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Valid Email is required';
     if (!formData.phone.trim() || formData.phone.length < 10) newErrors.phone = 'Valid Phone is required';
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
-    if (!formData.state.trim()) newErrors.state = 'State is required';
-    if (!formData.pincode.trim()) newErrors.pincode = 'Pincode is required';
+    
+    if (showManualAddress) {
+      if (!formData.address.trim()) newErrors.address = 'Address is required';
+      if (!formData.city.trim()) newErrors.city = 'City is required';
+      if (!formData.state.trim()) newErrors.state = 'State is required';
+      if (!formData.pincode.trim()) newErrors.pincode = 'Pincode is required';
+    } else if (!selectedAddressId) {
+      newErrors.address = 'Please select a delivery address';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddressSelect = (addr) => {
+    setSelectedAddressId(addr.id);
+    setShowManualAddress(false);
+    setFormData(prev => ({
+      ...prev,
+      address: addr.line1,
+      city: addr.city || '',
+      state: addr.state || '',
+      pincode: addr.postalCode || ''
+    }));
+    setErrors(prev => ({ ...prev, address: null, city: null, state: null, pincode: null }));
   };
 
   const handleContinueToShipping = () => {
@@ -249,7 +295,7 @@ export default function Checkout() {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.fullName ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.fullName ? 'border-red-500' : 'border-slate-200 focus:ring-1 focus:ring-[#EF4A45]'} font-bold focus:outline-none`}
                   />
                   {errors.fullName && <p className="text-red-500 text-[10px] mt-1">{errors.fullName}</p>}
                 </div>
@@ -260,7 +306,7 @@ export default function Checkout() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200 focus:ring-1 focus:ring-[#EF4A45]'} font-bold focus:outline-none`}
                   />
                   {errors.email && <p className="text-red-500 text-[10px] mt-1">{errors.email}</p>}
                 </div>
@@ -271,55 +317,102 @@ export default function Checkout() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-500' : 'border-slate-200 focus:ring-1 focus:ring-[#EF4A45]'} font-bold focus:outline-none`}
                   />
                   {errors.phone && <p className="text-red-500 text-[10px] mt-1">{errors.phone}</p>}
                 </div>
-                <div>
-                  <label className="block mb-1">Pincode</label>
-                  <input
-                    type="text"
-                    name="pincode"
-                    value={formData.pincode}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.pincode ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
-                  />
-                  {errors.pincode && <p className="text-red-500 text-[10px] mt-1">{errors.pincode}</p>}
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block mb-1">Flat / House No / Street Address</label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.address ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
-                  />
-                  {errors.address && <p className="text-red-500 text-[10px] mt-1">{errors.address}</p>}
-                </div>
-                <div>
-                  <label className="block mb-1">City</label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.city ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
-                  />
-                  {errors.city && <p className="text-red-500 text-[10px] mt-1">{errors.city}</p>}
-                </div>
-                <div>
-                  <label className="block mb-1">State</label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.state ? 'border-red-500' : 'border-slate-200 focus:border-[#EF4A45]'} font-bold focus:outline-none`}
-                  />
-                  {errors.state && <p className="text-red-500 text-[10px] mt-1">{errors.state}</p>}
-                </div>
               </div>
+
+              {/* Saved Addresses Section */}
+              {user && (user.addresses?.length > 0 || user.address) && (
+                <div className="pt-4 border-t border-slate-100 mt-6">
+                  <h4 className="text-sm font-extrabold text-slate-800 mb-3 flex items-center justify-between">
+                    Saved Addresses
+                    {!showManualAddress && (
+                      <button type="button" onClick={() => setShowManualAddress(true)} className="text-[10px] text-[#EF4A45] hover:underline uppercase tracking-wider">
+                        + Enter New Address
+                      </button>
+                    )}
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    {(user.addresses || [{ id: 'legacy-1', label: 'Home', line1: user.address, isDefault: true }]).map(addr => (
+                      <div 
+                        key={addr.id}
+                        onClick={() => handleAddressSelect(addr)}
+                        className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${selectedAddressId === addr.id && !showManualAddress ? 'border-[#EF4A45] bg-red-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-extrabold text-slate-900 text-sm">{addr.label}</span>
+                          {addr.isDefault && <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-white text-slate-700 shadow-sm border border-slate-100">DEFAULT</span>}
+                        </div>
+                        <p className="text-xs text-slate-600 font-medium line-clamp-2">
+                          {addr.line1}, {addr.city} {addr.postalCode}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Manual Address Form */}
+              {(showManualAddress || (!user || (!user.addresses?.length && !user.address))) && (
+                <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                  {user && (user.addresses?.length > 0 || user.address) && (
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                      <h4 className="text-sm font-extrabold text-slate-800">Enter New Address</h4>
+                      <button type="button" onClick={() => setShowManualAddress(false)} className="text-[10px] text-slate-500 hover:text-slate-700 uppercase tracking-wider font-bold">
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold text-slate-700">
+                    <div>
+                      <label className="block mb-1">Pincode</label>
+                      <input
+                        type="text"
+                        name="pincode"
+                        value={formData.pincode}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.pincode ? 'border-red-500' : 'border-slate-200 focus:ring-1 focus:ring-[#EF4A45]'} font-bold focus:outline-none`}
+                      />
+                      {errors.pincode && <p className="text-red-500 text-[10px] mt-1">{errors.pincode}</p>}
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block mb-1">Flat / House No / Street Address</label>
+                      <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.address ? 'border-red-500' : 'border-slate-200 focus:ring-1 focus:ring-[#EF4A45]'} font-bold focus:outline-none`}
+                      />
+                      {errors.address && <p className="text-red-500 text-[10px] mt-1">{errors.address}</p>}
+                    </div>
+                    <div>
+                      <label className="block mb-1">City</label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.city ? 'border-red-500' : 'border-slate-200 focus:ring-1 focus:ring-[#EF4A45]'} font-bold focus:outline-none`}
+                      />
+                      {errors.city && <p className="text-red-500 text-[10px] mt-1">{errors.city}</p>}
+                    </div>
+                    <div>
+                      <label className="block mb-1">State</label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-2.5 rounded-xl bg-slate-50 border ${errors.state ? 'border-red-500' : 'border-slate-200 focus:ring-1 focus:ring-[#EF4A45]'} font-bold focus:outline-none`}
+                      />
+                      {errors.state && <p className="text-red-500 text-[10px] mt-1">{errors.state}</p>}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Section 2: Shipping Method */}

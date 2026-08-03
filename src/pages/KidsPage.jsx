@@ -21,6 +21,7 @@ const kidsSortOptions = [
 export default function KidsPage() {
   const [searchParams] = useSearchParams();
   const initialGender = searchParams.get('gender');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     productType: true,
     price: true,
@@ -316,11 +317,20 @@ export default function KidsPage() {
         </div>
 
         {/* Top Controls */}
-        <div ref={topControlsRef} className="relative z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-slate-100">
-          <div className="text-slate-700 font-black text-sm mb-4 sm:mb-0">
-            Showing {filteredProducts.length} Products
+        <div ref={topControlsRef} className="relative z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-slate-100 gap-4 sm:gap-0">
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <div className="text-slate-700 font-black text-sm">
+              Showing {filteredProducts.length} Products
+            </div>
+            {/* Mobile Filter Toggle */}
+            <button 
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm text-xs font-bold text-slate-700"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" /> {showMobileFilters ? 'Hide Filters' : 'Filters'}
+            </button>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <CustomDropdown
               options={kidsSortOptions}
               value={sortBy}
@@ -333,7 +343,7 @@ export default function KidsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
           {/* Left Sidebar Filters */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className={`lg:col-span-1 space-y-4 ${showMobileFilters ? 'block' : 'hidden lg:block'}`}>
 
             {/* Product Type Accordion */}
             <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-xs">
@@ -535,7 +545,7 @@ export default function KidsPage() {
               <div className="flex items-center justify-center py-20 text-slate-400 font-bold">Loading kids collection...</div>
             ) : currentProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 sm:gap-x-6 sm:gap-y-10">
                   {currentProducts.map((product) => (
                     <KidsProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} />
                   ))}

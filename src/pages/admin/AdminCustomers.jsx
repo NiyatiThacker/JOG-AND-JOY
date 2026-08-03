@@ -135,7 +135,7 @@ export default function AdminCustomers() {
               placeholder="Search customers..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-medium text-text-dark focus:outline-none focus:border-slate-400 shadow-sm transition-colors"
+              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-medium text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm transition-colors"
             />
           </div>
         </div>

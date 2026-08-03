@@ -125,7 +125,7 @@ export default function HeroSection() {
         {/* Playful Headline Layout */}
         <h1 className="font-heading-primary text-[clamp(1.2rem,4.5vw,4rem)] md:text-[clamp(2.5rem,4vw,3.5rem)] font-black text-white leading-[1.1] md:leading-tight mb-2 md:mb-6 w-full text-center tracking-tight drop-shadow-lg">
           {/* Dress - custom styled script style with overlaid blue lines */}
-          <span className="relative inline-block text-[var(--color-accent)] font-heading-secondary font-normal mr-2 md:mr-3 drop-shadow-md">
+          <span className="relative inline-block text-(--color-accent) font-heading-secondary font-normal mr-2 md:mr-3 drop-shadow-md">
             Dress
           </span>
           Your Little Ones in
@@ -137,7 +137,7 @@ export default function HeroSection() {
           <br className="hidden md:block" />
 
           {/* Yellow Card Highlight for 'Colorful' */}
-          <span className="inline-block bg-[var(--color-yellow)] text-[var(--color-accent)] px-3 py-1 md:px-5 md:py-1 rounded-xl md:rounded-2xl mr-2 md:mr-3 -rotate-2 shadow-[0_3px_0_#222] border-[1.5px] border-[#222]">
+          <span className="inline-block bg-(--color-yellow) text-(--color-accent) px-3 py-1 md:px-5 md:py-1 rounded-xl md:rounded-2xl mr-2 md:mr-3 -rotate-2 shadow-[0_3px_0_#222] border-[1.5px] border-[#222]">
             Colorful
           </span>
 
@@ -145,7 +145,7 @@ export default function HeroSection() {
           <span className="relative inline-block">
             Confidence!
             {/* Draw a thick yellow underline */}
-            <span className="absolute left-0 -bottom-1 md:-bottom-2 w-full h-1.5 md:h-2 bg-[var(--color-yellow)] rounded-md border-b-[1.5px] border-[#222]" />
+            <span className="absolute left-0 -bottom-1 md:-bottom-2 w-full h-1.5 md:h-2 bg-(--color-yellow) rounded-md border-b-[1.5px] border-[#222]" />
           </span>
         </h1>
 
@@ -157,7 +157,7 @@ export default function HeroSection() {
 
           <div className="flex items-center gap-4">
             {/* Shop Now Action Button */}
-            <a href="/products" className="bg-[var(--color-accent)] text-white px-4 py-2 md:px-8 md:py-3.5 rounded-full text-sm md:text-lg font-black border-[1.5px] border-[#222] shadow-[0_4px_0_#222] transition-transform active:translate-y-1 active:shadow-[0_2px_0_#222] hover:-translate-y-0.5 hover:shadow-[0_6px_0_#222]">
+            <a href="/products" className="bg-(--color-accent) text-white px-4 py-2 md:px-8 md:py-3.5 rounded-full text-sm md:text-lg font-black border-[1.5px] border-[#222] shadow-[0_4px_0_#222] transition-transform active:translate-y-1 active:shadow-[0_2px_0_#222] hover:-translate-y-0.5 hover:shadow-[0_6px_0_#222]">
               Shop Now &rarr;
             </a>
 
@@ -165,7 +165,7 @@ export default function HeroSection() {
             <a 
               href="/why-us"
               aria-label="Play video review"
-              className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-[var(--color-green)] border-[1.5px] border-[#222] shadow-[0_3px_0_#222] flex items-center justify-center text-white text-base md:text-xl transition-transform hover:scale-110 active:scale-95"
+              className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-(--color-green) border-[1.5px] border-[#222] shadow-[0_3px_0_#222] flex items-center justify-center text-white text-base md:text-xl transition-transform hover:scale-110 active:scale-95"
             >
               ▶️
             </a>

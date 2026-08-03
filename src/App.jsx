@@ -26,6 +26,8 @@ import KidsPage from './pages/KidsPage';
 import NewArrivalsPage from './pages/NewArrivalsPage';
 import DistributorNetworkPage from './pages/DistributorNetworkPage';
 import WhyUs from './pages/WhyUs';
+import OrderTracking from './pages/OrderTracking';
+import ResetPassword from './pages/ResetPassword';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -140,6 +142,8 @@ export default function App() {
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/why-us" element={<WhyUs />} />
                 <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/track-order" element={<OrderTracking />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/distributor-network" element={<DistributorNetworkPage />} />
                 <Route path="*" element={<NotFound />} />
               </Route>

@@ -81,7 +81,7 @@ const StockRow = ({ item, product, updateMut }) => {
             value={localStock}
             onChange={(e) => setLocalStock(Math.max(0, Number(e.target.value)))}
             onBlur={() => commitStockChange(localStock)}
-            className="w-14 h-8 text-center border border-slate-200 rounded-lg bg-white font-bold text-sm focus:border-blue-600 outline-none"
+            className="w-14 h-8 text-center border border-slate-200 rounded-lg bg-white font-bold text-sm focus:ring-1 focus:ring-blue-600 outline-none"
           />
           <button 
             onClick={() => commitStockChange(localStock + 1)}
@@ -177,7 +177,7 @@ export default function AdminInventory() {
               placeholder="Search SKU or product..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-blue-600 text-sm transition-colors"
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm transition-colors"
             />
           </div>
         </div>

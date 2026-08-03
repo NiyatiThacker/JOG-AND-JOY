@@ -50,18 +50,18 @@ export default function NewsletterSection() {
   return (
     <section className="py-16 bg-white relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Soft Light Green / Mint Pastel Card Container */}
         <div className="rounded-[3.5rem] bg-linear-to-br from-[#D2F8DC] via-[#E6FCEE] to-[#B8F3C7] p-8 sm:p-14 text-emerald-950 shadow-2xl relative overflow-hidden border-4 border-white/80">
-          
+
           {/* Soft Background Radial Light */}
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-teal-200/40 rounded-full blur-3xl pointer-events-none"></div>
 
           {/* --- FLOATING DOODLES --- */}
-          
+
           {/* Top Left Cloud Doodle */}
-          <motion.div 
+          <motion.div
             animate={{ y: [0, -8, 0], x: [0, 4, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
             className="absolute top-6 left-8 pointer-events-none"
@@ -70,7 +70,7 @@ export default function NewsletterSection() {
           </motion.div>
 
           {/* Top Right Star Doodle */}
-          <motion.div 
+          <motion.div
             animate={{ rotate: [0, 20, 0], scale: [1, 1.2, 1] }}
             transition={{ repeat: Infinity, duration: 3 }}
             className="absolute top-8 right-10 pointer-events-none"
@@ -79,7 +79,7 @@ export default function NewsletterSection() {
           </motion.div>
 
           {/* Bottom Left Envelope Doodle */}
-          <motion.div 
+          <motion.div
             animate={{ y: [0, 6, 0], rotate: [-10, 5, -10] }}
             transition={{ repeat: Infinity, duration: 3.5 }}
             className="absolute bottom-8 left-10 pointer-events-none hidden sm:block"
@@ -88,7 +88,7 @@ export default function NewsletterSection() {
           </motion.div>
 
           {/* Bottom Right Sparkles Doodle */}
-          <motion.div 
+          <motion.div
             animate={{ scale: [0.8, 1.2, 0.8], rotate: [0, 90, 0] }}
             transition={{ repeat: Infinity, duration: 3 }}
             className="absolute bottom-10 right-12 pointer-events-none"
@@ -104,9 +104,9 @@ export default function NewsletterSection() {
 
           {/* --- MAIN CARD CONTENT --- */}
           <div className="relative z-10 text-center max-w-xl mx-auto space-y-5">
-            
+
             {/* Top Mail Icon Badge */}
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.1, rotate: 5 }}
               className="w-14 h-14 rounded-2xl bg-white text-[#EF4A45] flex items-center justify-center mx-auto shadow-md border-2 border-emerald-100"
             >
@@ -125,7 +125,7 @@ export default function NewsletterSection() {
 
             {/* Form / Success State */}
             {subscribed ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="p-5 rounded-3xl bg-white text-emerald-900 font-extrabold text-sm flex items-center justify-center gap-3 shadow-lg border-2 border-emerald-200"
@@ -140,7 +140,7 @@ export default function NewsletterSection() {
                   placeholder="Enter your email address..."
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                  required={true}
                   className="w-full px-6 py-4 rounded-full bg-white text-emerald-950 font-bold text-sm placeholder-emerald-800/40 focus:outline-none focus:ring-4 focus:ring-emerald-400/50 shadow-md border border-emerald-100"
                 />
                 <button

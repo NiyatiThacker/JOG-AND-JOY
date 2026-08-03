@@ -192,26 +192,26 @@ export default function NewArrivalsPage() {
             {/* Card 1: Kids Collection (Pastel Peach) */}
             <Link
               to="/kids"
-              className="lg:col-span-6 relative group overflow-hidden rounded-[2.5rem] bg-[#FFF3EE] border-2 border-[#FFE0D6] p-6 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-[340px]"
+              className="lg:col-span-6 relative group overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] bg-[#FFF3EE] border-2 border-[#FFE0D6] p-4 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-56 sm:min-h-85"
             >
               <div className="relative z-10 text-left max-w-sm">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#FF7A59] text-[11px] font-black uppercase tracking-wider mb-4 shadow-xs border border-[#FFE0D6]">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-white text-[#FF7A59] text-[9px] sm:text-[11px] font-black uppercase tracking-wider mb-2 sm:mb-4 shadow-xs border border-[#FFE0D6]">
                   🎈 Kids Collection • 0-14 Yrs
                 </span>
-                <h3 className="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mb-3">
+                <h3 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight mb-2 sm:mb-3">
                   Kids Playwear <br />& Tees 🌈
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 font-bold leading-relaxed mb-6">
+                <p className="text-[10px] sm:text-sm text-slate-600 font-bold leading-relaxed mb-4 sm:mb-6 max-w-[65%] sm:max-w-full">
                   Super soft 100% bio-washed cotton, non-scratchy seams, and play-proof durability.
                 </p>
-                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF7A59] text-white font-black text-xs shadow-md group-hover:bg-slate-900 group-hover:scale-105 transition-all">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-full bg-[#FF7A59] text-white font-black text-[10px] sm:text-xs shadow-md group-hover:bg-slate-900 group-hover:scale-105 transition-all">
                   <span>Shop Kids Range</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
               </div>
 
               {/* Card Image */}
-              <div className="absolute -bottom-4 -right-4 w-48 sm:w-60 h-48 sm:h-60 rounded-3xl overflow-hidden border-4 border-white shadow-xl rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500">
+              <div className="absolute -bottom-2 -right-2 sm:-bottom-4 sm:-right-4 w-32 h-32 sm:w-60 sm:h-60 rounded-2xl sm:rounded-3xl overflow-hidden border-2 sm:border-4 border-white shadow-xl rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500">
                 <img
                   src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop"
                   alt="Kids Collection"
@@ -224,26 +224,26 @@ export default function NewArrivalsPage() {
             {/* Card 2: Men's Collection (Pastel Sky Blue) */}
             <Link
               to="/products?category=Male"
-              className="lg:col-span-6 relative group overflow-hidden rounded-[2.5rem] bg-[#EBF7FF] border-2 border-[#AEE6FF] p-6 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-[340px]"
+              className="lg:col-span-6 relative group overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] bg-[#EBF7FF] border-2 border-[#AEE6FF] p-4 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-56 sm:min-h-85"
             >
               <div className="relative z-10 text-left max-w-sm">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-sky-700 text-[11px] font-black uppercase tracking-wider mb-4 shadow-xs border border-[#AEE6FF]">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-white text-sky-700 text-[9px] sm:text-[11px] font-black uppercase tracking-wider mb-2 sm:mb-4 shadow-xs border border-[#AEE6FF]">
                   ⚡ Men's Athletic & Lounge
                 </span>
-                <h3 className="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mb-3">
+                <h3 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight mb-2 sm:mb-3">
                   Men's Active <br />& Sportswear 🏃
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 font-bold leading-relaxed mb-6">
+                <p className="text-[10px] sm:text-sm text-slate-600 font-bold leading-relaxed mb-4 sm:mb-6 max-w-[65%] sm:max-w-full">
                   Engineered tracksuits, athletic shorts, and breathable cotton tees.
                 </p>
-                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 text-white font-black text-xs shadow-md group-hover:bg-[#FF7A59] group-hover:scale-105 transition-all">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-full bg-slate-900 text-white font-black text-[10px] sm:text-xs shadow-md group-hover:bg-[#FF7A59] group-hover:scale-105 transition-all">
                   <span>Explore Men's Range</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
               </div>
 
               {/* Card Image */}
-              <div className="absolute -bottom-4 -right-4 w-48 sm:w-60 h-48 sm:h-60 rounded-3xl overflow-hidden border-4 border-white shadow-xl -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500">
+              <div className="absolute -bottom-2 -right-2 sm:-bottom-4 sm:-right-4 w-32 h-32 sm:w-60 sm:h-60 rounded-2xl sm:rounded-3xl overflow-hidden border-2 sm:border-4 border-white shadow-xl -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500">
                 <img
                   src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800&auto=format&fit=crop"
                   alt="Men's Collection"

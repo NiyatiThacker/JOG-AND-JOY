@@ -67,7 +67,7 @@ export default function AdminReviews() {
         </div>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-150">
         {/* Main Content Area */}
         <div className={`flex-1 flex flex-col min-w-0 ${selectedReview ? 'hidden md:flex md:w-2/3 md:border-r border-slate-200' : 'w-full'}`}>
           <div className="flex flex-col sm:flex-row justify-between items-center border-b border-slate-200 bg-zinc-50/50 p-4 gap-4">
@@ -149,7 +149,7 @@ export default function AdminReviews() {
 
         {/* Detail Sidebar */}
         {selectedReview && (
-          <div className="w-full md:w-1/3 bg-zinc-50/50 flex flex-col h-full md:min-h-[600px] border-l border-slate-200 animate-in slide-in-from-right-8 duration-300">
+          <div className="w-full md:w-1/3 bg-zinc-50/50 flex flex-col h-full md:min-h-150 border-l border-slate-200 animate-in slide-in-from-right-8 duration-300">
             <div className="p-4 flex justify-between items-center border-b border-slate-200 bg-white">
               <h2 className="font-bold text-text-dark">Review Details</h2>
               <button onClick={() => setSelectedReview(null)} className="p-2 text-zinc-400 hover:text-text-dark rounded-lg hover:bg-zinc-100">
@@ -262,7 +262,7 @@ export default function AdminReviews() {
                     value={replyText}
                     onChange={e => { setReplyText(e.target.value); setReplySuccess(false); }}
                     placeholder="Write a public reply..."
-                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-600"
+                    className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                   ></textarea>
                   <button 
                     onClick={handleSaveReply}

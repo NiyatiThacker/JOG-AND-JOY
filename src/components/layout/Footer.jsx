@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 // Pixel-Perfect Vector Instagram Icon with CSS Gradient Container
 const InstagramGradientIcon = () => (
-  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-tr from-[#fdf497] via-[#fd5949] via-[#d6249f] to-[#285AEB] flex items-center justify-center shadow-md shrink-0">
+  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-tr from-[#fdf497] via-[#fd5949]  to-[#285AEB] flex items-center justify-center shadow-md shrink-0">
     <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -102,6 +102,11 @@ export default function Footer() {
                     </Link>
                   </li>
                   <li>
+                    <Link to="/track-order" className="hover:text-[#D32F2F] transition-colors sm:whitespace-nowrap">
+                      Track Order
+                    </Link>
+                  </li>
+                  <li>
                     <Link to="/contact-us" className="hover:text-[#D32F2F] transition-colors sm:whitespace-nowrap">
                       Contact Us
                     </Link>
@@ -152,7 +157,7 @@ export default function Footer() {
                   Click to explore other verticals
                 </span>
                 
-                <div className="flex items-center justify-center sm:justify-end gap-5 bg-white/80 p-3 rounded-2xl border border-white shadow-xs inline-flex">
+                <div className="flex items-center justify-center sm:justify-end gap-5 bg-white/80 p-3 rounded-2xl border border-white shadow-xs ">
                   <a 
                     href="https://kamalclothing.com/" 
                     target="_blank" 
