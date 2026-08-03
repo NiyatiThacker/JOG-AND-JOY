@@ -17,8 +17,32 @@ export default function Header() {
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (searchQuery.trim().length > 1) {
+        setIsSearching(true);
+        try {
+          const { list } = await import('../../api/mockApi');
+          const { data } = await list('products', { search: searchQuery, pageSize: 5 });
+          setSearchResults(data || []);
+        } catch (error) {
+          console.error("Search error", error);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    };
+    
+    const timeoutId = setTimeout(fetchResults, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -237,6 +261,35 @@ export default function Header() {
                 Search
               </button>
             </form>
+
+            {/* Live Search Results */}
+            {searchQuery.trim().length > 1 && (
+              <div className="max-w-3xl mx-auto mt-2 bg-slate-800/95 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl relative z-[60]">
+                {isSearching ? (
+                  <div className="p-4 text-center text-sm text-slate-400">Searching...</div>
+                ) : searchResults.length > 0 ? (
+                  <div className="flex flex-col">
+                    {searchResults.map((product) => (
+                      <Link 
+                        key={product.id}
+                        to={`/product/${product.id}`}
+                        onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
+                        className="flex items-center gap-4 p-3 hover:bg-slate-700/50 transition-colors border-b border-slate-700/50 last:border-0"
+                      >
+                        <img src={product.image || product.images?.[0] || '/images/placeholder.jpg'} alt={product.title} className="w-12 h-12 rounded-lg object-cover bg-slate-900" />
+                        <div className="flex-1">
+                          <h4 className="text-sm font-bold text-white line-clamp-1">{product.title || product.name}</h4>
+                          <p className="text-xs text-slate-400">{product.category}</p>
+                        </div>
+                        <div className="text-sm font-bold text-[#ccff00]">₹{product.price}</div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-sm text-slate-400">No products found.</div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </header>

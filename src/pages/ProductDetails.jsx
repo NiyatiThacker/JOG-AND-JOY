@@ -114,15 +114,23 @@ export default function ProductDetails() {
   useEffect(() => {
     if (product) {
       setActiveImage(product.image);
-      setSelectedSize(product.sizes?.[0] || '4Y-5Y');
-      setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
+      
+      const inStockVariant = product.variants?.find(v => Number(v.stock) > 0);
+      
+      if (inStockVariant) {
+        setSelectedSize(inStockVariant.size);
+        setSelectedColor(inStockVariant.colorHex);
+      } else {
+        setSelectedSize(product.sizes?.[0] || '4Y-5Y');
+        setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
+      }
       setQuantity(1);
       window.scrollTo(0, 0);
     }
   }, [product]);
 
   const activeVariantImage = product?.variants?.find(
-    (v) => v.colorHex === selectedColor && v.size === selectedSize
+    (v) => v.colorHex?.toLowerCase() === selectedColor?.toLowerCase() && v.size === selectedSize
   )?.image;
 
   useEffect(() => {
@@ -176,11 +184,11 @@ export default function ProductDetails() {
   };
 
   const activeVariant = product.variants?.find(
-    (v) => v.colorHex === selectedColor && v.size === selectedSize
+    (v) => v.colorHex?.toLowerCase() === selectedColor?.toLowerCase() && v.size === selectedSize
   );
 
   const displayPrice = activeVariant?.price || product.price;
-  const displayStock = activeVariant ? activeVariant.stock : product.stock;
+  const displayStock = activeVariant ? Number(activeVariant.stock) : Number(product.stock);
 
   const isFavorited = isInWishlist(product.id, selectedSize, selectedColor);
 
@@ -206,13 +214,28 @@ export default function ProductDetails() {
         </nav>
 
         {/* Main Product Showcase Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-100 lg:h-[630px] lg:overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-100 lg:h-157.5 lg:overflow-hidden">
 
           {/* Left Column: Image Gallery & Thumbnails */}
-          <div className="lg:col-span-6 space-y-4 h-full flex flex-col">
+          <div className="lg:col-span-6 h-full flex flex-row gap-3 sm:gap-4">
+            
+            {/* Thumbnail Selectors (Left Side Vertical Stack) */}
+            <div className="flex flex-col gap-2 sm:gap-3 w-14 sm:w-20 shrink-0 overflow-y-auto no-scrollbar pb-2">
+              {galleryImages.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImage(img)}
+                  className={`w-full aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all shrink-0 bg-[#F5F5F5] ${
+                    activeImage === img ? 'border-slate-300 ring-2 ring-slate-100' : 'border-transparent hover:border-slate-200'
+                  }`}
+                >
+                  <img src={img} alt="Thumbnail" className="w-full h-full object-cover mix-blend-multiply opacity-90" />
+                </button>
+              ))}
+            </div>
 
-            {/* Main Active Image Viewport with Fixed Universal Dimensions */}
-            <div className="relative w-full h-96 sm:h-[450px] rounded-2xl overflow-hidden bg-[#FFF8EC] border border-slate-100 group flex items-center justify-center">
+            {/* Main Active Image Viewport */}
+            <div className="relative flex-1 rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-[#F5F5F5] border border-slate-100 group flex items-center justify-center h-[50vh] sm:h-112.5 min-h-[350px]">
               <img
                 src={activeImage}
                 alt={product.name}
@@ -220,7 +243,7 @@ export default function ProductDetails() {
               />
 
               {/* Badges Overlay */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-2">
                 {product.discount && (
                   <span className="px-3 py-1 rounded-full bg-[#EF4A45] text-white text-xs font-black uppercase tracking-wider shadow-sm">
                     {product.discount}
@@ -236,26 +259,11 @@ export default function ProductDetails() {
               {/* Wishlist Button */}
               <button 
                 onClick={() => toggleWishlist(product.id, selectedSize, selectedColor)}
-                className={`absolute top-4 right-4 p-3 rounded-full backdrop-blur-md transition-all shadow-md ${isFavorited ? 'bg-[#EF4A45] text-white' : 'bg-white/80 text-slate-700 hover:bg-white'}`}
+                className={`absolute top-3 right-3 sm:top-4 sm:right-4 p-2.5 sm:p-3 rounded-full backdrop-blur-md transition-all shadow-sm z-10 ${isFavorited ? 'bg-[#EF4A45] text-white' : 'bg-white/80 text-slate-700 hover:bg-white'}`}
               >
-                <Heart className={`w-5 h-5 ${isFavorited ? 'fill-white' : ''}`} />
+                <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isFavorited ? 'fill-white' : ''}`} />
               </button>
             </div>
-
-            {/* Thumbnail Selectors */}
-            <div className="flex items-center gap-3 overflow-x-auto pb-2">
-              {galleryImages.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImage(img)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${activeImage === img ? 'border-[#EF4A45] ring-2 ring-[#EF4A45]/30' : 'border-slate-200 hover:border-slate-400'
-                    }`}
-                >
-                  <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-
           </div>
 
           {/* Right Column: Product Meta, Selectors & Actions */}
@@ -515,7 +523,7 @@ export default function ProductDetails() {
                   <>
                     {/* Review Summary */}
                     <div className="flex flex-col md:flex-row gap-8 items-start">
-                      <div className="flex flex-col items-center justify-center p-6 bg-amber-50 rounded-2xl border border-amber-100 min-w-[200px]">
+                      <div className="flex flex-col items-center justify-center p-6 bg-amber-50 rounded-2xl border border-amber-100 min-w-50">
                         <div className="text-5xl font-black text-slate-900">{averageRating}</div>
                         <div className="flex items-center gap-1 my-2">
                           {[...Array(5)].map((_, i) => (
@@ -729,11 +737,11 @@ export default function ProductDetails() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Order ID *</label>
-                      <input required type="text" value={reviewForm.orderId} onChange={e => setReviewForm(prev => ({...prev, orderId: e.target.value}))} placeholder="e.g. ORD-12345" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 focus:bg-white outline-none transition-all text-sm font-medium" />
+                      <input required type="text" value={reviewForm.orderId} onChange={e => setReviewForm(prev => ({...prev, orderId: e.target.value}))} placeholder="e.g. ORD-12345" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-900 focus:bg-white outline-none transition-all text-sm font-medium" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Email Address *</label>
-                      <input required type="email" value={reviewForm.email} onChange={e => setReviewForm(prev => ({...prev, email: e.target.value}))} placeholder="Your checkout email" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 focus:bg-white outline-none transition-all text-sm font-medium" />
+                      <input required type="email" value={reviewForm.email} onChange={e => setReviewForm(prev => ({...prev, email: e.target.value}))} placeholder="Your checkout email" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-900 focus:bg-white outline-none transition-all text-sm font-medium" />
                     </div>
                   </div>
 
@@ -750,12 +758,12 @@ export default function ProductDetails() {
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Review Title *</label>
-                    <input required type="text" value={reviewForm.title} onChange={e => setReviewForm(prev => ({...prev, title: e.target.value}))} placeholder="Sum up your experience" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 focus:bg-white outline-none transition-all text-sm font-medium" />
+                    <input required type="text" value={reviewForm.title} onChange={e => setReviewForm(prev => ({...prev, title: e.target.value}))} placeholder="Sum up your experience" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-900 focus:bg-white outline-none transition-all text-sm font-medium" />
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Your Review *</label>
-                    <textarea required value={reviewForm.body} onChange={e => setReviewForm(prev => ({...prev, body: e.target.value}))} placeholder="What did you like or dislike?" rows="4" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-slate-900 focus:bg-white outline-none transition-all text-sm font-medium resize-none" />
+                    <textarea required value={reviewForm.body} onChange={e => setReviewForm(prev => ({...prev, body: e.target.value}))} placeholder="What did you like or dislike?" rows="4" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-900 focus:bg-white outline-none transition-all text-sm font-medium resize-none" />
                   </div>
 
                   <button disabled={isSubmittingReview} type="submit" className="w-full py-3.5 bg-slate-900 text-white font-black rounded-xl hover:bg-[#EF4A45] transition-colors shadow-lg disabled:opacity-50 flex items-center justify-center gap-2">

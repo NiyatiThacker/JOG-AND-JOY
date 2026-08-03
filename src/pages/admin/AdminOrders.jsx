@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Search, Eye, X, MapPin, Calendar, CreditCard, Package, AlertCircle, ArrowLeft, MoreHorizontal, ShieldAlert, FileText, CheckCircle2, Check } from 'lucide-react';
 import { useOrdersList, useUpdateOrder } from '../../queries/useOrders';
 import { useSettingsContext } from '../../context/SettingsContext';
+import { useUIContext } from '../../context/UIContext';
 
 import { useSearchParams } from 'react-router-dom';
 
 export default function AdminOrders() {
+  const { addToast } = useUIContext();
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   const [view, setView] = useState('list');
@@ -13,7 +15,6 @@ export default function AdminOrders() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
-  const [toastMessage, setToastMessage] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [searchParams] = useSearchParams();
   
@@ -32,16 +33,13 @@ export default function AdminOrders() {
     }
   }, [searchParams, data, view]);
 
-  useEffect(() => {
-    if (toastMessage) {
-      const timer = setTimeout(() => setToastMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toastMessage]);
-
   const filters = {};
-  if (['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'ON_HOLD'].includes(activeTab)) {
-    filters.status = activeTab;
+  if (['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'ON_HOLD', 'RETURNS'].includes(activeTab)) {
+    if (activeTab === 'RETURNS') {
+      filters.returns = true;
+    } else {
+      filters.status = activeTab;
+    }
   }
   if (search) filters.search = search;
   
@@ -54,6 +52,9 @@ export default function AdminOrders() {
         const q = filters.search.toLowerCase();
         if (!JSON.stringify(o).toLowerCase().includes(q)) matches = false;
       }
+      if (filters.returns && !['RETURN_REQUESTED', 'EXCHANGE_REQUESTED', 'RETURN_APPROVED', 'EXCHANGE_APPROVED', 'RETURN_REJECTED'].includes(o.status)) {
+        matches = false;
+      }
       return matches;
     });
   }
@@ -65,11 +66,9 @@ export default function AdminOrders() {
     setView('detail');
   };
 
-  const showToast = (msg) => setToastMessage(msg);
-
   const exportToCSV = () => {
     if (!orders || orders.length === 0) {
-      showToast("No orders to export");
+      addToast("No orders to export", "error");
       return;
     }
 
@@ -99,24 +98,35 @@ export default function AdminOrders() {
     link.click();
     document.body.removeChild(link);
     
-    showToast("CSV Exported successfully!");
+    addToast("CSV Exported successfully!", "success");
   };
 
   const handleStatusChange = (newStatus) => {
     if (selectedOrder) {
       const historyEntry = { status: newStatus, timestamp: new Date().toISOString(), note: 'Status updated by admin' };
       
+      const patchData = { 
+        status: newStatus,
+        statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
+      };
+
+      // Auto-sync payment status based on the new lifecycle state
+      if (newStatus === 'DELIVERED') {
+        patchData.paymentStatus = 'paid';
+      } else if (newStatus === 'RETURN_APPROVED' || newStatus === 'REFUNDED') {
+        patchData.paymentStatus = 'refunded';
+      } else if (newStatus === 'CANCELLED') {
+        patchData.paymentStatus = selectedOrder.paymentStatus === 'paid' ? 'refunded' : 'cancelled';
+      }
+      
       updateMut.mutate({ 
         id: selectedOrder.id, 
-        patch: { 
-          status: newStatus,
-          statusHistory: [...(selectedOrder.statusHistory || []), historyEntry]
-        } 
+        patch: patchData 
       }, {
         onSuccess: (updated) => {
           setSelectedOrder(updated);
           setIsMenuOpen(false);
-          showToast(`Order marked as ${newStatus}`);
+          addToast(`Order marked as ${newStatus}`, 'success');
         }
       });
     }
@@ -199,7 +209,7 @@ export default function AdminOrders() {
         onSuccess: (updated) => {
           setSelectedOrder(updated);
           setShowRefundModal(false);
-          showToast('Order refunded successfully');
+          addToast('Order refunded successfully', 'success');
         }
       });
     }
@@ -222,7 +232,7 @@ export default function AdminOrders() {
         onSuccess: (updated) => {
           setSelectedOrder(updated);
           setShowEditModal(false);
-          showToast('Order details updated');
+          addToast('Order details updated', 'success');
         }
       });
     }
@@ -255,12 +265,14 @@ export default function AdminOrders() {
           </button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-extrabold text-primary-dark">{o.orderNumber || o.id}</h1>
+              <h1 className="text-2xl font-extrabold text-text-dark">{o.orderNumber || o.id}</h1>
               <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-md ${
                 o.status === 'DELIVERED' ? 'bg-success/15 text-success-dark' : 
                 o.status === 'SHIPPED' ? 'bg-info/15 text-info-dark' : 
-                o.status === 'CANCELLED' ? 'bg-error/10 text-error' : 
-                o.status === 'ON_HOLD' ? 'bg-warning/15 text-warning-dark' : 'bg-zinc-200 text-zinc-600'
+                ['CANCELLED', 'RETURN_REJECTED'].includes(o.status) ? 'bg-error/10 text-error' : 
+                ['ON_HOLD', 'RETURN_REQUESTED', 'EXCHANGE_REQUESTED'].includes(o.status) ? 'bg-warning/15 text-warning-dark' : 
+                ['RETURN_APPROVED', 'EXCHANGE_APPROVED'].includes(o.status) ? 'bg-purple-100 text-purple-700' :
+                'bg-zinc-200 text-zinc-600'
               }`}>
                 {o.status.replace('_', ' ')}
               </span>
@@ -270,7 +282,7 @@ export default function AdminOrders() {
                 {o.paymentStatus}
               </span>
             </div>
-            <p className="text-sm text-text-secondary mt-1">{formatDate(o.createdAt)} from {o.channel?.replace('_', ' ')}</p>
+            <p className="text-sm text-text-muted mt-1">{formatDate(o.createdAt)} from {o.channel?.replace('_', ' ')}</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button onClick={() => setShowRefundModal(true)} className="px-4 py-2 text-sm font-bold bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-zinc-50">Refund</button>
@@ -284,11 +296,11 @@ export default function AdminOrders() {
               Edit
             </button>
             <div className="flex gap-2">
-              <button onClick={handlePrintPackingSlip} className="px-4 py-2 bg-white border border-slate-200 text-primary-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors flex items-center gap-2">
+              <button onClick={handlePrintPackingSlip} className="px-4 py-2 bg-white border border-slate-200 text-text-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Print Packing Slip
               </button>
-              {!['DELIVERED', 'CANCELLED', 'REFUNDED'].includes(o.status) && (
+              {!['DELIVERED', 'CANCELLED', 'REFUNDED', 'RETURN_APPROVED', 'EXCHANGE_APPROVED', 'RETURN_REJECTED'].includes(o.status) && (
                 <div className="relative">
                   <button 
                     onClick={() => setIsMenuOpen(!isMenuOpen)} 
@@ -323,21 +335,61 @@ export default function AdminOrders() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
+            {/* Return Request Banner */}
+            {o.returnRequest && (
+              <div className={`border rounded-2xl p-5 ${
+                o.status === 'RETURN_REQUESTED' || o.status === 'EXCHANGE_REQUESTED' 
+                  ? 'bg-amber-50 border-amber-200'
+                  : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900 flex items-center gap-2 mb-1">
+                      <ShieldAlert className={`w-5 h-5 ${o.status.includes('REQUESTED') ? 'text-amber-600' : 'text-slate-500'}`} />
+                      {o.returnRequest.type === 'RETURN' ? 'Refund' : 'Exchange'} Request
+                    </h2>
+                    <p className="text-sm font-bold text-slate-700">Reason: <span className="text-slate-900 font-medium">{o.returnRequest.reason}</span></p>
+                    {o.returnRequest.comments && (
+                      <p className="text-sm text-slate-600 mt-2 italic">"{o.returnRequest.comments}"</p>
+                    )}
+                  </div>
+                  
+                  {/* Action Buttons for Pending Requests */}
+                  {(o.status === 'RETURN_REQUESTED' || o.status === 'EXCHANGE_REQUESTED') && (
+                    <div className="flex flex-col gap-2 shrink-0 ml-4">
+                      <button 
+                        onClick={() => handleStatusChange(o.returnRequest.type === 'RETURN' ? 'RETURN_APPROVED' : 'EXCHANGE_APPROVED')}
+                        className="px-4 py-2 bg-green-600 text-white font-bold rounded-xl text-sm hover:bg-green-700 transition-colors"
+                      >
+                        Approve {o.returnRequest.type}
+                      </button>
+                      <button 
+                        onClick={() => handleStatusChange('RETURN_REJECTED')}
+                        className="px-4 py-2 bg-white border border-red-200 text-red-600 font-bold rounded-xl text-sm hover:bg-red-50 transition-colors"
+                      >
+                        Reject Request
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Line Items */}
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden p-6">
-              <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2">
-                <Package className="w-5 h-5 text-accent-green" /> Ordered Items ({o.items?.length || 0})
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden p-6">
+              <h2 className="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+                <Package className="w-5 h-5 text-blue-600" /> Ordered Items ({o.items?.length || 0})
               </h2>
               <div className="space-y-4">
                 {o.items?.map((item, i) => (
                   <div key={i} className="flex gap-4 p-4 bg-zinc-50 border border-slate-200 rounded-xl items-center">
                     <div className="w-12 h-12 bg-white rounded-lg border border-slate-200 flex shrink-0 items-center justify-center text-xs font-bold text-zinc-300">IMG</div>
                     <div className="flex-1">
-                      <p className="font-bold text-primary-dark">{item.titleSnapshot}</p>
-                      <p className="text-xs text-text-secondary font-mono mt-0.5">{formatCurrency(item.unitPrice)}</p>
+                      <p className="font-bold text-text-dark">{item.titleSnapshot}</p>
+                      <p className="text-xs text-text-muted font-mono mt-0.5">{formatCurrency(item.unitPrice)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary-dark">x{item.quantity}</p>
+                      <p className="font-bold text-text-dark">x{item.quantity}</p>
                       <p className="text-sm font-bold mt-0.5">{formatCurrency(item.unitPrice * item.quantity)}</p>
                     </div>
                   </div>
@@ -346,24 +398,24 @@ export default function AdminOrders() {
             </div>
 
             {/* Payment Summary */}
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-              <h2 className="text-lg font-bold text-primary-dark mb-4 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-accent-green" /> Payment
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all p-6">
+              <h2 className="text-lg font-bold text-text-dark mb-4 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-blue-600" /> Payment
               </h2>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-text-secondary"><p>Subtotal</p><p>{formatCurrency(o.subtotal)}</p></div>
-                {o.discountAmount > 0 && <div className="flex justify-between text-text-secondary"><p>Discount ({o.promotionCodeApplied})</p><p>-{formatCurrency(o.discountAmount)}</p></div>}
-                <div className="flex justify-between text-text-secondary"><p>Shipping</p><p>{formatCurrency(o.shippingCost)}</p></div>
-                <div className="flex justify-between text-text-secondary"><p>Tax</p><p>{formatCurrency(o.tax)}</p></div>
-                <div className="border-t border-slate-200 mt-3 pt-3 flex justify-between font-bold text-lg text-primary-dark">
+                <div className="flex justify-between text-text-muted"><p>Subtotal</p><p>{formatCurrency(o.subtotal)}</p></div>
+                {o.discountAmount > 0 && <div className="flex justify-between text-text-muted"><p>Discount ({o.promotionCodeApplied})</p><p>-{formatCurrency(o.discountAmount)}</p></div>}
+                <div className="flex justify-between text-text-muted"><p>Shipping</p><p>{formatCurrency(o.shippingCost)}</p></div>
+                <div className="flex justify-between text-text-muted"><p>Tax</p><p>{formatCurrency(o.tax)}</p></div>
+                <div className="border-t border-slate-200 mt-3 pt-3 flex justify-between font-bold text-lg text-text-dark">
                   <p>Total</p><p>{formatCurrency(o.total)}</p>
                 </div>
               </div>
             </div>
 
             {/* Timeline */}
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-              <h2 className="text-lg font-bold text-primary-dark mb-4">Timeline</h2>
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all p-6">
+              <h2 className="text-lg font-bold text-text-dark mb-4">Timeline</h2>
               <div className="space-y-4">
                 {o.statusHistory?.map((evt, i) => (
                   <div key={i} className="flex gap-4">
@@ -371,8 +423,8 @@ export default function AdminOrders() {
                       <CheckCircle2 className="w-4 h-4 text-zinc-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-primary-dark">{evt.note || `Status changed to ${evt.status}`}</p>
-                      <p className="text-xs text-text-secondary">{formatDate(evt.timestamp)}</p>
+                      <p className="text-sm font-bold text-text-dark">{evt.note || `Status changed to ${evt.status}`}</p>
+                      <p className="text-xs text-text-muted">{formatDate(evt.timestamp)}</p>
                     </div>
                   </div>
                 ))}
@@ -382,27 +434,27 @@ export default function AdminOrders() {
 
           <div className="space-y-6">
             {/* Customer */}
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-              <h2 className="text-lg font-bold text-primary-dark mb-4">Customer</h2>
-              <p className="font-bold text-primary-dark">{o.shippingAddress?.name || 'Customer'}</p>
-              <p className="text-sm text-text-secondary">0 orders</p>
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all p-6">
+              <h2 className="text-lg font-bold text-text-dark mb-4">Customer</h2>
+              <p className="font-bold text-text-dark">{o.shippingAddress?.name || 'Customer'}</p>
+              <p className="text-sm text-text-muted">0 orders</p>
               
               <hr className="border-slate-200 my-4" />
-              <h3 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2">Contact</h3>
-              <p className="text-sm text-primary-dark font-medium cursor-pointer hover:underline">customer@example.com</p>
+              <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Contact</h3>
+              <p className="text-sm text-text-dark font-medium cursor-pointer hover:underline">customer@example.com</p>
               
               <hr className="border-slate-200 my-4" />
-              <h3 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2">Shipping Address</h3>
-              <p className="text-sm text-text-secondary leading-relaxed">
+              <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Shipping Address</h3>
+              <p className="text-sm text-text-muted leading-relaxed">
                 {o.shippingAddress?.line1}<br/>
                 {o.shippingAddress?.city}, {o.shippingAddress?.state} {o.shippingAddress?.postalCode}<br/>
                 {o.shippingAddress?.country}
               </p>
               
               <hr className="border-slate-200 my-4" />
-              <h3 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2 flex justify-between items-center">
+              <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2 flex justify-between items-center">
                 Tracking Information
-                {o.shippingAddress?.trackingNumber && <CheckCircle2 className="w-3 h-3 text-accent-green" />}
+                {o.shippingAddress?.trackingNumber && <CheckCircle2 className="w-3 h-3 text-blue-600" />}
               </h3>
               <div className="flex gap-2 mt-2">
                 <input 
@@ -410,7 +462,7 @@ export default function AdminOrders() {
                   type="text" 
                   placeholder="Enter tracking number..."
                   defaultValue={o.shippingAddress?.trackingNumber || ''}
-                  className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+                  className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
                 <button 
                   onClick={() => {
@@ -428,7 +480,7 @@ export default function AdminOrders() {
                       }, {
                         onSuccess: (updated) => {
                           setSelectedOrder(updated);
-                          showToast('Tracking saved & order updated!');
+                          addToast('Tracking saved & order updated!', 'success');
                         }
                       });
                     }
@@ -445,7 +497,7 @@ export default function AdminOrders() {
                     updateMut.mutate({ id: o.id, patch: { status: 'DELIVERED', statusHistory: [...(o.statusHistory || []), historyEntry] } }, {
                       onSuccess: (updated) => {
                         setSelectedOrder(updated);
-                        showToast('Order marked as Delivered!');
+                        addToast('Order marked as Delivered!', 'success');
                       }
                     });
                   }}
@@ -458,11 +510,11 @@ export default function AdminOrders() {
             </div>
 
             {/* Tags & Risk */}
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-              <h2 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-3">Tags</h2>
-              <input type="text" placeholder="Add a tag and press Enter..." onKeyDown={handleTagAdd} className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-green-500 mb-2" />
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all p-6">
+              <h2 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3">Tags</h2>
+              <input type="text" placeholder="Add a tag and press Enter..." onKeyDown={handleTagAdd} className="w-full px-3 py-2 bg-zinc-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-500 mb-2" />
               <div className="flex flex-wrap gap-2">
-                {o.tags?.map(t => <span key={t} className="px-2 py-1 bg-zinc-100 rounded text-xs font-bold text-text-secondary">{t}</span>)}
+                {o.tags?.map(t => <span key={t} className="px-2 py-1 bg-zinc-100 rounded text-xs font-bold text-text-muted">{t}</span>)}
               </div>
 
 
@@ -476,34 +528,34 @@ export default function AdminOrders() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95">
               <div className="flex justify-between items-center p-6 border-b border-slate-200">
-                <h2 className="text-xl font-bold text-primary-dark">Edit Order Details</h2>
-                <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-zinc-100 rounded-full transition-colors"><X className="w-5 h-5 text-text-secondary" /></button>
+                <h2 className="text-xl font-bold text-text-dark">Edit Order Details</h2>
+                <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-zinc-100 rounded-full transition-colors"><X className="w-5 h-5 text-text-muted" /></button>
               </div>
               <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-text-secondary mb-1">Customer Name</label>
-                  <input required type="text" value={editFormData.name || ''} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                  <label className="block text-sm font-bold text-text-muted mb-1">Customer Name</label>
+                  <input required type="text" value={editFormData.name || ''} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-text-secondary mb-1">Address</label>
-                  <input required type="text" value={editFormData.line1 || ''} onChange={e => setEditFormData({...editFormData, line1: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                  <label className="block text-sm font-bold text-text-muted mb-1">Address</label>
+                  <input required type="text" value={editFormData.line1 || ''} onChange={e => setEditFormData({...editFormData, line1: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-text-secondary mb-1">City</label>
-                    <input required type="text" value={editFormData.city || ''} onChange={e => setEditFormData({...editFormData, city: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                    <label className="block text-sm font-bold text-text-muted mb-1">City</label>
+                    <input required type="text" value={editFormData.city || ''} onChange={e => setEditFormData({...editFormData, city: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-text-secondary mb-1">State</label>
-                    <input required type="text" value={editFormData.state || ''} onChange={e => setEditFormData({...editFormData, state: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                    <label className="block text-sm font-bold text-text-muted mb-1">State</label>
+                    <input required type="text" value={editFormData.state || ''} onChange={e => setEditFormData({...editFormData, state: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-text-secondary mb-1">Pincode</label>
-                  <input required type="text" value={editFormData.postalCode || ''} onChange={e => setEditFormData({...editFormData, postalCode: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-green-500" />
+                  <label className="block text-sm font-bold text-text-muted mb-1">Pincode</label>
+                  <input required type="text" value={editFormData.postalCode || ''} onChange={e => setEditFormData({...editFormData, postalCode: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-green-500" />
                 </div>
                 <div className="pt-4 flex gap-3">
-                  <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 py-2.5 border border-slate-200 text-primary-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
+                  <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 py-2.5 border border-slate-200 text-text-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
                   <button type="submit" className="flex-1 py-2.5 bg-primary-dark text-white font-bold rounded-xl hover:bg-primary-hover">Save Changes</button>
                 </div>
               </form>
@@ -518,21 +570,13 @@ export default function AdminOrders() {
               <div className="w-12 h-12 bg-error/10 text-error rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-bold text-primary-dark mb-2">Process Refund?</h2>
-              <p className="text-sm text-text-secondary mb-6">Are you sure you want to refund this order? This action cannot be undone and will mark the order as cancelled.</p>
+              <h2 className="text-xl font-bold text-text-dark mb-2">Process Refund?</h2>
+              <p className="text-sm text-text-muted mb-6">Are you sure you want to refund this order? This action cannot be undone and will mark the order as cancelled.</p>
               <div className="flex gap-3">
-                <button onClick={() => setShowRefundModal(false)} className="flex-1 py-2.5 border border-slate-200 text-primary-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
+                <button onClick={() => setShowRefundModal(false)} className="flex-1 py-2.5 border border-slate-200 text-text-dark font-bold rounded-xl hover:bg-zinc-50">Cancel</button>
                 <button onClick={executeRefund} className="flex-1 py-2.5 bg-error text-white font-bold rounded-xl hover:bg-red-600">Refund</button>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Toast */}
-        {toastMessage && (
-          <div className="fixed bottom-4 right-4 bg-primary-dark text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-5 z-50">
-            <CheckCircle2 className="w-5 h-5 text-accent-green" />
-            <p className="text-sm font-bold">{toastMessage}</p>
           </div>
         )}
 
@@ -544,9 +588,9 @@ export default function AdminOrders() {
   const allOrders = data?.data || [];
   const totalOrders = allOrders.length;
   const pendingOrders = allOrders.filter(o => o.status === 'PROCESSING' || o.status === 'PENDING').length;
-  const shippedOrders = allOrders.filter(o => o.status === 'SHIPPED').length;
+  const returnRequests = allOrders.filter(o => o.status === 'RETURN_REQUESTED' || o.status === 'EXCHANGE_REQUESTED').length;
   const totalRevenue = allOrders
-    .filter(o => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
+    .filter(o => !['CANCELLED', 'REFUNDED', 'RETURN_APPROVED'].includes(o.status))
     .reduce((sum, o) => sum + (o.total || 0), 0);
 
   // LIST VIEW
@@ -554,11 +598,11 @@ export default function AdminOrders() {
     <div className="w-full animate-in fade-in duration-300 pb-12">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <span className="text-[10px] text-accent-green font-bold uppercase tracking-widest font-mono">Operations</span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-primary-dark mt-0.5">Orders</h1>
-          <p className="text-xs text-text-secondary mt-1">Lifecycle, fulfillment, and returns</p>
+          <span className="text-[10px] text-blue-600 font-bold uppercase tracking-widest font-mono">Operations</span>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-text-dark mt-0.5">Orders</h1>
+          <p className="text-xs text-text-muted mt-1">Lifecycle, fulfillment, and returns</p>
         </div>
-        <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-primary-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors">
+        <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-text-dark font-bold rounded-xl shadow-sm hover:bg-zinc-50 transition-colors">
           <FileText className="w-4 h-4" />
           Export CSV
         </button>
@@ -566,21 +610,22 @@ export default function AdminOrders() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Orders</p>
-          <p className="text-3xl font-extrabold text-primary-dark">{totalOrders}</p>
+          <p className="text-3xl font-extrabold text-text-dark">{totalOrders}</p>
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Processing</p>
           <p className="text-3xl font-extrabold text-warning-dark">{pendingOrders}</p>
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Shipped</p>
-          <p className="text-3xl font-extrabold text-info-dark">{shippedOrders}</p>
+        <div className="bg-white border border-amber-200 bg-amber-50 rounded-xl p-6 shadow-sm transition-all relative overflow-hidden">
+          {returnRequests > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full animate-pulse m-4"></span>}
+          <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2">Returns / Exchanges</p>
+          <p className="text-3xl font-extrabold text-amber-900">{returnRequests}</p>
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Revenue</p>
-          <p className="text-3xl font-extrabold text-accent-green">{formatCurrency(totalRevenue)}</p>
+          <p className="text-3xl font-extrabold text-blue-600">{formatCurrency(totalRevenue)}</p>
         </div>
       </div>
 
@@ -593,6 +638,7 @@ export default function AdminOrders() {
               { id: 'PROCESSING', label: 'Processing' },
               { id: 'SHIPPED', label: 'Shipped' },
               { id: 'DELIVERED', label: 'Delivered' },
+              { id: 'RETURNS', label: 'Returns & Exchanges' },
               { id: 'CANCELLED', label: 'Cancelled' },
               { id: 'ON_HOLD', label: 'On Hold' }
             ].map(tab => (
@@ -601,8 +647,8 @@ export default function AdminOrders() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                   activeTab === tab.id 
-                    ? 'bg-white border border-slate-200 shadow-sm text-primary-dark' 
-                    : 'text-text-secondary hover:text-text-primary hover:bg-zinc-100/50'
+                    ? 'bg-white border border-slate-200 shadow-sm text-text-dark' 
+                    : 'text-text-muted hover:text-text-primary hover:bg-zinc-100/50'
                 }`}
               >
                 {tab.label}
@@ -617,48 +663,48 @@ export default function AdminOrders() {
             placeholder="Search orders..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-green-500 text-sm transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-green-500 text-sm transition-colors"
           />
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden">
         <div className="overflow-x-auto min-h-100">
           {isLoading ? (
             <div className="flex items-center justify-center h-64 text-zinc-400 font-semibold">Loading orders...</div>
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-50/80 text-text-secondary font-semibold border-b border-slate-200 text-[11px] uppercase tracking-wider">
+              <thead className="border-b border-slate-100 text-xs font-bold text-zinc-500">
                 <tr>
-                  <th className="px-6 py-4">Order</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Customer</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-widest whitespace-nowrap">Payment</th>
-                  <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-widest whitespace-nowrap">Total</th>
+                  <th className="px-5 py-3 font-medium">Order</th>
+                  <th className="px-5 py-3 font-medium">Date</th>
+                  <th className="px-5 py-3 font-medium">Customer</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 font-medium whitespace-nowrap">Payment</th>
+                  <th className="px-5 py-3 font-medium whitespace-nowrap">Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-slate-100">
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="p-12 text-center text-text-secondary">
+                    <td colSpan="6" className="p-12 text-center text-text-muted">
                       <FileText className="w-8 h-8 mx-auto mb-3 opacity-20" />
-                      <p className="font-bold text-primary-dark">No orders found</p>
+                      <p className="font-bold text-text-dark">No orders found</p>
                     </td>
                   </tr>
                 ) : (
                   orders.map((order) => (
                     <tr key={order.id} onClick={() => handleOpenDetail(order)} className="hover:bg-zinc-50/50 transition-colors cursor-pointer group">
                       <td className="px-6 py-4">
-                        <p className="font-bold text-primary-dark group-hover:text-accent-green transition-colors">{order.id}</p>
-                        <p className="text-xs text-text-secondary mt-0.5">{order.items?.length || 0} items</p>
+                        <p className="font-bold text-text-dark group-hover:text-blue-600 transition-colors">{order.id}</p>
+                        <p className="text-xs text-text-muted mt-0.5">{order.items?.length || 0} items</p>
                       </td>
-                      <td className="px-6 py-4 text-text-secondary font-medium">
+                      <td className="px-6 py-4 text-text-muted font-medium">
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-primary-dark">{order.shippingAddress?.name || 'Guest'}</p>
-                        <p className="text-xs text-text-secondary">{order.shippingAddress?.city || 'Unknown'}</p>
+                        <p className="font-bold text-text-dark">{order.shippingAddress?.name || 'Guest'}</p>
+                        <p className="text-xs text-text-muted">{order.shippingAddress?.city || 'Unknown'}</p>
                       </td>
                       <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                         {['DELIVERED', 'CANCELLED', 'REFUNDED'].includes(order.status) ? (
@@ -682,10 +728,10 @@ export default function AdminOrders() {
                                     statusHistory: [...(order.statusHistory || []), historyEntry]
                                   } 
                                 }, {
-                                  onSuccess: () => showToast(`Order ${order.id} marked as ${newStatus}`)
+                                  onSuccess: () => addToast(`Order ${order.id} marked as ${newStatus}`, 'success')
                                 });
                               }}
-                              className={`inline-flex items-center px-2.5 py-1.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border-none outline-none focus:ring-2 focus:ring-accent-green/50 pr-6 ${
+                              className={`inline-flex items-center px-2.5 py-1.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border-none outline-none focus:ring-2 focus:ring-blue-600/50 pr-6 ${
                                 order.status === 'SHIPPED' ? 'bg-info/15 text-info-dark' : 'bg-warning/15 text-warning-dark'
                               }`}
                             >
@@ -712,7 +758,7 @@ export default function AdminOrders() {
                           {order.paymentStatus}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-semibold text-primary-dark">{formatCurrency(order.total)}</td>
+                      <td className="px-6 py-4 font-semibold text-text-dark">{formatCurrency(order.total)}</td>
                     </tr>
                   ))
                 )}

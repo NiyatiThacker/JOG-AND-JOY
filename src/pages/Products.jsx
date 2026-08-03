@@ -48,7 +48,7 @@ export default function Products({ pageCategory = null }) {
       // Item Filter Keyword Logic
       let matchItem = true;
       if (selectedItemFilter) {
-        const nameLower = p.name.toLowerCase();
+        const nameLower = (p.name || '').toLowerCase();
 
         if (selectedItemFilter === 'Kids T-Shirt') {
           matchItem = nameLower.includes('tee') || nameLower.includes('t-shirt');
@@ -68,8 +68,8 @@ export default function Products({ pageCategory = null }) {
       const matchAge = !selectedAge || selectedAge === 'All' || p.ageGroup === selectedAge;
       const matchSearch =
         !searchQuery ||
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase());
+        (p.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.category || '').toLowerCase().includes(searchQuery.toLowerCase());
 
       return matchCat && matchAge && matchSearch && matchItem;
     }).sort((a, b) => {
@@ -112,7 +112,7 @@ export default function Products({ pageCategory = null }) {
                 placeholder="Search by product name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-red-500"
+                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-red-500"
               />
             </div>
 
@@ -144,7 +144,7 @@ export default function Products({ pageCategory = null }) {
                 value={sortBy}
                 onChange={setSortBy}
                 icon={SlidersHorizontal}
-                className="w-full max-w-[200px] sm:max-w-none sm:w-auto"
+                className="w-full max-w-50 sm:max-w-none sm:w-auto"
                 buttonClassName="px-3! sm:px-4!"
               />
             </div>

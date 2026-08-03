@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, User, ArrowRight, Loader2, Phone, MapPin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import emailjs from '@emailjs/browser';
 
 export default function CustomerLoginModal({ isOpen, onClose }) {
-  const { login, register } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  const { login, register, resetPassword } = useAuth();
+  const [view, setView] = useState('login'); // 'login', 'register', 'forgot'
   const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', address: '' });
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -24,7 +26,34 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
     e.preventDefault();
     
     // Strict JS Validation
-    if (!isLogin) {
+    if (view === 'forgot') {
+      if (!formData.email?.trim()) {
+        setError('Email is required.');
+        return;
+      }
+      setIsLoading(true);
+      
+      try {
+        await emailjs.send(
+          import.meta.env.VITE_EMAILJS_SERVICE_ID,
+          import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+          {
+            user_name: 'Customer',
+            email: formData.email.trim()
+          },
+          import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        );
+        setSuccessMsg('If an account exists, a recovery link has been sent to your email.');
+      } catch (err) {
+        console.error('EmailJS error:', err);
+        setError('Failed to send recovery link. Please try again later.');
+      }
+      
+      setIsLoading(false);
+      return;
+    }
+
+    if (view === 'register') {
       if (!formData.name?.trim()) {
         setError('Full Name is required.');
         return;
@@ -46,7 +75,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
     setIsLoading(true);
     
     let success = false;
-    if (isLogin) {
+    if (view === 'login') {
       success = await login(formData.email.trim(), formData.password);
       if (!success) setError('Invalid email or password.');
     } else {
@@ -88,18 +117,20 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
 
           <div className="mb-6">
             <h2 className="text-2xl font-black text-slate-900 mb-2">
-              {isLogin ? 'Welcome Back!' : 'Join Jog & Joy'}
+              {view === 'login' ? 'Welcome Back!' : view === 'register' ? 'Join Jog & Joy' : 'Reset Password'}
             </h2>
             <p className="text-slate-500 font-medium text-sm">
-              {isLogin 
+              {view === 'login' 
                 ? 'Sign in to view your orders and saved items.' 
-                : 'Create an account for faster checkout and exclusive deals.'}
+                : view === 'register' 
+                  ? 'Create an account for faster checkout and exclusive deals.'
+                  : 'Enter your email to receive a password reset link.'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <AnimatePresence mode="popLayout">
-              {!isLogin && (
+              {view === 'register' && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -115,7 +146,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                       placeholder="Jane Doe"
                       value={formData.name}
                       onChange={handleChange}
-                      required={!isLogin}
+                      required={view === 'register'}
                       pattern="^[A-Za-z\s]+$"
                       title="Name can only contain letters and spaces"
                       className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors"
@@ -131,7 +162,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                       placeholder="9876543210"
                       value={formData.phone}
                       onChange={handleChange}
-                      required={!isLogin}
+                      required={view === 'register'}
                       pattern="^[0-9]{10}$"
                       maxLength={10}
                       title="Phone number must be exactly 10 digits"
@@ -147,7 +178,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                       placeholder="Enter your full address"
                       value={formData.address}
                       onChange={handleChange}
-                      required={!isLogin}
+                      required={view === 'register'}
                       rows={2}
                       className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors resize-none"
                     />
@@ -172,22 +203,35 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Password</label>
-              <div className="relative">
-                <Lock className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength={6}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors"
-                />
+            {view !== 'forgot' && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">Password</label>
+                  {view === 'login' && (
+                    <button 
+                      type="button" 
+                      onClick={() => { setView('forgot'); setError(''); setSuccessMsg(''); }}
+                      className="text-[10px] font-bold text-[#EF4A45] hover:underline"
+                    >
+                      Forgot Password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required={view !== 'forgot'}
+                    minLength={6}
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-medium focus:outline-none focus:border-red-500 focus:bg-white transition-colors"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {error && (
               <motion.div 
@@ -196,6 +240,16 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                 className="text-[#EF4A45] text-xs font-bold bg-[#EF4A45]/10 p-3 rounded-lg"
               >
                 {error}
+              </motion.div>
+            )}
+            
+            {successMsg && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-green-600 text-xs font-bold bg-green-50 p-3 rounded-lg border border-green-100"
+              >
+                {successMsg}
               </motion.div>
             )}
 
@@ -208,7 +262,7 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
+                  {view === 'login' ? 'Sign In' : view === 'register' ? 'Create Account' : 'Send Recovery Link'}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -216,16 +270,18 @@ export default function CustomerLoginModal({ isOpen, onClose }) {
           </form>
 
           <div className="mt-6 text-center text-sm font-medium text-slate-600">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
+            {view === 'login' ? "Don't have an account? " : view === 'register' ? "Already have an account? " : "Remembered your password? "}
             <button
+              type="button"
               onClick={() => {
-                setIsLogin(!isLogin);
+                setView(view === 'login' ? 'register' : 'login');
                 setError('');
+                setSuccessMsg('');
                 setFormData({ name: '', email: '', password: '', phone: '', address: '' });
               }}
               className="text-[#EF4A45] hover:underline font-bold"
             >
-              {isLogin ? 'Sign up' : 'Log in'}
+              {view === 'login' ? 'Sign up' : 'Log in'}
             </button>
           </div>
         </motion.div>

@@ -25,46 +25,58 @@ export default function QuickViewModal({ product, onClose }) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] overflow-y-auto"
+          initial={{ opacity: 0, y: 100, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 100, scale: 0.98 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className="relative w-full max-w-3xl bg-white rounded-t-[2.5rem] sm:rounded-3xl shadow-2xl overflow-hidden border border-slate-100 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto"
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors"
+            className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-100/80 backdrop-blur-md hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-8">
-            {/* Image Container */}
-            <div className="relative h-80 sm:h-full min-h-75 rounded-2xl overflow-hidden bg-[#FFF8F0]">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = product.fallback || 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop';
-                }}
-              />
-              <button
-                onClick={() => toggleWishlist(product.id, selectedSize, selectedColor)}
-                className={`absolute top-4 left-4 p-2.5 rounded-full backdrop-blur-md transition-all shadow-sm ${
-                  isFavorited ? 'bg-rose-500 text-white' : 'bg-white/80 text-slate-700 hover:bg-white'
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${isFavorited ? 'fill-white' : ''}`} />
-              </button>
+          <div className="flex flex-col md:flex-row w-full h-full p-4 sm:p-6 md:p-8 gap-5 md:gap-8 mt-6 sm:mt-0">
+            {/* Image Section */}
+            <div className="w-full md:w-1/2 flex gap-3 sm:gap-4 shrink-0">
+              {/* Thumbnails */}
+              <div className="flex flex-col gap-2 sm:gap-3 w-12 sm:w-16 shrink-0 hidden sm:flex">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className={`w-full aspect-square bg-[#F5F5F5] rounded-xl sm:rounded-2xl overflow-hidden border-2 cursor-pointer transition-all ${i === 1 ? 'border-slate-300' : 'border-transparent hover:border-slate-200'}`}>
+                    <img src={product.image} alt="thumb" className="w-full h-full object-cover mix-blend-multiply opacity-90" />
+                  </div>
+                ))}
+              </div>
+              
+              {/* Main Image */}
+              <div className="flex-1 bg-[#F5F5F5] rounded-[2rem] overflow-hidden relative min-h-[300px] h-[40vh] md:h-auto border border-slate-100">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover mix-blend-multiply"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = product.fallback || 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop';
+                  }}
+                />
+                <button
+                  onClick={() => toggleWishlist(product.id, selectedSize, selectedColor)}
+                  className={`absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-md transition-all shadow-sm z-10 ${
+                    isFavorited ? 'bg-rose-500 text-white' : 'bg-white/80 text-slate-700 hover:bg-white'
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${isFavorited ? 'fill-white' : ''}`} />
+                </button>
+              </div>
             </div>
 
             {/* Product Meta */}
-            <div className="space-y-5">
+            <div className="w-full md:w-1/2 space-y-4 sm:space-y-5 flex flex-col justify-start">
               <div>
                 <span className="px-3 py-1 rounded-full bg-[#D8C7FF]/40 text-purple-800 text-[11px] font-extrabold uppercase tracking-wider">
                   {product.category}

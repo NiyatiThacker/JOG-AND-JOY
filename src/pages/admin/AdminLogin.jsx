@@ -106,7 +106,7 @@ export default function AdminLogin() {
                   onChange={handleChange}
                   required
                   autoComplete="off"
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:border-slate-900 focus:bg-white transition-all shadow-sm"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function AdminLogin() {
                   onChange={handleChange}
                   required
                   autoComplete="new-password"
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:border-slate-900 focus:bg-white transition-all shadow-sm"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-[#222222] font-medium placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition-all shadow-sm"
                 />
               </div>
             </div>

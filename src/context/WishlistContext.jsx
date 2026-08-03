@@ -19,7 +19,11 @@ export function WishlistProvider({ children }) {
   // Load wishlist from Supabase when user logs in
   useEffect(() => {
     const fetchWishlist = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+         setWishlist([]);
+         localStorage.removeItem('jog_n_joy_wishlist');
+         return;
+      }
       const { data, error } = await supabase
         .from('users')
         .select('wishlist')

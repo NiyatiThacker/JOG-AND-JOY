@@ -22,7 +22,7 @@ export default function NewArrivalProductCard({ product, onQuickView }) {
     <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-[#ECECEC] bg-white p-3 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 font-sans">
       
       {/* Image Block */}
-      <div className="relative aspect-4/5 w-full bg-[#FFF8EC] rounded-2xl overflow-hidden mb-3 border border-[#FFE0D6]">
+      <div className="relative aspect-square sm:aspect-4/5 w-full bg-[#FFF8EC] rounded-2xl overflow-hidden mb-3 border border-[#FFE0D6]">
         <Link to={`/product/${product.id}`} className="absolute inset-0">
           <img
             src={product.image}

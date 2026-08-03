@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import HeroSection from '../components/home/HeroSection';
 import BrandStrip from '../components/home/BrandStrip';
-import CategoryGrid from '../components/home/CategoryGrid';
+import ShopByDepartment from '../components/home/ShopByDepartment';
 import FeaturedCollections from '../components/home/FeaturedCollections';
 
 import SeasonalCollection from '../components/home/SeasonalCollection';
@@ -21,7 +21,7 @@ export default function Home() {
       <div className="relative z-10 space-y-0">
         <HeroSection />
         <BrandStrip />
-        <CategoryGrid />
+        <ShopByDepartment />
         <FeaturedCollections />
         <LimitedTimeOffers />
 
@@ -29,7 +29,6 @@ export default function Home() {
         <WhyChooseUs />
         <CustomerReviews />
         <InstagramGallery />
-        <NewsletterSection />
       </div>
 
       {/* Quick View Modal */}

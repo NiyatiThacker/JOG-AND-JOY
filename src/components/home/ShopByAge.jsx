@@ -28,39 +28,39 @@ export default function ShopByAge() {
         </div>
 
         {/* Age Group Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {AGE_GROUPS.map((item, index) => {
             const Icon = ageIcons[index % ageIcons.length];
             return (
               <Link
                 key={index}
                 to={`/products?age=${encodeURIComponent(item.label)}`}
-                className="group relative p-7 rounded-[28px] bg-white border border-[#ECECEC] shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between overflow-hidden"
+                className="group relative p-4 sm:p-7 rounded-[24px] sm:rounded-[28px] bg-white border border-[#ECECEC] shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between overflow-hidden"
               >
                 {/* Top Pill & Icon */}
-                <div className="flex justify-between items-center mb-8">
-                  <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6]">
+                <div className="flex justify-between items-center mb-4 sm:mb-8">
+                  <span className="px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-extrabold bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6]">
                     {item.badge}
                   </span>
-                  <div className="w-10 h-10 rounded-2xl bg-[#FFFDF9] border border-[#ECECEC] text-slate-700 flex items-center justify-center group-hover:bg-[#FF7A59] group-hover:text-white group-hover:border-[#FF7A59] transition-all duration-300 shadow-xs">
-                    <Icon className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-2xl bg-[#FFFDF9] border border-[#ECECEC] text-slate-700 flex items-center justify-center group-hover:bg-[#FF7A59] group-hover:text-white group-hover:border-[#FF7A59] transition-all duration-300 shadow-xs">
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform duration-300" />
                   </div>
                 </div>
 
                 {/* Card Title & Sub */}
-                <div className="space-y-2 mb-6">
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tight group-hover:text-[#FF7A59] transition-colors">
+                <div className="space-y-1 sm:space-y-2 mb-3 sm:mb-6">
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight group-hover:text-[#FF7A59] transition-colors">
                     {item.label}
                   </h3>
-                  <p className="text-xs text-slate-500 font-semibold leading-normal">
+                  <p className="text-[10px] sm:text-xs text-slate-500 font-semibold leading-normal">
                     {item.sub}
                   </p>
                 </div>
 
                 {/* Explore Action Banner */}
-                <div className="flex items-center gap-2 text-xs font-bold text-[#FF7A59] group-hover:translate-x-1 transition-transform duration-300">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold text-[#FF7A59] group-hover:translate-x-1 transition-transform duration-300">
                   <span>Explore Items</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
 
                 {/* Bottom Soft Hover Accent */}

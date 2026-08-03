@@ -3,6 +3,13 @@
 
 /* Admin Theme Variables */
 .admin-theme {
+  --kamal-primary: #C85A32;
+  --bg-base: #F8FAFC;
+  --bg-dark: #0f172a;
+  --text-dark: #0f172a;
+  --text-muted: #57534E;
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  
   --color-primary-dark: #062019;
   --color-secondary-green: #2E8F6C;
   --color-accent-green: #038D5C;
@@ -21,17 +28,38 @@
   --color-info: #2563EB;
   --color-primary-hover: #0F513A;
   --color-cta-hover: #D97706;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-ui);
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
 
+.pause-animation {
+  animation-play-state: paused;
+}
 .admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4, .admin-theme h5, .admin-theme h6 {
   font-family: 'Inter', sans-serif;
   letter-spacing: -0.01em;
 }
 
 @theme {
+  --color-kamal-primary: var(--kamal-primary);
+  --color-bg-base: var(--bg-base);
+  --color-bg-dark: var(--bg-dark);
+  --color-text-dark: var(--text-dark);
+  --color-text-muted: var(--text-muted);
+  --font-ui: var(--font-ui);
+
   --color-primary-dark: var(--color-primary-dark);
   --color-secondary-green: var(--color-secondary-green);
   --color-accent-green: var(--color-accent-green);
@@ -176,20 +204,21 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.85;
 }
 
-/* Custom Scrollbar */
+/* Custom Animated Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFF8EC;
+  background: rgba(255, 248, 236, 0.5);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #EF4A45;
-  border-radius: 9999px;
-  border: 2px solid #FFF8EC;
+  background: rgba(239, 74, 69, 0.7);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00A3E0;
+  background: rgba(239, 74, 69, 1);
 }
 
 /* Playful Icon System Hover Animations */

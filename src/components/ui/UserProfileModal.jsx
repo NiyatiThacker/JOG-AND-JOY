@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Package, MapPin, Heart, LogOut, CheckCircle2, ChevronRight, RotateCcw, Edit2, Save, Loader2 } from 'lucide-react';
+import { X, User, Package, MapPin, Heart, LogOut, CheckCircle2, ChevronRight, RotateCcw, Edit2, Save, Loader2, FileText } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useOrdersList, useUpdateOrder } from '../../queries/useOrders';
 import { useAuth } from '../../context/AuthContext';
@@ -11,8 +11,19 @@ export default function UserProfileModal({ isOpen, onClose }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', phone: '', address: '' });
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Addresses State
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [newAddress, setNewAddress] = useState({ label: 'Home', line1: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false });
+  const [userAddresses, setUserAddresses] = useState([]);
+
   const { wishlistCount } = useWishlist();
   const [orders, setOrders] = useState([]);
+  
+  // Return/Exchange Request State
+  const [returnOrderId, setReturnOrderId] = useState(null);
+  const [returnForm, setReturnForm] = useState({ type: 'RETURN', reason: 'Defective/Damaged', comments: '' });
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
   
   // Use the actual logged-in user's ID to fetch orders
   const { data: ordersData, refetch } = useOrdersList(user ? { customerId: user.id } : {});
@@ -40,6 +51,14 @@ export default function UserProfileModal({ isOpen, onClose }) {
   React.useEffect(() => {
     if (user) {
       setEditForm({ name: user.name || '', phone: user.phone || '', address: user.address || '' });
+      // Initialize addresses array (migrate legacy string if needed)
+      if (user.addresses && Array.isArray(user.addresses)) {
+        setUserAddresses(user.addresses);
+      } else if (user.address) {
+        setUserAddresses([{ id: 'legacy-1', label: 'Home', line1: user.address, isDefault: true }]);
+      } else {
+        setUserAddresses([]);
+      }
     }
   }, [user]);
 
@@ -67,22 +86,116 @@ export default function UserProfileModal({ isOpen, onClose }) {
       return;
     }
     setIsSaving(true);
-    await updateUser({ name: editForm.name, phone: editForm.phone, address: editForm.address });
+    await updateUser({ name: editForm.name, phone: editForm.phone, address: editForm.address, addresses: userAddresses });
     setIsSaving(false);
     setIsEditing(false);
   };
 
-  const handleRequestReturn = async (orderId) => {
-    if (window.confirm('Are you sure you want to request a return for this order?')) {
-      await updateOrder.mutateAsync({
-        id: orderId,
-        patch: {
-          status: 'RETURN_REQUESTED',
-          statusHistory: [{ status: 'RETURN_REQUESTED', timestamp: new Date().toISOString(), note: 'Customer requested return' }]
-        }
-      });
-      refetch();
+  const handleSaveNewAddress = async () => {
+    if (!newAddress.line1.trim()) return alert("Address line 1 is required");
+    
+    setIsSaving(true);
+    const addressToSave = { ...newAddress, id: Date.now().toString() };
+    
+    let updatedAddresses = [...userAddresses];
+    if (addressToSave.isDefault || updatedAddresses.length === 0) {
+      addressToSave.isDefault = true;
+      updatedAddresses = updatedAddresses.map(a => ({ ...a, isDefault: false }));
     }
+    
+    updatedAddresses.push(addressToSave);
+    
+    setUserAddresses(updatedAddresses);
+    await updateUser({ addresses: updatedAddresses });
+    
+    setNewAddress({ label: 'Home', line1: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false });
+    setShowAddressForm(false);
+    setIsSaving(false);
+  };
+
+  const handleDeleteAddress = async (id) => {
+    setIsSaving(true);
+    const updatedAddresses = userAddresses.filter(a => a.id !== id);
+    if (updatedAddresses.length > 0 && !updatedAddresses.some(a => a.isDefault)) {
+      updatedAddresses[0].isDefault = true;
+    }
+    setUserAddresses(updatedAddresses);
+    await updateUser({ addresses: updatedAddresses });
+    setIsSaving(false);
+  };
+
+  const handleSetDefaultAddress = async (id) => {
+    setIsSaving(true);
+    const updatedAddresses = userAddresses.map(a => ({
+      ...a,
+      isDefault: a.id === id
+    }));
+    setUserAddresses(updatedAddresses);
+    await updateUser({ addresses: updatedAddresses });
+    setIsSaving(false);
+  };
+
+  const handleRequestReturn = (orderId) => {
+    setReturnOrderId(orderId);
+    setReturnForm({ type: 'RETURN', reason: 'Defective/Damaged', comments: '' });
+  };
+
+  const submitReturnRequest = async (e) => {
+    e.preventDefault();
+    setIsSubmittingReturn(true);
+    const newStatus = returnForm.type === 'RETURN' ? 'RETURN_REQUESTED' : 'EXCHANGE_REQUESTED';
+    
+    await updateOrder.mutateAsync({
+      id: returnOrderId,
+      patch: {
+        status: newStatus,
+        returnRequest: {
+          type: returnForm.type,
+          reason: returnForm.reason,
+          comments: returnForm.comments,
+          requestedAt: new Date().toISOString()
+        },
+        statusHistory: [{ status: newStatus, timestamp: new Date().toISOString(), note: `Customer requested ${returnForm.type.toLowerCase()}` }]
+      }
+    });
+    
+    setIsSubmittingReturn(false);
+    setReturnOrderId(null);
+    refetch();
+  };
+
+  const handleDownloadInvoice = (order) => {
+    const invoiceText = `
+========================================
+             JOG & JOY
+         Official Invoice
+========================================
+Order ID: ${order.orderNumber}
+Date: ${order.date}
+Status: ${order.status}
+Customer: ${order.shippingAddress?.name || user?.name || 'Customer'}
+Email: ${order.shippingAddress?.email || user?.email || 'N/A'}
+
+SHIPPING ADDRESS:
+${order.shippingAddress?.line1 || 'N/A'}
+${order.shippingAddress?.city || 'N/A'}, ${order.shippingAddress?.state || 'N/A'} ${order.shippingAddress?.postalCode || ''}
+
+ITEMS:
+${order.items.map(item => `- ${item.quantity}x ${item.titleSnapshot || item.name} @ ₹${item.unitPrice} = ₹${item.unitPrice * item.quantity}`).join('\n')}
+
+----------------------------------------
+Total Paid: ${order.total}
+Payment Method: ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online'}
+========================================
+Thank you for shopping with Jog & Joy!
+    `;
+    const blob = new Blob([invoiceText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Invoice_${order.orderNumber}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -121,7 +234,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                   type="text"
                   value={editForm.name}
                   onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value.replace(/[^A-Za-z\s]/g, '') }))}
-                  className="text-xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded px-2 py-1 w-full focus:outline-none focus:border-red-500"
+                  className="text-xl font-black text-slate-900 bg-slate-50 border border-slate-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-1 focus:ring-red-500"
                   placeholder="Your Name"
                 />
               )}
@@ -257,13 +370,21 @@ export default function UserProfileModal({ isOpen, onClose }) {
                     )}
 
                     {/* Footer Actions */}
-                    {order.status === 'DELIVERED' && (
-                      <div className="pt-2 flex justify-end">
+                    <div className="pt-2 flex justify-end gap-2">
+                      <button onClick={() => handleDownloadInvoice(order)} className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-bold transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                        <FileText className="w-3.5 h-3.5" /> Download Invoice
+                      </button>
+                      {order.status === 'DELIVERED' && !order.returnRequest && (
                         <button onClick={() => handleRequestReturn(order.id)} className="flex items-center gap-1.5 text-xs text-[#EF4A45] hover:text-red-700 font-bold transition-colors bg-white px-3 py-1.5 rounded-lg border border-red-100 shadow-sm">
-                          <RotateCcw className="w-3.5 h-3.5" /> Request Return
+                          <RotateCcw className="w-3.5 h-3.5" /> Request Return/Exchange
                         </button>
-                      </div>
-                    )}
+                      )}
+                      {(order.status === 'RETURN_REQUESTED' || order.status === 'EXCHANGE_REQUESTED') && (
+                        <span className="flex items-center gap-1.5 text-[10px] uppercase font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
+                          {order.status === 'RETURN_REQUESTED' ? 'Return' : 'Exchange'} Pending
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (
@@ -279,28 +400,86 @@ export default function UserProfileModal({ isOpen, onClose }) {
           )}
 
           {activeTab === 'addresses' && (
-            <div className="space-y-3">
-              <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between">
-                <div className="w-full">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-extrabold text-slate-900 text-xs">Home Address</span>
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-[#AEE6FF] text-slate-900">Default</span>
+            <div className="space-y-4">
+              
+              {userAddresses.length === 0 && !showAddressForm && (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <MapPin className="w-6 h-6 text-slate-400" />
                   </div>
-                  {!isEditing ? (
-                    <p className="text-xs text-slate-600 mt-1 font-medium">
-                      {user?.address || 'No address provided yet.'}
-                    </p>
-                  ) : (
-                    <textarea
-                      value={editForm.address}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full text-xs font-medium bg-white border border-slate-200 rounded-xl p-2 focus:outline-none focus:border-red-500"
-                      rows={3}
-                      placeholder="Enter your full address"
-                    />
-                  )}
+                  <h4 className="text-sm font-black text-slate-800">No saved addresses</h4>
+                  <p className="text-xs text-slate-500 mt-1">Add an address for faster checkout.</p>
                 </div>
-              </div>
+              )}
+
+              {userAddresses.map((addr) => (
+                <div key={addr.id} className={`p-4 rounded-2xl border ${addr.isDefault ? 'border-[#EF4A45] bg-red-50/30' : 'border-slate-200 bg-slate-50'} relative overflow-hidden group transition-all`}>
+                  {addr.isDefault && (
+                    <div className="absolute top-0 right-0 bg-[#EF4A45] text-white text-[10px] font-black px-3 py-1 rounded-bl-xl shadow-sm">
+                      DEFAULT
+                    </div>
+                  )}
+                  <div className="w-full pr-16">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="font-extrabold text-slate-900 text-sm">{addr.label}</span>
+                    </div>
+                    <p className="text-xs text-slate-700 font-medium leading-relaxed">
+                      {addr.line1}<br/>
+                      {addr.city && addr.state ? `${addr.city}, ${addr.state} ${addr.postalCode || ''}` : ''}<br/>
+                      {addr.country}
+                    </p>
+                    
+                    <div className="mt-3 flex gap-3">
+                      {!addr.isDefault && (
+                        <button onClick={() => handleSetDefaultAddress(addr.id)} className="text-[10px] font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-wider">Set Default</button>
+                      )}
+                      <button onClick={() => handleDeleteAddress(addr.id)} className="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-wider">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {!showAddressForm ? (
+                <button 
+                  onClick={() => setShowAddressForm(true)}
+                  className="w-full py-4 rounded-2xl border-2 border-dashed border-slate-200 text-slate-500 font-bold text-sm hover:border-slate-300 hover:text-slate-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <MapPin className="w-4 h-4" /> Add New Address
+                </button>
+              ) : (
+                <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                  <h4 className="font-black text-slate-800 text-sm">Add New Address</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <button type="button" onClick={() => setNewAddress({...newAddress, label: 'Home'})} className={`py-2 rounded-xl border text-xs font-bold transition-all ${newAddress.label === 'Home' ? 'border-[#EF4A45] bg-red-50 text-[#EF4A45]' : 'border-slate-200 text-slate-600'}`}>Home</button>
+                    <button type="button" onClick={() => setNewAddress({...newAddress, label: 'Work'})} className={`py-2 rounded-xl border text-xs font-bold transition-all ${newAddress.label === 'Work' ? 'border-[#EF4A45] bg-red-50 text-[#EF4A45]' : 'border-slate-200 text-slate-600'}`}>Work</button>
+                  </div>
+                  
+                  <input type="text" placeholder="Flat, House no., Building, Company, Apartment" value={newAddress.line1} onChange={(e) => setNewAddress({...newAddress, line1: e.target.value})} className="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#EF4A45]" />
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="text" placeholder="City" value={newAddress.city} onChange={(e) => setNewAddress({...newAddress, city: e.target.value})} className="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#EF4A45]" />
+                    <input type="text" placeholder="State" value={newAddress.state} onChange={(e) => setNewAddress({...newAddress, state: e.target.value})} className="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#EF4A45]" />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="text" placeholder="Pincode" value={newAddress.postalCode} onChange={(e) => setNewAddress({...newAddress, postalCode: e.target.value})} className="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#EF4A45]" />
+                    <input type="text" placeholder="Country" value={newAddress.country} onChange={(e) => setNewAddress({...newAddress, country: e.target.value})} className="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-[#EF4A45]" />
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer mt-2">
+                    <input type="checkbox" checked={newAddress.isDefault} onChange={(e) => setNewAddress({...newAddress, isDefault: e.target.checked})} className="rounded text-[#EF4A45] focus:ring-[#EF4A45]" />
+                    <span className="text-xs font-bold text-slate-600">Make this my default address</span>
+                  </label>
+                  
+                  <div className="pt-2 flex gap-3">
+                    <button onClick={() => setShowAddressForm(false)} className="flex-1 py-3 border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">Cancel</button>
+                    <button onClick={handleSaveNewAddress} disabled={isSaving} className="flex-1 py-3 bg-[#EF4A45] text-white rounded-xl font-bold text-xs hover:bg-[#d33a36] transition-colors disabled:opacity-70 flex justify-center items-center gap-2">
+                      {isSaving && <Loader2 className="w-3 h-3 animate-spin" />} Save Address
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -315,7 +494,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
                     type="tel"
                     value={editForm.phone}
                     onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value.replace(/[^0-9]/g, '') }))}
-                    className="text-slate-900 bg-white border border-slate-200 rounded px-2 py-1 w-1/2 focus:outline-none focus:border-red-500 text-right"
+                    className="text-slate-900 bg-white border border-slate-200 rounded px-2 py-1 w-1/2 focus:outline-none focus:ring-1 focus:ring-red-500 text-right"
                     placeholder="Enter phone number"
                     maxLength={10}
                   />
@@ -345,16 +524,92 @@ export default function UserProfileModal({ isOpen, onClose }) {
               )}
 
               <button
-                onClick={async () => {
-                  await logout();
+                onClick={() => {
+                  logout();
                   onClose();
                 }}
-                className="w-full mt-2 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-black flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-4 rounded-2xl font-bold text-[15px] text-slate-400 flex items-center justify-center gap-2 hover:text-rose-500 hover:bg-rose-50/50 transition-all duration-200"
               >
                 <LogOut className="w-4 h-4" /> Sign Out
               </button>
             </div>
           )}
+          {/* Return/Exchange Form Overlay */}
+          <AnimatePresence>
+            {returnOrderId && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-white z-20 rounded-3xl p-6 sm:p-8 flex flex-col"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-black text-slate-900">Return / Exchange</h3>
+                  <button onClick={() => setReturnOrderId(null)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <form onSubmit={submitReturnRequest} className="flex-1 overflow-y-auto pr-2 space-y-5 pb-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Request Type</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button 
+                        type="button"
+                        onClick={() => setReturnForm({...returnForm, type: 'RETURN'})}
+                        className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${returnForm.type === 'RETURN' ? 'border-[#EF4A45] bg-red-50 text-[#EF4A45]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}`}
+                      >
+                        Refund
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setReturnForm({...returnForm, type: 'EXCHANGE'})}
+                        className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${returnForm.type === 'EXCHANGE' ? 'border-[#EF4A45] bg-red-50 text-[#EF4A45]' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}`}
+                      >
+                        Exchange
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Reason</label>
+                    <select 
+                      value={returnForm.reason}
+                      onChange={(e) => setReturnForm({...returnForm, reason: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    >
+                      <option value="Defective/Damaged">Defective or Damaged</option>
+                      <option value="Wrong Size">Wrong Size</option>
+                      <option value="Not as Expected">Not as Expected</option>
+                      <option value="Received Wrong Item">Received Wrong Item</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Additional Comments</label>
+                    <textarea 
+                      value={returnForm.comments}
+                      onChange={(e) => setReturnForm({...returnForm, comments: e.target.value})}
+                      placeholder="Please provide any details to help us process your request faster..."
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500/50 min-h-[100px]"
+                    />
+                  </div>
+                  
+                  <div className="pt-4 border-t border-slate-100">
+                    <button 
+                      type="submit" 
+                      disabled={isSubmittingReturn}
+                      className="w-full bg-[#EF4A45] text-white font-bold py-3.5 rounded-xl hover:bg-[#d33a36] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+                    >
+                      {isSubmittingReturn ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Submit Request'}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </motion.div>
       </div>
     </AnimatePresence>

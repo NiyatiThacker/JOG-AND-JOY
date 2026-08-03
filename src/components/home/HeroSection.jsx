@@ -1,275 +1,175 @@
 "use client";
 
 import React from 'react';
+import ImageTrail from './ImageTrail';
+import heroBgDesktop from "../../assets/hero-bg-desktop.png";
+import heroBgMobile from "../../assets/hero-bg-mobile.png";
+import tshirt from "../../assets/cutout-tshirt.png";
+import shorts from "../../assets/cutout-shorts.png";
+import sun from "../../assets/cutout-sun.png";
+import cloud from "../../assets/cutout-cloud.png";
+import star from "../../assets/cutout-star.png";
+
+const cutouts = [
+  { src: sun, className: "top-[6%] left-[4%] w-16 sm:w-20 md:w-36 z-2", rotDeg: -10, fromX: "-80px", fromY: "-60px", delay: "0s", label: "Smiling sun" },
+  { src: cloud, className: "top-[10%] right-[6%] w-16 sm:w-24 md:w-44 z-2", rotDeg: 8, fromX: "90px", fromY: "-70px", delay: "0.15s", label: "Happy cloud" },
+  { src: tshirt, className: "bottom-[14%] sm:bottom-[10%] left-[4%] sm:left-[6%] w-20 sm:w-24 md:w-40 z-2", rotDeg: -14, fromX: "-90px", fromY: "90px", delay: "0.30s", label: "Striped t-shirt" },
+  { src: shorts, className: "bottom-[14%] sm:bottom-[10%] right-[4%] sm:right-[6%] w-20 sm:w-24 md:w-40 z-2", rotDeg: 12, fromX: "90px", fromY: "90px", delay: "0.45s", label: "Yellow shorts" },
+  { src: star, className: "top-[38%] sm:top-[44%] right-[4%] w-12 sm:w-14 md:w-24 z-2", rotDeg: 18, fromX: "100px", fromY: "0px", delay: "0.60s", label: "Cheerful star" },
+];
+
+const trailImages = [
+  "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=400&h=400&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=400&h=400&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=400&h=400&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1471286174574-e9627710ee7e?w=400&h=400&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1502224562085-639556652f33?w=400&h=400&fit=crop&q=80",
+];
 
 export default function HeroSection() {
   return (
-    <section className="hero-section" style={{
-      position: "relative",
-      height: "calc(100vh - 70px)",
-      color: "#1a1a1a",
-      overflow: "hidden",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "crosshair"
-    }}>
-      {/* Background Video (Swapped from KidsPage) */}
-      <video
-        src="/videos/kids-hero-new.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        onCanPlay={(e) => { e.currentTarget.playbackRate = 2; }}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          zIndex: 0
-        }}
-      />
+    <section className="relative w-full text-slate-900 flex flex-col md:block items-center justify-center cursor-crosshair h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] bg-white overflow-hidden">
+      {/* Desktop Background */}
+      <div className="absolute inset-0 max-md:hidden z-0" style={{
+        backgroundImage: `url(${heroBgDesktop})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }} />
+
+      {/* Mobile Background */}
+      <div className="absolute inset-0 md:hidden z-0" style={{
+        backgroundImage: `url(${heroBgMobile})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }} />
+      
+      {/* Background Subtle Grid Pattern */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        opacity: 0.05,
+        backgroundImage: "linear-gradient(#1a1a1a 1px, transparent 1px), linear-gradient(90deg, #1a1a1a 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+        pointerEvents: "none"
+      }} />
+
+      {/* Image Trail interactive overlay */}
+      <div className="max-md:hidden" style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 1,
+        pointerEvents: "auto"
+      }}>
+        <ImageTrail items={trailImages} variant={1} />
+      </div>
+
+      {/* Floating Animated Cutouts */}
+      {cutouts.map((c, i) => (
+        <div
+          key={i}
+          className={`absolute ${c.className} group cursor-pointer transition-transform duration-200 ease-out hover:scale-110 hover:-translate-y-1 focus-visible:scale-110 focus-visible:-translate-y-1 focus-visible:outline-none`}
+          tabIndex={0}
+          role="img"
+          aria-label={c.label}
+        >
+          <img
+            src={c.src}
+            alt=""
+            className="animate-cutout-shake drop-shadow-xl group-hover:drop-shadow-2xl transition-[filter] duration-200 pointer-events-none select-none w-full h-full"
+            style={
+              {
+                "--rot-deg": c.rotDeg,
+                "--from-x": c.fromX,
+                "--from-y": c.fromY,
+                animationDelay: c.delay,
+                transformOrigin: "center",
+              }
+            }
+          />
+        </div>
+      ))}
+      
+      {/* Interactive mouse trail hint in corner */}
+      <div className="max-md:hidden" style={{
+        position: "absolute",
+        bottom: "30px",
+        right: "30px",
+        fontSize: "0.85rem",
+        fontWeight: 500,
+        color: "#475569",
+        pointerEvents: "none",
+        zIndex: 5,
+        display: "flex",
+        alignItems: "center",
+        gap: "8px"
+      }}>
+        <span style={{
+          width: "8px",
+          height: "8px",
+          borderRadius: "50%",
+          backgroundColor: "var(--color-accent)",
+          display: "inline-block"
+        }} />
+        Move mouse to reveal trail
+      </div>
 
       {/* Main Tagline Layout Container */}
-      <div className="container" style={{
-        position: "relative",
-        zIndex: 10,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        alignItems: "center",
-        textAlign: "center",
-        pointerEvents: "none",
-        width: "100%",
-        height: "100%",
-        padding: "6vh 4vw 6vh 4vw"
-      }}>
-
+      <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center w-full h-full px-4 py-12 md:px-8 md:py-12 pointer-events-auto md:pointer-events-none">
 
         {/* Right Side decorative crayon/sketch sticker */}
-        <div style={{
-          position: "absolute",
-          right: "2%",
-          top: "8%",
-          width: "42px",
-          height: "42px",
-          backgroundColor: "#FAF6F0",
-          border: "2px solid #ED6B21", // Orange border
-          borderRadius: "12px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "1.2rem",
-          transform: "rotate(12deg)",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-          opacity: 0.95
-        }} className="sticker-right max-md:hidden">
+        <div className="absolute right-4 top-8 w-10 h-10 md:right-8 md:top-12 md:w-12 md:h-12 bg-[#FAF6F0] border-2 border-[#ED6B21] rounded-xl flex items-center justify-center text-lg transform rotate-12 shadow-sm opacity-95 max-md:hidden">
           🖍️
         </div>
 
         {/* Playful Headline Layout */}
-        <h1 style={{
-          fontFamily: "var(--font-heading-primary)",
-          fontSize: "clamp(1.5rem, 3.5vw, 2.8rem)",
-          fontWeight: 900,
-          color: "#2F1B2B",
-          textShadow: "0 0 25px rgba(255,255,255,0.7), 0 0 10px rgba(255,255,255,0.5)",
-          lineHeight: "1.3",
-          margin: "0 0 24px",
-          width: "100%",
-          textAlign: "right",
-          alignSelf: "flex-end",
-          letterSpacing: "-0.01em"
-        }}>
+        <h1 className="font-heading-primary text-[clamp(1.2rem,4.5vw,4rem)] md:text-[clamp(2.5rem,4vw,3.5rem)] font-black text-white leading-[1.1] md:leading-tight mb-2 md:mb-6 w-full text-center tracking-tight drop-shadow-lg">
           {/* Dress - custom styled script style with overlaid blue lines */}
-          <span style={{
-            position: "relative",
-            display: "inline-block",
-            color: "var(--color-accent)", // Logo red
-            fontFamily: "var(--font-heading-secondary)",
-            fontWeight: "normal",
-            marginRight: "12px",
-            textShadow: "0 0 15px rgba(255,255,255,0.6)"
-          }}>
-
+          <span className="relative inline-block text-(--color-accent) font-heading-secondary font-normal mr-2 md:mr-3 drop-shadow-md">
             Dress
           </span>
           Your Little Ones in
           
           {/* Emoji Badge inline */}
-          <span style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#ED6B21", // Logo orange
-            borderRadius: "50%",
-            width: "38px",
-            height: "38px",
-            marginLeft: "10px",
-            fontSize: "1.2rem",
-            verticalAlign: "middle",
-            boxShadow: "0 4px 10px rgba(237, 107, 33, 0.4)",
-            textShadow: "none"
-          }}>
+          <span className="inline-flex items-center justify-center bg-[#ED6B21] rounded-full w-8 h-8 md:w-10 md:h-10 mx-2 text-base md:text-xl align-middle shadow-md shadow-orange-500/40">
             🤠
           </span>
-          <br />
+          <br className="hidden md:block" />
 
           {/* Yellow Card Highlight for 'Colorful' */}
-          <span style={{
-            display: "inline-block",
-            backgroundColor: "var(--color-yellow)", // Logo Yellow
-            color: "var(--color-accent)", // Logo Red text
-            padding: "0px 18px",
-            borderRadius: "16px",
-            marginRight: "12px",
-            transform: "rotate(-1.5deg)",
-            boxShadow: "0 3px 0 #222222",
-            border: "1.5px solid #222222",
-            textShadow: "none"
-          }}>
+          <span className="inline-block bg-(--color-yellow) text-(--color-accent) px-3 py-1 md:px-5 md:py-1 rounded-xl md:rounded-2xl mr-2 md:mr-3 -rotate-2 shadow-[0_3px_0_#222] border-[1.5px] border-[#222]">
             Colorful
           </span>
 
           {/* Underlined 'Confidence!' word */}
-          <span style={{
-            position: "relative",
-            display: "inline-block"
-          }}>
+          <span className="relative inline-block">
             Confidence!
             {/* Draw a thick yellow underline */}
-            <span style={{
-              position: "absolute",
-              left: 0,
-              bottom: "-4px",
-              width: "100%",
-              height: "5px",
-              backgroundColor: "var(--color-yellow)",
-              borderRadius: "4px",
-              borderBottom: "1.5px solid #222222",
-              boxShadow: "none"
-            }} />
+            <span className="absolute left-0 -bottom-1 md:-bottom-2 w-full h-1.5 md:h-2 bg-(--color-yellow) rounded-md border-b-[1.5px] border-[#222]" />
           </span>
         </h1>
 
-        {/* Bottom Content Wrapper to push them down together */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-          {/* Subtext description */}
-        <p style={{
-          fontFamily: "var(--font-body)",
-          fontSize: "clamp(1.1rem, 1.5vw, 1.3rem)",
-          color: "#2F1B2B",
-          textShadow: "0 0 15px rgba(255,255,255,0.8)",
-          maxWidth: "640px",
-          lineHeight: "1.6",
-          margin: "0 0 40px",
-          fontWeight: 600
-        }}>
-          Where every clothing sparks imagination allowing your child to express themselves!
-        </p>
+        {/* Bottom Content Wrapper */}
+        <div className="flex flex-col items-center w-full mt-6 md:mt-0">
 
         {/* CTAs Row */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "40px",
-          flexWrap: "wrap",
-          width: "100%",
-          pointerEvents: "auto"
-        }}>
-          {/* Left social proof */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{
-              fontSize: "1.3rem",
-              fontWeight: 800,
-              color: "var(--color-accent)"
-            }}>
-              952+
-            </span>
-            
-            {/* Avatar Stack */}
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img 
-                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&q=80" 
-                alt="User"
-                style={{ width: "32px", height: "32px", borderRadius: "50%", border: "2px solid #ffffff", objectFit: "cover" }} 
-              />
-              <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80" 
-                alt="User"
-                style={{ width: "32px", height: "32px", borderRadius: "50%", border: "2px solid #ffffff", marginLeft: "-10px", objectFit: "cover" }} 
-              />
-              <img 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=80" 
-                alt="User"
-                style={{ width: "32px", height: "32px", borderRadius: "50%", border: "2px solid #ffffff", marginLeft: "-10px", objectFit: "cover" }} 
-              />
-            </div>
-            
-            <span style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.85rem",
-              fontWeight: 700,
-              color: "#2F1B2B",
-              textShadow: "0 0 10px rgba(255,255,255,0.8)",
-              textAlign: "left",
-              lineHeight: 1.2
-            }}>
-              Families<br />Prefer Us!
-            </span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-10 w-full pointer-events-auto">
+
+          <div className="flex items-center gap-4">
+            {/* Shop Now Action Button */}
+            <a href="/products" className="bg-(--color-accent) text-white px-4 py-2 md:px-8 md:py-3.5 rounded-full text-sm md:text-lg font-black border-[1.5px] border-[#222] shadow-[0_4px_0_#222] transition-transform active:translate-y-1 active:shadow-[0_2px_0_#222] hover:-translate-y-0.5 hover:shadow-[0_6px_0_#222]">
+              Shop Now &rarr;
+            </a>
+
+            {/* Play Video Action Circle */}
+            <a 
+              href="/why-us"
+              aria-label="Play video review"
+              className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-(--color-green) border-[1.5px] border-[#222] shadow-[0_3px_0_#222] flex items-center justify-center text-white text-base md:text-xl transition-transform hover:scale-110 active:scale-95"
+            >
+              ▶️
+            </a>
           </div>
-
-          {/* Shop Now Action Button */}
-          <a href="/products" className="btn" style={{
-            backgroundColor: "var(--color-accent)", // Logo Red
-            color: "#ffffff",
-            padding: "14px 36px",
-            borderRadius: "30px",
-            fontSize: "1.05rem",
-            fontWeight: 700,
-            border: "1.5px solid #222222",
-            boxShadow: "0 4px 0 #222222",
-            transition: "transform 0.1s, box-shadow 0.1s"
-          }}
-          onMouseDown={(e) => {
-            e.currentTarget.style.transform = "translateY(2px)";
-            e.currentTarget.style.boxShadow = "0 2px 0 #222222";
-          }}
-          onMouseUp={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 0 #222222";
-          }}
-          >
-            Shop Now &rarr;
-          </a>
-
-          {/* Play Video Action Circle */}
-          <a 
-            href="/why-us"
-            aria-label="Play video review"
-            style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "50%",
-              backgroundColor: "var(--color-green)", // Dark logo green
-              border: "1.5px solid #222222",
-              boxShadow: "0 3px 0 #222222",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              fontSize: "0.95rem",
-              textDecoration: "none",
-              transition: "transform 0.2s"
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.08)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          >
-            ▶️
-          </a>
         </div>
       </div>
     </div>

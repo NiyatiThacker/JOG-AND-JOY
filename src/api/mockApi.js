@@ -115,14 +115,15 @@ export async function update(table, id, patch) {
     .from(table)
     .update({ ...cleanPatch, updatedAt: new Date().toISOString() })
     .eq('id', id)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     console.error(`Supabase Update Error [${table}]:`, error);
     throw new Error(error.message);
   }
-  return data;
+  
+  // Return the first item or a fallback if RLS blocked the select return
+  return data && data.length > 0 ? data[0] : { id, ...cleanPatch };
 }
 
 export async function remove(table, id) {

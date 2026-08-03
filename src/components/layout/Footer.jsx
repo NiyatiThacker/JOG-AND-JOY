@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 // Pixel-Perfect Vector Instagram Icon with CSS Gradient Container
 const InstagramGradientIcon = () => (
-  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-tr from-[#fdf497] via-[#fd5949] via-[#d6249f] to-[#285AEB] flex items-center justify-center shadow-md shrink-0">
+  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-linear-to-tr from-[#fdf497] via-[#fd5949]  to-[#285AEB] flex items-center justify-center shadow-md shrink-0">
     <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -38,19 +38,6 @@ export default function Footer() {
     <footer className="bg-[#1B475D] text-[#EEE5C2] pt-12 pb-10 px-4 sm:px-6 lg:px-12 relative overflow-hidden font-sans">
       <div className="max-w-7xl mx-auto space-y-10">
         
-        {/* TOP INSTAGRAM FOLLOW BAR */}
-        <div className="flex items-center justify-center gap-3.5 text-xl sm:text-3xl font-extrabold tracking-tight text-[#EEE5C2] select-none">
-          <span className="text-[#EEE5C2]/95 font-medium">Follow us on</span>
-          <a 
-            href="https://instagram.com/jogandjoy_official" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center gap-2.5 hover:opacity-90 transition-opacity"
-          >
-            <InstagramGradientIcon />
-            <span className="font-black text-[#EEE5C2] tracking-tight">Jog&Joy_Official</span>
-          </a>
-        </div>
 
         {/* MAIN CONTENT CARD CONTAINER (Rich Warm Cream / Ivory Background) */}
         <div className="relative bg-linear-to-br from-[#FFF9EA] via-[#F6EAC9] to-[#EFE1BA] text-[#1B475D] rounded-4xl p-8 sm:p-12 shadow-2xl overflow-hidden border-2 border-white/80">
@@ -115,6 +102,11 @@ export default function Footer() {
                     </Link>
                   </li>
                   <li>
+                    <Link to="/track-order" className="hover:text-[#D32F2F] transition-colors sm:whitespace-nowrap">
+                      Track Order
+                    </Link>
+                  </li>
+                  <li>
                     <Link to="/contact-us" className="hover:text-[#D32F2F] transition-colors sm:whitespace-nowrap">
                       Contact Us
                     </Link>
@@ -165,7 +157,7 @@ export default function Footer() {
                   Click to explore other verticals
                 </span>
                 
-                <div className="flex items-center justify-center sm:justify-end gap-5 bg-white/80 p-3 rounded-2xl border border-white shadow-xs inline-flex">
+                <div className="flex items-center justify-center sm:justify-end gap-5 bg-white/80 p-3 rounded-2xl border border-white shadow-xs ">
                   <a 
                     href="https://kamalclothing.com/" 
                     target="_blank" 

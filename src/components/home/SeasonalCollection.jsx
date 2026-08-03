@@ -54,7 +54,7 @@ export default function SeasonalCollection({ onQuickView }) {
         </div>
 
         {/* Tab Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {(filtered.length > 0 ? filtered : combinedProducts.slice(0, 4)).map((product) => (
             <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
           ))}

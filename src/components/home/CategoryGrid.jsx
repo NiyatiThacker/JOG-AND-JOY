@@ -143,20 +143,6 @@ export default function CategoryGrid() {
 
   return (
     <>
-      {/* Immersive backdrop blur for the rest of the page (everything except the active category section) */}
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 12, // Sits above standard page content, below category section (15)
-          backdropFilter: "blur(12px)",
-          backgroundColor: "rgba(34, 34, 34, 0.35)", // Subtle dark tint overlay
-          opacity: isOpen ? 1 : 0,
-          visibility: isOpen ? "visible" : "hidden",
-          transition: "opacity 0.6s ease, visibility 0.6s ease",
-          pointerEvents: "none" // Allow users to scroll freely through overlay
-        }}
-      />
 
       <section
         ref={sectionRef}
