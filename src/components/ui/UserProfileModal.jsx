@@ -12,6 +12,11 @@ export default function UserProfileModal({ isOpen, onClose }) {
   const [editForm, setEditForm] = useState({ name: '', phone: '', address: '' });
   const [isSaving, setIsSaving] = useState(false);
   
+  const [expandedOrderIds, setExpandedOrderIds] = useState([]);
+  const toggleOrderStatus = (orderId) => {
+    setExpandedOrderIds(prev => prev.includes(orderId) ? prev.filter(id => id !== orderId) : [...prev, orderId]);
+  };
+  
   // Addresses State
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [newAddress, setNewAddress] = useState({ label: 'Home', line1: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false });
@@ -322,69 +327,101 @@ Thank you for shopping with Jog & Joy!
                        </div>
                     </div>
                     
-                    {/* Order Status Timeline */}
-                    <div className="mt-2 pt-4 border-t border-amber-200/50">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Order Status</p>
-                      <div className="relative flex items-center justify-between px-2">
-                        {/* Connecting Line */}
-                        <div className="absolute left-4 right-4 top-1.75 h-0.5 bg-amber-100 z-0"></div>
-                        <div className="absolute left-4 right-4 top-1.75 h-0.5 bg-[#EF4A45] z-0 transition-all duration-500" style={{ width: order.status === 'DELIVERED' ? '100%' : order.status === 'SHIPPED' ? '50%' : '0%' }}></div>
-                        
-                        {/* Processing Node */}
-                        <div className="relative z-10 flex flex-col items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                          </div>
-                          <span className={`text-[10px] font-black ${['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) ? 'text-slate-800' : 'text-slate-400'}`}>Processing</span>
-                        </div>
-                        
-                        {/* Shipped Node */}
-                        <div className="relative z-10 flex flex-col items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${['SHIPPED', 'DELIVERED'].includes(order.status) ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                          </div>
-                          <span className={`text-[10px] font-black ${['SHIPPED', 'DELIVERED'].includes(order.status) ? 'text-slate-800' : 'text-slate-400'}`}>Shipped</span>
-                        </div>
-                        
-                        {/* Delivered Node */}
-                        <div className="relative z-10 flex flex-col items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center ${order.status === 'DELIVERED' ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-100'}`}>
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                          </div>
-                          <span className={`text-[10px] font-black ${order.status === 'DELIVERED' ? 'text-slate-800' : 'text-slate-400'}`}>Delivered</span>
-                        </div>
+                    {/* Footer Actions with Tracking Button */}
+                    <div className="mt-1 pt-3 border-t border-amber-200/50 flex flex-wrap items-center justify-between gap-2">
+                      <button 
+                        onClick={() => toggleOrderStatus(order.id)} 
+                        className="flex items-center gap-1.5 text-xs text-[#5B2E89] hover:text-[#46236b] font-black transition-colors bg-white px-3 py-2 rounded-lg border border-purple-200 shadow-sm"
+                      >
+                        {expandedOrderIds.includes(order.id) ? 'Hide Status' : 'Track Order'}
+                      </button>
+
+                      <div className="flex gap-2">
+                        <button onClick={() => handleDownloadInvoice(order)} className="flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-sm" title="Download Invoice">
+                          <FileText className="w-4 h-4" />
+                        </button>
+                        {order.status === 'DELIVERED' && !order.returnRequest && (
+                          <button onClick={() => handleRequestReturn(order.id)} className="flex items-center justify-center w-8 h-8 rounded-lg bg-white border border-red-200 text-[#EF4A45] hover:text-red-700 hover:bg-red-50 transition-colors shadow-sm" title="Request Return/Exchange">
+                            <RotateCcw className="w-4 h-4" />
+                          </button>
+                        )}
+                        {(order.status === 'RETURN_REQUESTED' || order.status === 'EXCHANGE_REQUESTED') && (
+                          <span className="flex items-center gap-1 text-[9px] uppercase font-black text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100">
+                            {order.status === 'RETURN_REQUESTED' ? 'Return Pending' : 'Exchange Pending'}
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {/* Tracking Info */}
-                    {(order.trackingId || order.status === 'SHIPPED' || order.status === 'DELIVERED') && (
-                      <div className="bg-white border border-amber-200 rounded-xl p-3 flex items-center gap-3 mt-1">
-                        <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                          <Package className="w-4 h-4 text-[#EF4A45]" />
+                    {/* Collapsible Full-Width Vertical Order Status Timeline */}
+                    {expandedOrderIds.includes(order.id) && (
+                      <div className="mt-2 p-5 -mx-5 -mb-5 bg-white border-t border-amber-100 rounded-b-3xl animate-in slide-in-from-top-2 duration-300">
+                        <div className="flex items-center justify-between mb-4">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tracking Journey</p>
+                          {(order.trackingId || order.status === 'SHIPPED' || order.status === 'DELIVERED') && (
+                            <div className="text-[10px] font-bold text-slate-800 bg-slate-100 px-2 py-1 rounded">
+                              {order.carrier || 'Logistics'}: {order.trackingId || 'Pending'}
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Tracking Info</p>
-                          <p className="text-xs font-black text-slate-800 leading-none mt-1.5">{order.carrier || 'Shipping Partner'}: {order.trackingId || 'Pending Tracking ID'}</p>
+
+                        <div className="relative pl-3 flex flex-col gap-6">
+                          {(() => {
+                            const isDeliveredOrBeyond = ['DELIVERED', 'RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_REJECTED', 'EXCHANGE_REQUESTED', 'EXCHANGE_APPROVED', 'EXCHANGE_REJECTED', 'REFUNDED'].includes(order.status);
+                            const isShippedOrBeyond = ['SHIPPED'].includes(order.status) || isDeliveredOrBeyond;
+                            const isReturnOrExchange = ['RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_REJECTED', 'EXCHANGE_REQUESTED', 'EXCHANGE_APPROVED', 'EXCHANGE_REJECTED', 'REFUNDED'].includes(order.status);
+
+                            const steps = [
+                              { label: 'Order Processing', active: true, desc: 'We are preparing your order.' },
+                              { label: 'Shipped', active: isShippedOrBeyond, desc: 'Your order is on the way.' },
+                              { label: 'Delivered', active: isDeliveredOrBeyond, desc: 'Delivered to your address.' },
+                            ];
+
+                            if (isReturnOrExchange) {
+                              let returnLabel = 'Return Pending';
+                              if (order.status === 'RETURN_APPROVED') returnLabel = 'Return Approved';
+                              if (order.status === 'RETURN_REJECTED') returnLabel = 'Return Rejected';
+                              if (order.status === 'EXCHANGE_REQUESTED') returnLabel = 'Exchange Pending';
+                              if (order.status === 'EXCHANGE_APPROVED') returnLabel = 'Exchange Approved';
+                              if (order.status === 'EXCHANGE_REJECTED') returnLabel = 'Exchange Rejected';
+                              if (order.status === 'REFUNDED') returnLabel = 'Refund Processed';
+                              
+                              steps.push({ label: returnLabel, active: true, desc: 'Post-delivery process initiated.' });
+                            }
+
+                            // Calculate height of the active line based on number of active steps
+                            const totalSegments = steps.length - 1;
+                            const activeSegments = steps.filter(s => s.active).length - 1;
+                            const progressHeight = totalSegments === 0 ? '0%' : `${(activeSegments / totalSegments) * 100}%`;
+
+                            return (
+                              <>
+                                {/* Vertical Connecting Line Background */}
+                                <div className="absolute left-4 top-2 bottom-2 w-[2px] bg-amber-100 z-0"></div>
+                                {/* Vertical Connecting Line Active */}
+                                <div className="absolute left-4 top-2 w-[2px] bg-[#EF4A45] z-0 transition-all duration-700 ease-out" style={{ height: progressHeight }}></div>
+                                
+                                {steps.map((step, idx) => (
+                                  <div key={idx} className="relative z-10 flex items-start gap-4">
+                                    <div className={`mt-[2px] w-3 h-3 shrink-0 rounded-full flex items-center justify-center ${step.active ? 'bg-[#EF4A45] ring-4 ring-red-50' : 'bg-amber-200'}`}>
+                                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                    </div>
+                                    <div className="flex flex-col -mt-1">
+                                      <span className={`text-[13px] font-black ${step.active ? 'text-slate-900' : 'text-slate-400'}`}>
+                                        {step.label}
+                                      </span>
+                                      {step.active && (
+                                        <span className="text-[10px] text-slate-500 font-semibold mt-0.5">{step.desc}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}
-
-                    {/* Footer Actions */}
-                    <div className="pt-2 flex justify-end gap-2">
-                      <button onClick={() => handleDownloadInvoice(order)} className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-bold transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
-                        <FileText className="w-3.5 h-3.5" /> Download Invoice
-                      </button>
-                      {order.status === 'DELIVERED' && !order.returnRequest && (
-                        <button onClick={() => handleRequestReturn(order.id)} className="flex items-center gap-1.5 text-xs text-[#EF4A45] hover:text-red-700 font-bold transition-colors bg-white px-3 py-1.5 rounded-lg border border-red-100 shadow-sm">
-                          <RotateCcw className="w-3.5 h-3.5" /> Request Return/Exchange
-                        </button>
-                      )}
-                      {(order.status === 'RETURN_REQUESTED' || order.status === 'EXCHANGE_REQUESTED') && (
-                        <span className="flex items-center gap-1.5 text-[10px] uppercase font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
-                          {order.status === 'RETURN_REQUESTED' ? 'Return' : 'Exchange'} Pending
-                        </span>
-                      )}
-                    </div>
                   </div>
                 ))
               ) : (

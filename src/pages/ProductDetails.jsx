@@ -623,55 +623,51 @@ export default function ProductDetails() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-4">
-                    <div className="text-4xl font-black text-slate-900">{product.rating}</div>
+                    <div className="text-4xl font-black text-slate-900">{averageRating || product.rating}</div>
                     <div>
                       <div className="flex items-center gap-1 text-amber-500 mb-1">
-                        {[...Array(5)].map((_, i) => (
+                        {[...Array(Math.round(averageRating || product.rating || 5))].map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-amber-400" />
                         ))}
                       </div>
-                      <p className="text-xs text-slate-500 font-bold">Based on {product.reviewsCount} reviews</p>
+                      <p className="text-xs text-slate-500 font-bold">Based on {reviewCount || product.reviewsCount || 0} reviews</p>
                     </div>
                   </div>
-                  <button className="px-6 py-2.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition-colors">
+                  <button onClick={() => setIsReviewModalOpen(true)} className="px-6 py-2.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition-colors">
                     Write a Review
                   </button>
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-[#AEE6FF] flex items-center justify-center text-sky-900 font-black text-xs">A</div>
-                        <span className="font-extrabold text-slate-900 text-sm">Ananya S.</span>
-                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Verified Buyer</span>
+                  {reviews.length > 0 ? (
+                    reviews.map((r, i) => (
+                      <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-[#AEE6FF] flex items-center justify-center text-sky-900 font-black text-xs uppercase">
+                              {(r.customerName || r.author_name || r.authorName || 'G')[0]}
+                            </div>
+                            <span className="font-extrabold text-slate-900 text-sm">{r.customerName || r.author_name || r.authorName || 'Guest User'}</span>
+                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Verified Buyer</span>
+                          </div>
+                          <span className="text-xs font-semibold text-slate-400">
+                            {new Date(r.created_at || r.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-amber-500 mb-2">
+                          {[...Array(r.rating || 5)].map((_, i) => (
+                            <Star key={i} className="w-3 h-3 fill-amber-400" />
+                          ))}
+                        </div>
+                        {r.title && <h5 className="font-bold text-slate-900 text-sm mb-1">{r.title}</h5>}
+                        <p className="text-sm font-medium text-slate-700">{r.body || r.comment}</p>
                       </div>
-                      <span className="text-xs font-semibold text-slate-400">2 days ago</span>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-sm font-bold text-slate-400">No reviews yet. Be the first to review this product!</p>
                     </div>
-                    <div className="flex items-center gap-1 text-amber-500 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-amber-400" />
-                      ))}
-                    </div>
-                    <p className="text-sm font-medium text-slate-700">Absolutely love the quality! The fabric is so soft and my kid loves wearing it all day. True to size.</p>
-                  </div>
-
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-[#FFD6BA] flex items-center justify-center text-orange-900 font-black text-xs">R</div>
-                        <span className="font-extrabold text-slate-900 text-sm">Rahul M.</span>
-                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Verified Buyer</span>
-                      </div>
-                      <span className="text-xs font-semibold text-slate-400">1 week ago</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-amber-500 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-amber-400" />
-                      ))}
-                    </div>
-                    <p className="text-sm font-medium text-slate-700">Great purchase. The color didn't fade after the first wash, which usually happens with other brands. Very satisfied.</p>
-                  </div>
+                  )}
                 </div>
               </div>
             )}

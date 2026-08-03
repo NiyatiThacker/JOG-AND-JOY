@@ -50,8 +50,8 @@ export default function AboutUs() {
       {/* 1. Playful Kids Hero Section */}
       <section className="pt-8 pb-10 px-4 relative z-10 overflow-hidden bg-transparent">
 
-        {/* Main White Container Card */}
-        <div className="bg-[#FFFDF9] rounded-[2.5rem] p-6 md:p-10 w-full max-w-7xl mx-auto shadow-[0_12px_40px_rgba(255,122,89,0.08)] relative overflow-hidden flex flex-col border border-[#ECECEC]">
+        {/* Full Width Hero Content (No Container) */}
+        <div className="w-full max-w-7xl mx-auto relative flex flex-col pt-4 md:pt-10">
 
           {/* Top Playful Badge */}
           <div className="flex items-center justify-center mb-4">
@@ -105,42 +105,7 @@ export default function AboutUs() {
             </motion.div>
           </div>
 
-          {/* Bottom Widgets */}
-          <div className="flex flex-col md:flex-row items-center justify-between w-full px-4 gap-6 mt-auto relative z-20 pt-2 border-t border-slate-100">
 
-            {/* Left: Reviews / Customers */}
-            <div className="flex items-center gap-3.5 flex-1">
-              <div className="flex -space-x-2.5">
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&q=80" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" alt="Parent" />
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&q=80" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" alt="Parent" />
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&q=80" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" alt="Parent" />
-              </div>
-              <div className="text-left hidden sm:block">
-                <p className="font-extrabold text-slate-900 text-sm">50,000+ Happy Families 💕</p>
-                <p className="text-xs text-[#FF7A59] font-bold uppercase tracking-wider">Trusted Nationwide</p>
-              </div>
-            </div>
-
-            {/* Center: Explore More */}
-            <div
-              className="flex flex-col items-center cursor-pointer group flex-1"
-              onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              <span className="font-extrabold text-slate-700 text-sm mb-2 group-hover:text-[#FF7A59] transition-colors">Explore Our Story</span>
-              <div className="w-10 h-10 rounded-full bg-[#FFF3EE] text-[#FF7A59] border border-[#FFE0D6] flex items-center justify-center group-hover:bg-[#FF7A59] group-hover:text-white transition-all shadow-xs">
-                <ArrowRight className="w-4 h-4 rotate-90 transition-transform group-hover:translate-y-0.5" />
-              </div>
-            </div>
-
-            {/* Right: Guarantee Badge */}
-            <div className="flex-1 hidden md:flex justify-end">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8DD67C]/15 border border-[#8DD67C]/30 text-green-800 text-xs font-bold">
-                <ShieldCheck className="w-4 h-4 text-green-600" />
-                <span>Non-Toxic & Skin Safe</span>
-              </div>
-            </div>
-
-          </div>
         </div>
       </section>
 
