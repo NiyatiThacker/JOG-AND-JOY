@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { useReviewsList, useCreateReview } from '../queries/useReviews';
@@ -44,6 +44,13 @@ export default function ProductDetails() {
   const [showAllColors, setShowAllColors] = useState(false);
   const [showAllSizes, setShowAllSizes] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  
+  const colorScrollRef = useRef(null);
+  const scrollColors = (direction) => {
+    if (colorScrollRef.current) {
+      colorScrollRef.current.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
+    }
+  };
   
   const createReviewMut = useCreateReview();
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: '', body: '', orderId: '', email: '' });
@@ -160,10 +167,13 @@ export default function ProductDetails() {
   siblingProducts.forEach(sibling => {
     sibling.colors?.forEach(color => {
       if (!globalColors.some(c => c.hex === color.hex)) {
+        const variantWithImage = sibling.variants?.find(
+          (v) => v.colorHex?.toLowerCase() === color.hex?.toLowerCase() && v.image
+        );
         globalColors.push({ 
           ...color, 
           productId: sibling.id,
-          image: sibling.image || product.image,
+          image: variantWithImage?.image || color.image || sibling.image || product.image,
           price: sibling.price || product.price,
           originalPrice: sibling.originalPrice || product.originalPrice
         });
@@ -204,6 +214,19 @@ export default function ProductDetails() {
   };
 
   const galleryImages = product.gallery || [product.image];
+  
+  const navigateGallery = (direction) => {
+    const currentIndex = galleryImages.indexOf(activeImage);
+    if (currentIndex === -1) return;
+    
+    if (direction === 'left') {
+      const prevIndex = currentIndex === 0 ? galleryImages.length - 1 : currentIndex - 1;
+      setActiveImage(galleryImages[prevIndex]);
+    } else {
+      const nextIndex = currentIndex === galleryImages.length - 1 ? 0 : currentIndex + 1;
+      setActiveImage(galleryImages[nextIndex]);
+    }
+  };
   const relatedProducts = combinedProducts.filter((p) => p.category === product.category && String(p.id) !== String(product.id));
 
   return (
@@ -221,7 +244,7 @@ export default function ProductDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
 
           {/* Left Column: Image Gallery & Thumbnails */}
-          <div className="lg:col-span-6 flex flex-row gap-3 sm:gap-4 lg:sticky lg:top-24 lg:h-[650px]">
+          <div className="lg:col-span-6 flex flex-row gap-3 sm:gap-4 lg:sticky lg:top-24 md:h-[650px]">
             
             {/* Thumbnail Selectors (Left Side Vertical Stack) */}
             <div className="flex flex-col gap-2 sm:gap-3 w-14 sm:w-20 shrink-0 overflow-y-auto no-scrollbar pb-2">
@@ -233,18 +256,38 @@ export default function ProductDetails() {
                     activeImage === img ? 'border-slate-300 ring-2 ring-slate-100' : 'border-transparent hover:border-slate-200'
                   }`}
                 >
-                  <img src={img} alt="Thumbnail" className="w-full h-full object-cover mix-blend-multiply opacity-90" />
+                  <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
 
             {/* Main Active Image Viewport */}
-            <div className="relative flex-1 rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-[#F5F5F5] border border-slate-100 group flex items-center justify-center h-[50vh] lg:h-full min-h-[350px]">
+            <div className="relative flex-1 rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-[#F5F5F5] border border-slate-100 group flex items-center justify-center aspect-[3/4] md:aspect-auto md:h-full">
+              {/* Left Gallery Arrow */}
+              {galleryImages.length > 1 && (
+                <button
+                  onClick={() => navigateGallery('left')}
+                  className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/70 border border-slate-200 shadow-sm flex items-center justify-center z-10 text-slate-800 hover:bg-white/90 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+              )}
+
               <img
                 src={activeImage}
                 alt={product.name}
-                className="w-full h-full object-contain mix-blend-darken transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
+
+              {/* Right Gallery Arrow */}
+              {galleryImages.length > 1 && (
+                <button
+                  onClick={() => navigateGallery('right')}
+                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/70 border border-slate-200 shadow-sm flex items-center justify-center z-10 text-slate-800 hover:bg-white/90 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              )}
 
               {/* Badges Overlay */}
               <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col gap-2">
@@ -271,116 +314,113 @@ export default function ProductDetails() {
           </div>
 
           {/* Right Column: Product Meta, Selectors & Actions */}
-          <div className="lg:col-span-6 space-y-6 lg:pr-4 pb-4 md:pt-0">
+          <div className="lg:col-span-6 space-y-5 lg:pr-4 pb-4 md:pt-0">
 
-            <div className="space-y-2">
-              <span className="text-base font-medium italic text-[#301c56]">
-                Boltzy by Purple United Kids
-              </span>
-
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#1A1A1A] tracking-tight leading-tight">
+            <div className="space-y-1">
+              <h1 className="text-[1.35rem] sm:text-2xl font-bold text-black tracking-tight leading-snug">
                 {product.name}
               </h1>
 
-              {/* Rating & Stock */}
-              <div className="flex items-center gap-4 pt-1 text-sm font-medium">
-                <div className="flex items-center gap-1 text-[#301c56]">
+              {/* Rating */}
+              <div className="flex items-center gap-2 pt-1 text-sm font-medium">
+                <div className="flex items-center gap-1 text-[#EF4A45]">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-4 h-4 ${i < Math.round(averageRating) ? 'fill-[#301c56] text-[#301c56]' : 'text-slate-300'}`} />
+                    <Star key={i} className={`w-[18px] h-[18px] ${i < Math.round(averageRating) ? 'fill-[#EF4A45] text-[#EF4A45]' : 'text-[#EF4A45] stroke-[1.5px]'}`} />
                   ))}
-                  <span className="text-slate-700 ml-1">No reviews</span>
                 </div>
-                {displayStock > 0 ? (
-                  <span className="text-emerald-600 font-extrabold flex items-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" /> In Stock ({displayStock} units)
-                  </span>
-                ) : (
-                  <span className="text-red-500 font-extrabold flex items-center gap-1">
-                    <X className="w-4 h-4" /> Out of Stock
-                  </span>
-                )}
+                <span className="text-black text-[15px] ml-1">No reviews</span>
               </div>
             </div>
 
             {/* Color Swatch Selector */}
-            <div className="space-y-3 mt-4">
-              <label className="text-sm font-semibold text-slate-800">
-                Color
+            <div className="space-y-3 mt-6">
+              <label className="text-[15px] font-semibold text-black">
+                Colour
               </label>
               {globalColors && globalColors.length > 0 ? (
-                <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar snap-x">
-                  {getVisibleColors()?.map((col, idx) => (
-                    <button
-                      key={col.hex}
-                      onClick={() => {
-                        if (String(col.productId) !== String(product.id)) {
-                          navigate(`/product/${col.productId}`);
-                        } else {
-                          setSelectedColor(col.hex);
-                          setShowAllColors(false);
-                        }
-                      }}
-                      className={`flex flex-col min-w-[85px] sm:min-w-[96px] rounded-sm border transition-all snap-start ${
-                        selectedColor === col.hex ? 'border-slate-800 ring-1 ring-slate-800' : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <div className="w-full aspect-square bg-[#F5F5F5] p-1 flex items-center justify-center">
-                        <img src={col.image} alt={col.name} className="w-full h-full object-cover mix-blend-multiply" />
-                      </div>
-                      <div className="p-2 text-left bg-white w-full border-t border-slate-100">
-                        <p className="text-xs font-semibold text-slate-800 truncate">{col.name}</p>
-                        <p className="text-[11px] text-slate-600 mt-0.5 font-medium">₹ {col.price}</p>
-                      </div>
-                    </button>
-                  ))}
-                  {!showAllColors && globalColors?.length > 9 && (
-                    <button 
-                      onClick={() => setShowAllColors(true)}
-                      className="flex flex-col min-w-[85px] sm:min-w-[96px] rounded-sm border border-slate-200 bg-slate-50 items-center justify-center text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors snap-start"
-                    >
-                      +{globalColors.length - 9} More
-                    </button>
-                  )}
+                <div className="relative group">
+                  {/* Left Scroll Chevron Overlay */}
+                  <button onClick={() => scrollColors('left')} className="absolute left-[-10px] top-1/2 -translate-y-[60%] w-8 h-8 rounded-full bg-black/60 border border-slate-700 shadow-sm flex items-center justify-center z-10 text-white hover:bg-black/80 transition-colors opacity-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                  </button>
+                  <div ref={colorScrollRef} className="flex overflow-hidden gap-2 pb-2 snap-x items-center pl-3 -ml-3 pr-3 -mr-3">
+                    {getVisibleColors()?.map((col, idx) => (
+                      <button
+                        key={col.hex}
+                        onClick={() => {
+                          if (String(col.productId) !== String(product.id)) {
+                            navigate(`/product/${col.productId}`);
+                          } else {
+                            setSelectedColor(col.hex);
+                            setShowAllColors(false);
+                          }
+                        }}
+                        className={`flex flex-col w-[95px] sm:w-[102px] shrink-0 rounded-xl border transition-all snap-start overflow-hidden bg-white ${
+                          selectedColor === col.hex ? 'border-slate-800 ring-1 ring-slate-800' : 'border-slate-300 hover:border-slate-400'
+                        }`}
+                      >
+                        <div className="w-full aspect-[3/4] bg-[#F5F5F5] flex items-center justify-center relative">
+                          <img src={col.image} alt={col.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="px-2 pt-1.5 pb-2 text-left w-full h-[52px] flex flex-col justify-start">
+                          <p className="text-[13px] font-bold text-black truncate leading-tight">{col.name}</p>
+                          <p className="text-[12px] text-black font-medium mt-0.5 leading-tight">₹ {col.price}+</p>
+                        </div>
+                      </button>
+                    ))}
+                    {!showAllColors && globalColors?.length > 9 && (
+                      <button 
+                        onClick={() => setShowAllColors(true)}
+                        className="flex flex-col w-[95px] sm:w-[102px] shrink-0 rounded-xl border border-slate-300 bg-slate-50 items-center justify-center text-[13px] font-semibold text-black hover:bg-slate-100 transition-colors snap-start h-full min-h-[155px]"
+                      >
+                        +{globalColors.length - 9} More
+                      </button>
+                    )}
+                  </div>
+                  {/* Right Scroll Chevron Overlay */}
+                  <button onClick={() => scrollColors('right')} className="absolute right-[-10px] top-1/2 -translate-y-[60%] w-8 h-8 rounded-full bg-black/60 border border-slate-700 shadow-sm flex items-center justify-center z-10 text-white hover:bg-black/80 transition-colors opacity-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
                 </div>
               ) : (
-                <div className="inline-flex px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg">
-                  <span className="text-xs font-bold text-slate-400">N/A - Single Edition</span>
+                <div className="inline-flex px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl">
+                  <span className="text-[13px] font-bold text-black">N/A - Single Edition</span>
                 </div>
               )}
             </div>
 
             {/* Pricing Section */}
-            <div className="pt-2 flex flex-col gap-0.5">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-semibold text-[#301c56] tracking-tight">₹ {displayPrice}</span>
+            <div className="pt-2 flex flex-col gap-1 border-t border-transparent">
+              <div className="flex items-end gap-3">
+                <span className="text-3xl font-bold text-black tracking-tight">₹ {displayPrice.toLocaleString()}</span>
                 {product.originalPrice && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg text-slate-500 font-medium">MRP <span className="line-through">₹ {product.originalPrice}</span></span>
-                    <span className="text-sm font-semibold text-green-600">
-                      ({Math.round(((product.originalPrice - displayPrice) / product.originalPrice) * 100)}% OFF)
+                  <div className="flex items-center gap-2 pb-0.5">
+                    <span className="text-[17px] text-black font-medium">MRP <span className="line-through">₹ {product.originalPrice.toLocaleString()}</span></span>
+                    <span className="text-[15px] font-semibold text-green-600">
+                      ({Math.round(((product.originalPrice - displayPrice) / product.originalPrice) * 100)}%OFF)
                     </span>
                   </div>
                 )}
               </div>
-              <p className="text-sm font-medium italic text-slate-800">MRP inclusive of all taxes</p>
+              <p className="text-[13px] font-bold italic text-black mt-0.5">MRP inclusive of all taxes</p>
             </div>
 
             {/* Size Selector + Size Guide Modal Trigger */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-semibold text-slate-800">
+                <label className="text-[15px] font-semibold text-slate-700">
                   Size in Age
                 </label>
                 <button
                   onClick={() => setIsSizeGuideOpen(true)}
-                  className="text-sm font-semibold text-red-600 hover:underline flex items-center gap-1"
+                  className="text-[15px] font-medium text-red-500 hover:underline flex items-center gap-1 underline underline-offset-4 decoration-red-500"
                 >
                   Size Chart
                 </button>
               </div>
 
               {product.sizes && product.sizes.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2.5">
                   {getVisibleSizes()?.map((size, idx) => (
                     <button
                       key={size}
@@ -388,10 +428,10 @@ export default function ProductDetails() {
                         setSelectedSize(size);
                         setShowAllSizes(false);
                       }}
-                      className={`min-w-[70px] sm:min-w-[80px] py-2.5 px-3 rounded-lg border font-medium text-sm transition-all ${
+                      className={`min-w-[70px] sm:min-w-[80px] h-10 px-3 rounded-lg border font-medium text-[15px] transition-all flex items-center justify-center ${
                         selectedSize === size
-                          ? 'border-slate-800 ring-1 ring-slate-800 text-slate-900 bg-slate-50'
-                          : 'border-slate-200 text-slate-700 hover:border-slate-300 bg-white'
+                          ? 'border-[#EF4A45] bg-[#EF4A45] text-white'
+                          : 'border-slate-300 text-black hover:border-slate-400 bg-white'
                       }`}
                     >
                       {size}
@@ -400,35 +440,35 @@ export default function ProductDetails() {
                   {!showAllSizes && product.sizes?.length > 9 && (
                     <button 
                       onClick={() => setShowAllSizes(true)}
-                      className="min-w-[70px] sm:min-w-[80px] py-2.5 px-3 rounded-lg border border-slate-200 bg-slate-50 font-medium text-sm text-slate-600 hover:bg-slate-100 transition-colors"
+                      className="min-w-[70px] sm:min-w-[80px] h-10 px-3 rounded-lg border border-slate-300 bg-slate-50 font-medium text-[15px] text-black hover:bg-slate-100 transition-colors flex items-center justify-center"
                     >
                       +{product.sizes.length - 9}
                     </button>
                   )}
                 </div>
               ) : (
-                <div className="inline-flex px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg">
-                  <span className="text-xs font-medium text-slate-400">Standard Size</span>
+                <div className="inline-flex h-10 px-4 bg-slate-50 border border-slate-300 rounded-lg items-center">
+                  <span className="text-sm font-medium text-black">Standard Size</span>
                 </div>
               )}
             </div>
 
             {/* Quantity Selector */}
-            <div className="space-y-3 pt-2">
-              <label className="text-base font-semibold text-slate-800 block">
+            <div className="space-y-3 pt-3">
+              <label className="text-[15px] font-semibold text-black block">
                 Quantity
               </label>
-              <div className="inline-flex items-center rounded-full border border-slate-300 p-1 bg-white">
+              <div className="inline-flex items-center rounded-full border border-slate-300 bg-white h-11">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 rounded-full hover:bg-slate-50 flex items-center justify-center text-slate-600 text-lg transition-colors"
+                  className="w-12 h-full flex items-center justify-center text-black text-xl transition-colors hover:bg-slate-50"
                 >
                   −
                 </button>
-                <span className="w-14 text-center font-medium text-base text-slate-800">{quantity}</span>
+                <span className="w-12 text-center font-medium text-[15px] text-black">{quantity}</span>
                 <button
                   onClick={() => setQuantity((q) => q + 1)}
-                  className="w-10 h-10 rounded-full hover:bg-slate-50 flex items-center justify-center text-slate-600 text-lg transition-colors"
+                  className="w-12 h-full flex items-center justify-center text-black text-xl transition-colors hover:bg-slate-50"
                 >
                   +
                 </button>
@@ -440,10 +480,10 @@ export default function ProductDetails() {
               <button
                 onClick={(e) => addToCart(product, selectedSize, selectedColor, e, quantity, true)}
                 disabled={displayStock === 0}
-                className={`w-full py-3.5 rounded-full font-semibold text-base border-2 transition-all ${
+                className={`w-full py-3.5 rounded-full font-medium text-[16px] transition-all ${
                   displayStock === 0
-                    ? 'border-slate-200 bg-slate-50 text-slate-400 cursor-not-allowed'
-                    : 'border-slate-900 bg-white text-slate-900 hover:bg-slate-50'
+                    ? 'border border-slate-300 bg-slate-50 text-slate-400 cursor-not-allowed'
+                    : 'border border-slate-400 bg-white text-slate-800 hover:border-slate-500 hover:bg-slate-50 shadow-sm'
                 }`}
               >
                 {displayStock === 0 ? 'Out of Stock' : 'Add to cart'}
@@ -452,13 +492,13 @@ export default function ProductDetails() {
               <button
                 onClick={handleBuyNow}
                 disabled={displayStock === 0}
-                className={`w-full py-4 rounded-full font-semibold text-base transition-all ${
+                className={`w-full py-3.5 rounded-full font-medium text-[16px] transition-all ${
                   displayStock === 0
-                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                    : 'bg-[#2A2A2A] hover:bg-black text-white'
+                    ? 'bg-slate-800 text-slate-400 cursor-not-allowed opacity-50'
+                    : 'bg-black text-white hover:bg-slate-900 shadow-sm'
                 }`}
               >
-                Buy it now
+                Buy it Now
               </button>
             </div>
 

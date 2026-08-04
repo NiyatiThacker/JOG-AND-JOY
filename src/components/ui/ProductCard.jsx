@@ -135,8 +135,8 @@ export default function ProductCard({ product, onQuickView }) {
         <div className="hidden sm:flex pt-2 border-t border-slate-100 items-center justify-between">
 
           {/* Color Swatches */}
-          <div className="flex items-center gap-1">
-            {globalColors.slice(0, 4).map((col, idx) => (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {globalColors.map((col, idx) => (
               <button
                 key={idx}
                 aria-label={`Select color ${col.name}`}
@@ -149,7 +149,7 @@ export default function ProductCard({ product, onQuickView }) {
                     if (nextProduct) setActiveProduct(nextProduct);
                   }
                 }}
-                className={`w-4 h-4 rounded-full border border-white shadow-xs transition-transform cursor-pointer ${
+                className={`w-4 h-4 rounded-full border border-black shadow-xs transition-transform cursor-pointer ${
                   selectedColor === col.hex ? 'scale-125 ring-2 ring-[#FF7A59]' : 'hover:scale-110'
                 }`}
                 style={{ backgroundColor: col.hex }}
@@ -158,14 +158,6 @@ export default function ProductCard({ product, onQuickView }) {
             ))}
           </div>
 
-          {/* Quick Size Chips */}
-          <div className="flex items-center gap-1">
-            {activeProduct.sizes?.slice(0, 2).map((sz, idx) => (
-              <span key={idx} className="text-[10px] font-extrabold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md">
-                {sz}
-              </span>
-            ))}
-          </div>
         </div>
 
         {/* Add to Bag Button */}

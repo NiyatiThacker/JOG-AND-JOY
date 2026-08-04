@@ -80,7 +80,7 @@ export default function Products({ pageCategory = null }) {
   }, [selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
 
   return (
-    <div className="min-h-screen bg-[#FFF8EC] pb-20">
+    <div className="min-h-screen bg-white pb-20">
       
       {/* Kids Hero Section */}
       {pageCategory === 'Kids' && <CategoryHero />}
@@ -150,104 +150,104 @@ export default function Products({ pageCategory = null }) {
             </div>
             </div>
 
-            {/* Expandable Filter Menu */}
-            {showFilters && !pageCategory && (
-              <div className="md:col-span-12 p-4 mt-2 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
-                
-                {/* Main Categories */}
+          </div>
+
+          {/* Expandable Filter Menu */}
+          {showFilters && !pageCategory && (
+            <div className="p-4 mt-2 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+              
+              {/* Main Categories */}
+              <div>
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Category</h4>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setSelectedItemFilter(''); // Reset sub-filters on category change
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                        selectedCategory === cat || (!selectedCategory && cat === 'All')
+                          ? 'bg-[#EF4A45] text-white shadow-md'
+                          : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Age Groups (Only show if Kids is selected or All is selected) */}
+              {(selectedCategory === 'Kids' || selectedCategory === 'All' || !selectedCategory) && (
                 <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Category</h4>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Kids Age Group</h4>
                   <div className="flex flex-wrap gap-2">
-                    {categories.map((cat) => (
+                    {ageGroups.map((age) => (
                       <button
-                        key={cat}
-                        onClick={() => {
-                          setSelectedCategory(cat);
-                          setSelectedItemFilter(''); // Reset sub-filters on category change
-                        }}
+                        key={age}
+                        onClick={() => setSelectedAge(age)}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                          selectedCategory === cat || (!selectedCategory && cat === 'All')
-                            ? 'bg-[#EF4A45] text-white shadow-md'
+                          selectedAge === age || (!selectedAge && age === 'All')
+                            ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF]'
                             : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
                         }`}
                       >
-                        {cat}
+                        {age}
                       </button>
                     ))}
                   </div>
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Age Groups (Only show if Kids is selected or All is selected) */}
-                {(selectedCategory === 'Kids' || selectedCategory === 'All' || !selectedCategory) && (
-                  <div>
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Kids Age Group</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {ageGroups.map((age) => (
-                        <button
-                          key={age}
-                          onClick={() => setSelectedAge(age)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                            selectedAge === age || (!selectedAge && age === 'All')
-                              ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF]'
-                              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                          }`}
-                        >
-                          {age}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+          {/* Sub-Item Filters */}
+          {(selectedCategory === 'Kids' || selectedCategory === 'Male' || selectedCategory === 'Female') && (
+            <div className="flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 no-scrollbar">
+              <span className="text-xs font-black text-slate-400 uppercase tracking-wider shrink-0 mr-2">Filters:</span>
 
-            {/* Sub-Item Filters */}
-            {(selectedCategory === 'Kids' || selectedCategory === 'Male' || selectedCategory === 'Female') && (
-              <div className="md:col-span-12 flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 no-scrollbar">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-wider shrink-0 mr-2">Filters:</span>
+              {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits'].map(item => (
+                <button
+                  key={item}
+                  onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
+                      ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
+                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                    }`}
+                >
+                  {item}
+                </button>
+              ))}
 
-                {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits'].map(item => (
-                  <button
-                    key={item}
-                    onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                        ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                      }`}
-                  >
-                    {item}
-                  </button>
-                ))}
+              {selectedCategory === 'Male' && ['Men Tracks & Joggers', 'Men Shorts & Bermuda', 'Men Boxers'].map(item => (
+                <button
+                  key={item}
+                  onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
+                      ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
+                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                    }`}
+                >
+                  {item}
+                </button>
+              ))}
 
-                {selectedCategory === 'Male' && ['Men Tracks & Joggers', 'Men Shorts & Bermuda', 'Men Boxers'].map(item => (
-                  <button
-                    key={item}
-                    onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                        ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                      }`}
-                  >
-                    {item}
-                  </button>
-                ))}
-
-                {selectedCategory === 'Female' && ['Girl Frocks'].map(item => (
-                  <button
-                    key={item}
-                    onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                    className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                        ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                      }`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            )}
-
-          </div>
+              {selectedCategory === 'Female' && ['Girl Frocks'].map(item => (
+                <button
+                  key={item}
+                  onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
+                      ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
+                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                    }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Grid */}
