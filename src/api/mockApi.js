@@ -38,7 +38,8 @@ export async function list(table, params = {}) {
     query = query.order(key, { ascending: dir });
   } else {
     // Default sort by created_at desc
-    query = query.order('created_at', { ascending: false });
+    const dateCol = table === 'reviews' ? 'created_at' : 'createdAt';
+    query = query.order(dateCol, { ascending: false });
   }
 
   // Apply pagination
@@ -84,8 +85,8 @@ export async function create(table, payload) {
   
   const record = { 
     ...cleanPayload,
-    created_at: now, 
-    updated_at: now 
+    [table === 'reviews' ? 'created_at' : 'createdAt']: now, 
+    [table === 'reviews' ? 'updated_at' : 'updatedAt']: now 
   };
 
   let query = supabase.from(table).insert([record]);
@@ -113,7 +114,7 @@ export async function update(table, id, patch) {
 
   const { data, error } = await supabase
     .from(table)
-    .update({ ...cleanPatch, updated_at: new Date().toISOString() })
+    .update({ ...cleanPatch, [table === 'reviews' ? 'updated_at' : 'updatedAt']: new Date().toISOString() })
     .eq('id', id)
     .select();
 
