@@ -106,40 +106,45 @@ export default function QuickViewModal({ product, onClose }) {
                 ))}
               </div>
               
-              {/* Main Image */}
-              <div className="flex-1 bg-[#F5F5F5] rounded-[2rem] overflow-hidden relative min-h-[300px] h-[40vh] md:h-auto border border-slate-100">
-                <img
-                  src={activeImage}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = product.fallback || 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop';
-                  }}
-                />
-                <button
-                  onClick={() => toggleWishlist(product.id, selectedSize, selectedColor)}
-                  className={`absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-md transition-all shadow-sm z-10 ${
-                    isFavorited ? 'bg-rose-500 text-white' : 'bg-white/80 text-slate-700 hover:bg-white'
-                  }`}
+              {/* Main Image and Button Column */}
+              <div className="flex-1 flex flex-col gap-2">
+                {/* Main Image */}
+                <div className="flex-1 bg-[#F5F5F5] rounded-[2rem] overflow-hidden relative min-h-[300px] h-[40vh] md:h-auto border border-slate-100">
+                  <img
+                    src={activeImage}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = product.fallback || 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop';
+                    }}
+                  />
+                  <button
+                    onClick={() => toggleWishlist(product.id, selectedSize, selectedColor)}
+                    className={`absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-md transition-all shadow-sm z-10 ${
+                      isFavorited ? 'bg-rose-500 text-white' : 'bg-white/80 text-slate-700 hover:bg-white'
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 ${isFavorited ? 'fill-white' : ''}`} />
+                  </button>
+                </div>
+                
+                {/* View Product Details Button */}
+                <Button 
+                  variant="outline" 
+                  size="md" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onClose();
+                    navigate(`/product/${product.id}`);
+                  }} 
+                  className="w-full"
                 >
-                  <Heart className={`w-4 h-4 ${isFavorited ? 'fill-white' : ''}`} />
-                </button>
+                  View Product Details
+                </Button>
               </div>
             </div>
-            
-            {/* View All Details Button */}
-            <Button 
-              variant="outline" 
-              size="md" 
-              onClick={() => {
-                onClose();
-                navigate(`/product/${product.id}`);
-              }} 
-              className="w-full mt-2"
-            >
-              View All Details
-            </Button>
           </div>
 
             {/* Product Meta */}
