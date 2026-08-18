@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   phone TEXT,
   address TEXT,
   wishlist JSONB DEFAULT '[]'::jsonb,
+  cart JSONB DEFAULT '[]'::jsonb,
   "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
