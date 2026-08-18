@@ -297,15 +297,71 @@ export default function AdminProducts() {
     setFormData(prev => ({ ...prev, images: newImages }));
   };
 
-  const removeImage = (indexToRemove) => {
+  const deleteFromCloudinary = async (url) => {
+    try {
+      if (!url.includes('cloudinary.com')) return;
+      
+      const parts = url.split('/');
+      const uploadIndex = parts.findIndex(p => p === 'upload');
+      if (uploadIndex === -1) return;
+      
+      const publicIdWithExt = parts.slice(uploadIndex + 2).join('/');
+      const publicId = publicIdWithExt.substring(0, publicIdWithExt.lastIndexOf('.'));
+      
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const apiKey = import.meta.env.VITE_CLOUDINARY_API_KEY;
+      const apiSecret = import.meta.env.VITE_CLOUDINARY_API_SECRET;
+      
+      if (!apiKey || !apiSecret) {
+        console.warn("Cloudinary API Key or Secret missing. Skipping CDN deletion.");
+        return;
+      }
+
+      const timestamp = Math.round(new Date().getTime() / 1000);
+      const strToSign = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
+      
+      const msgBuffer = new TextEncoder().encode(strToSign);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer);
+      const signature = Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+
+      const formData = new FormData();
+      formData.append('public_id', publicId);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+
+      await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
+        method: 'POST',
+        body: formData
+      });
+    } catch (err) {
+      console.error("Failed to delete image from Cloudinary:", err);
+    }
+  };
+
+  const removeImage = async (indexToRemove) => {
+    const imageUrl = formData.images[indexToRemove];
+    if (imageUrl && imageUrl.includes('cloudinary.com')) {
+      // Optionally delete immediately, or wait until save?
+      // Since it's a draft form, deleting immediately might be aggressive if they cancel.
+      // But we will delete it immediately for simplicity as requested.
+      await deleteFromCloudinary(imageUrl);
+    }
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, idx) => idx !== indexToRemove)
     }));
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
+      const product = products.find(p => p.id === id);
+      if (product && product.images?.length > 0) {
+        for (const imgUrl of product.images) {
+          await deleteFromCloudinary(imgUrl);
+        }
+      }
       deleteMut.mutate(id);
     }
   };
