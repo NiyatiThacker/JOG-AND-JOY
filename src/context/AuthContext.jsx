@@ -8,122 +8,102 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserProfile = async (userId) => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      if (error || !data) {
-        console.warn('Could not fetch from public.users, using session data fallback.', error);
-        // Fallback: Use data from the auth session if public.users is missing/unavailable
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user && session.user.id === userId) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.user_metadata?.name || session.user.email.split('@')[0],
-            role: session.user.user_metadata?.role || 'CUSTOMER',
-            phone: '',
-            address: ''
-          });
-        }
-      } else {
-        setUser(data);
-      }
-    };
-
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          await fetchUserProfile(session.user.id);
+        const storedUserId = localStorage.getItem('jog_joy_user_id');
+        if (storedUserId) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', storedUserId)
+            .single();
+          
+          if (!error && data) {
+            setUser(data);
+          } else {
+            localStorage.removeItem('jog_joy_user_id');
+          }
         }
       } catch (error) {
-        console.error('Error fetching session:', error);
+        console.error('Error initializing auth:', error);
       } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        await fetchUserProfile(session.user.id);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      subscription?.unsubscribe();
-    };
   }, []);
 
   const isAuthenticated = !!user;
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (error) {
-      console.error('Login error:', error.message);
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+      
+      if (error || !data) {
+        console.error('Login error: User not found');
+        return false;
+      }
+      
+      // Plain text password comparison as requested
+      if (data.password === password) {
+        setUser(data);
+        localStorage.setItem('jog_joy_user_id', data.id);
+        return true;
+      } else {
+        console.error('Login error: Incorrect password');
+        return false;
+      }
+    } catch (err) {
+      console.error('Login exception:', err);
       return false;
     }
-    return true;
   };
 
   const register = async (name, email, password, role = 'CUSTOMER', phone = '', address = '') => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-          role
-        }
-      }
-    });
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .insert([{ 
+          name, 
+          email, 
+          password, 
+          role, 
+          phone, 
+          address 
+        }])
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Registration error:', error.message);
+      if (error) {
+        console.error('Registration error:', error.message);
+        return false;
+      }
+      
+      if (data) {
+        setUser(data);
+        localStorage.setItem('jog_joy_user_id', data.id);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Registration exception:', err);
       return false;
     }
-
-    if (data.user && (phone || address)) {
-        // slight delay to allow postgres trigger to insert into public.users
-        await new Promise(resolve => setTimeout(resolve, 500));
-        await supabase
-          .from('users')
-          .update({ phone, address })
-          .eq('id', data.user.id);
-    }
-
-    return true;
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Logout error:', error.message);
-    }
+    setUser(null);
+    localStorage.removeItem('jog_joy_user_id');
   };
 
   const resetPassword = async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    
-    if (error) {
-      console.error('Reset password error:', error.message);
-      return { success: false, message: error.message };
-    }
-    return { success: true };
+    console.error('Reset password is not supported with plain table authentication without a backend.');
+    return { success: false, message: 'Password reset is disabled for custom table auth.' };
   };
 
   const updateUser = async (updates) => {
@@ -170,4 +150,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
