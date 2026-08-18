@@ -2,14 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
 
-// Parse .env.local manually
-const envPath = path.resolve('.env.local');
+// Parse .env manually
+const envPath = path.resolve('.env');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
   envContent.split('\n').forEach(line => {
-    const [key, value] = line.split('=');
-    if (key && value) {
-      process.env[key.trim()] = value.trim();
+    const [key, ...values] = line.split('=');
+    if (key && values.length > 0) {
+      process.env[key.trim()] = values.join('=').trim();
     }
   });
 }
