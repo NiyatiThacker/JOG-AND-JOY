@@ -85,7 +85,7 @@ export async function create(table, payload) {
   const record = { 
     ...cleanPayload,
     createdAt: now, 
-    updatedAt: now 
+    updatedAt: now
   };
 
   let query = supabase.from(table).insert([record]);

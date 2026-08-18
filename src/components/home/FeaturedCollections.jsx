@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CATEGORIES } from '../../data/productsData';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { getImageUrl } from '../../utils/getImageUrl';
 
 export default function FeaturedCollections() {
   return (
@@ -52,7 +53,7 @@ export default function FeaturedCollections() {
                 {/* Brand Favicon Watermark / Authenticity Seal */}
                 <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 w-6 h-6 sm:w-8 sm:h-8 bg-white/95 rounded-full p-1 sm:p-1.5 border border-slate-200/40 shadow-md group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
                   <img
-                    src="/images/logo.png"
+                    src={getImageUrl('logo.png')}
                     alt="Jog & Joy Seal"
                     className="w-full h-full object-contain"
                     draggable={false}

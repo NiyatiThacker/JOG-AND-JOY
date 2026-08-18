@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { getImageUrl } from '../../utils/getImageUrl';
 
 // Pixel-Perfect Vector Instagram Icon with CSS Gradient Container
 const InstagramGradientIcon = () => (
@@ -55,7 +56,7 @@ export default function Footer() {
             <div className="lg:col-span-3 flex flex-col items-center sm:items-start justify-center">
               <Link to="/" className="inline-block hover:scale-105 transition-transform">
                 <img 
-                  src="/images/official_logo.png" 
+                  src={getImageUrl('official_logo.png')} 
                   alt="JOG & JOY® - Love is in the wear" 
                   className="h-16 sm:h-24 w-auto object-contain filter drop-shadow-md" 
                 />
@@ -165,7 +166,7 @@ export default function Footer() {
                     className="block hover:scale-105 transition-transform" 
                     title="Kamal Kids Wear"
                   >
-                    <img src="/images/kamal logo black.png" alt="Kamal Kids Wear" className="h-9 sm:h-11 w-auto object-contain" />
+                    <img src={getImageUrl('kamal logo black.png')} alt="Kamal Kids Wear" className="h-9 sm:h-11 w-auto object-contain" />
                   </a>
                   <div className="w-[1.5px] h-8 sm:h-9 bg-slate-400/80" />
                   <a 
@@ -175,7 +176,7 @@ export default function Footer() {
                     className="block hover:scale-105 transition-transform" 
                     title="Dharmanath Products"
                   >
-                    <img src="/images/Dharamnath logo.png" alt="DHARMANATH PRODUCTS PVT. LTD." className="h-9 sm:h-11 w-auto object-contain" />
+                    <img src={getImageUrl('Dharamnath logo.png')} alt="DHARMANATH PRODUCTS PVT. LTD." className="h-9 sm:h-11 w-auto object-contain" />
                   </a>
                 </div>
               </div>

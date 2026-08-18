@@ -5,6 +5,7 @@ import { ChevronRight, Palette, TrendingUp, Scissors, User, Building, ArrowRight
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import FloatingElements from '../components/ui/FloatingElements';
 import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
+import { getImageUrl } from '../utils/getImageUrl';
 
 const stats = [
   { value: 30, suffix: '+', label: 'Years Experience', color: 'text-[#EF4A45]' },
@@ -20,15 +21,15 @@ const teamMembers = [
 
 const CustomClothingSticker = ({ type, style }) => {
   const map = {
-    "sticker_0_0": "/images/cutouts/cutout_1.png",
-    "sticker_0_1": "/images/cutouts/cutout_2.png",
-    "sticker_0_2": "/images/cutouts/cutout_3.png",
-    "sticker_1_0": "/images/cutouts/cutout_4.png",
-    "sticker_1_1": "/images/cutouts/cutout_5.png",
-    "sticker_1_2": "/images/cutouts/cutout_6.png",
-    "sticker_2_0": "/images/cutouts/cutout_7.png",
-    "sticker_2_1": "/images/cutouts/cutout_8.png",
-    "sticker_2_2": "/images/cutouts/cutout_9.png",
+    "sticker_0_0": getImageUrl('cutouts/cutout_1.png'),
+    "sticker_0_1": getImageUrl('cutouts/cutout_2.png'),
+    "sticker_0_2": getImageUrl('cutouts/cutout_3.png'),
+    "sticker_1_0": getImageUrl('cutouts/cutout_4.png'),
+    "sticker_1_1": getImageUrl('cutouts/cutout_5.png'),
+    "sticker_1_2": getImageUrl('cutouts/cutout_6.png'),
+    "sticker_2_0": getImageUrl('cutouts/cutout_7.png'),
+    "sticker_2_1": getImageUrl('cutouts/cutout_8.png'),
+    "sticker_2_2": getImageUrl('cutouts/cutout_9.png'),
   };
 
   return (

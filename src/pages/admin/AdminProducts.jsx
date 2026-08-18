@@ -13,8 +13,8 @@ export default function AdminProducts() {
   const [formData, setFormData] = useState({
     title: '',
     groupId: '',
-    categoryId: 'Boy',
-    vendor: '',
+    categoryId: 'KIDS Co-ord Suit',
+    vendor: 'Jog & Joy',
     originalPrice: '',
     discountPercent: '20',
     stock: '',
@@ -58,7 +58,7 @@ export default function AdminProducts() {
 
   const resetForm = () => {
     setFormData({
-      title: '', groupId: '', categoryId: 'Boy', vendor: '', originalPrice: '', discountPercent: '20', stock: '', images: [], description: '', fabric: '', care: '', shipping: '', sizes: [], colors: [], variants: [], collections: [], isNewArrival: false
+      title: '', groupId: '', categoryId: 'KIDS Co-ord Suit', vendor: 'Jog & Joy', originalPrice: '', discountPercent: '20', stock: '', images: [], description: '', fabric: '', care: '', shipping: '', sizes: [], colors: [], variants: [], collections: [], isNewArrival: false
     });
     setEditingId(null);
     setShowForm(false);
@@ -104,68 +104,80 @@ export default function AdminProducts() {
       resetForm();
       return;
     }
-    const product = products.find(p => String(p.id) === String(templateId));
-    if (!product) return;
+    const productData = products.find(p => String(p.id) === String(templateId));
+    if (!productData) return;
+
+    const p = {
+      ...productData,
+      ...(productData.variants?.find(v => v._isMetadata) || {}),
+      variants: productData.variants?.filter(v => !v._isMetadata) || []
+    };
 
     let discPct = '0';
-    if (product.originalPrice && product.price) {
-      discPct = Math.round((1 - (product.price / product.originalPrice)) * 100).toString();
-    } else if (product.discountPercent) {
-      discPct = product.discountPercent.toString();
+    if (p.originalPrice && p.price) {
+      discPct = Math.round((1 - (p.price / p.originalPrice)) * 100).toString();
+    } else if (p.discountPercent) {
+      discPct = p.discountPercent.toString();
     }
 
     setFormData({
-      title: product.title ? `${product.title} (Variant)` : '',
-      groupId: product.groupId || product.id,
-      categoryId: product.categoryId || 'Boy',
-      vendor: product.vendor || '',
-      originalPrice: product.originalPrice || product.basePrice || '',
+      title: p.title ? `${p.title} (Variant)` : '',
+      groupId: p.groupId || p.id,
+      categoryId: p.categoryId || 'KIDS Co-ord Suit',
+      vendor: p.vendor || 'Jog & Joy',
+      originalPrice: p.originalPrice || p.basePrice || '',
       discountPercent: discPct,
       stock: '0',
-      images: product.images || [],
-      description: product.description || '',
-      fabric: product.fabric || '',
-      care: product.care || '',
-      shipping: product.shipping || '',
-      sizes: product.sizes || [],
+      images: p.images || (p.image ? [p.image] : []),
+      description: p.description || '',
+      fabric: p.fabric || '',
+      care: p.care || '',
+      shipping: p.shipping || '',
+      sizes: p.sizes || [],
       colors: [], 
       variants: [],
-      collections: product.collections || [],
-      isNewArrival: product.isNewArrival || false
+      collections: p.collections || [],
+      isNewArrival: p.isNewArrival || false
     });
   };
 
-  const handleEdit = (product) => {
-    setEditingId(product.id);
+  const handleEdit = (productData) => {
+    const p = {
+      ...productData,
+      ...(productData.variants?.find(v => v._isMetadata) || {}),
+      variants: productData.variants?.filter(v => !v._isMetadata) || []
+    };
+
+    setEditingId(p.id);
     
     // Calculate reverse discount percentage if not explicitly present
     let discPct = '0';
-    if (product.originalPrice && product.price) {
-      discPct = Math.round((1 - (product.price / product.originalPrice)) * 100).toString();
-    } else if (product.discountPercent) {
-      discPct = product.discountPercent.toString();
+    if (p.originalPrice && p.price) {
+      discPct = Math.round((1 - (p.price / p.originalPrice)) * 100).toString();
+    } else if (p.discountPercent) {
+      discPct = p.discountPercent.toString();
     }
 
-    const computedTotalStock = product.variants?.reduce((sum, v) => sum + (Number(v.stock) || 0), 0) || product.stock || 0;
+    const computedTotalStock = p.variants?.reduce((sum, v) => sum + (Number(v.stock) || 0), 0) || p.stock || 0;
 
     setFormData({
-      title: product.title || '',
-      groupId: product.groupId || '',
-      categoryId: product.categoryId || 'Boy',
-      vendor: product.vendor || '',
-      originalPrice: product.originalPrice || product.basePrice || '',
+      title: p.title || '',
+      groupId: p.groupId || '',
+      categoryId: p.categoryId || 'KIDS Co-ord Suit',
+      vendor: p.vendor || 'Jog & Joy',
+      originalPrice: p.originalPrice || p.basePrice || '',
       discountPercent: discPct,
       stock: computedTotalStock.toString(),
-      images: product.images || [],
-      description: product.description || '',
-      fabric: product.fabric || '',
-      care: product.care || '',
-      shipping: product.shipping || '',
-      sizes: product.sizes || [],
-      colors: product.colors || [],
-      variants: product.variants || [],
-      collections: product.collections || [],
-      isNewArrival: product.isNewArrival || false
+      images: p.images || (p.image ? [p.image] : []),
+      description: p.description || '',
+      fabric: p.fabric || '',
+      care: p.care || '',
+      shipping: p.shipping || '',
+      sizes: p.sizes || [],
+      colors: p.colors || [],
+      variants: p.variants || [],
+      collections: p.collections || [],
+      isNewArrival: p.isNewArrival || false
     });
     
     setShowForm(true);
@@ -194,34 +206,38 @@ export default function AdminProducts() {
 
     const productPayload = {
       title: formData.title,
-      groupId: formData.groupId || undefined,
       categoryId: formData.categoryId,
       vendor: formData.vendor,
-      price: calculatedPrice,
       basePrice: calculatedPrice,
-      originalPrice: Number(formData.originalPrice),
       compareAtPrice: Number(formData.originalPrice),
       description: formData.description,
-      fabric: formData.fabric,
-      care: formData.care,
-      shipping: formData.shipping,
-      sizes: formData.sizes.length > 0 ? formData.sizes : ['Standard'],
-      colors: formData.colors,
       status: 'live',
-      images: formData.images.length > 0 ? formData.images : ['https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop'],
-      stock: finalStock,
-      collections: formData.collections || [],
-      isNewArrival: formData.isNewArrival || false,
-      variants: finalVariants.map(v => ({
-        id: v.id,
-        sku: v.sku,
-        colorHex: v.colorHex,
-        colorName: v.colorName,
-        size: v.size,
-        stock: Number(v.stock),
-        price: v.price ? Number(v.price) : undefined,
-        image: v.image || undefined
-      }))
+      image: formData.images.length > 0 ? formData.images[0] : 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop',
+      variants: [
+        ...finalVariants.map(v => ({
+          id: v.id,
+          sku: v.sku,
+          colorHex: v.colorHex,
+          colorName: v.colorName,
+          size: v.size,
+          stock: Number(v.stock),
+          price: v.price ? Number(v.price) : undefined,
+          image: v.image || undefined
+        })),
+        {
+          _isMetadata: true,
+          images: formData.images,
+          fabric: formData.fabric,
+          care: formData.care,
+          shipping: formData.shipping,
+          originalPrice: Number(formData.originalPrice),
+          sizes: formData.sizes.length > 0 ? formData.sizes : ['Standard'],
+          colors: formData.colors,
+          collections: formData.collections || [],
+          isNewArrival: formData.isNewArrival || false,
+          groupId: formData.groupId || undefined
+        }
+      ]
     };
 
     if (editingId) {
@@ -419,15 +435,14 @@ export default function AdminProducts() {
               <div>
                 <label className="block text-sm font-bold text-text-muted mb-2">Category *</label>
                 <select value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-blue-600 outline-none" required>
-                  <option value="Kids T-shirt">Kids T-shirt</option>
-                  <option value="Kids joggers and tracks">Kids joggers and tracks</option>
-                  <option value="Kids shorts and bermudas">Kids shorts and bermudas</option>
-                  <option value="Kids night suits">Kids night suits</option>
-                  <option value="Kids pajama suits">Kids pajama suits</option>
-                  <option value="Men tracks and joggers">Men tracks and joggers</option>
-                  <option value="Men shorts and bermuda">Men shorts and bermuda</option>
-                  <option value="Men boxers">Men boxers</option>
-                  <option value="Girl frocks">Girl frocks</option>
+                  <option value="KIDS Co-ord Suit">KIDS Co-ord Suit</option>
+                  <option value="KIDS T-shirts">KIDS T-shirts</option>
+                  <option value="KIDS Night Suit">KIDS Night Suit</option>
+                  <option value="KIDS Short Co-ord Suit">KIDS Short Co-ord Suit</option>
+                  <option value="KIDS Shorts">KIDS Shorts</option>
+                  <option value="KIDS Sweat_Pants">KIDS Sweat_Pants</option>
+                  <option value="KIDS Track_Pants">KIDS Track_Pants</option>
+                  <option value="KIDS Track_Suit">KIDS Track_Suit</option>
                 </select>
               </div>
             </div>
@@ -436,7 +451,7 @@ export default function AdminProducts() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-text-muted mb-2">Brand Name *</label>
-                  <input type="text" value={formData.vendor} onChange={e => setFormData({ ...formData, vendor: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-blue-600 outline-none" placeholder="e.g. Mitti" required />
+                  <input type="text" value="Jog & Joy" readOnly className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-500 cursor-not-allowed outline-none" required />
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-2">
@@ -863,7 +878,7 @@ export default function AdminProducts() {
                   products.map((product) => {
                     const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
                     const sku = product.variants?.[0]?.sku || '-';
-                    const image = product.images?.[0];
+                    const image = product.image || product.images?.[0];
 
                     return (
                       <tr key={product.id} className="hover:bg-zinc-50/50 transition-colors group">

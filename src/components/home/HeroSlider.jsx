@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
 import Button from '../ui/Button';
+import { getImageUrl } from '../../utils/getImageUrl';
 
 const slides = [
   {
@@ -8,7 +9,7 @@ const slides = [
     tag: 'Summer Vibes Collection 2026',
     title: 'Color Scheme For Summer Vibes',
     subtitle: 'High performance activewear engineered with breathable tech fabrics and dynamic street style.',
-    bgImage: '/images/hero_summer.png',
+    bgImage: getImageUrl('hero_summer.png'),
     fallbackBg: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop',
     ctaText: 'Explore Collection',
     ctaLink: '/products',
@@ -18,7 +19,7 @@ const slides = [
     tag: 'Athleisure Fashion',
     title: 'Love Is In The Wear',
     subtitle: 'From kids activewear to men’s premium trackpants — precision stitched for supreme comfort.',
-    bgImage: '/images/cat_men_joggers.png',
+    bgImage: getImageUrl('cat_men_joggers.png'),
     fallbackBg: 'https://images.unsplash.com/photo-1483721074892-4a85807d2d2d?q=80&w=1600&auto=format&fit=crop',
     ctaText: 'Discover Athleisure',
     ctaLink: '/collections',

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
+import { getImageUrl } from '../../utils/getImageUrl';
 
 export default function BrandLogo({ className = 'h-10', showTagline = true, animate = false, linkTo = '/' }) {
   const containerRef = useRef(null);
@@ -199,7 +200,7 @@ export default function BrandLogo({ className = 'h-10', showTagline = true, anim
       <div ref={containerRef} className="relative inline-block overflow-visible select-none">
         {/* The logo image - 100% static, no movement, scaling, rotation or distortion */}
         <img
-          src="/images/official_logo.png"
+          src={getImageUrl('official_logo.png')}
           alt="JOG&JOY® - Love is in the wear"
           className={`${className} w-auto object-contain relative z-20`}
           onError={(e) => {

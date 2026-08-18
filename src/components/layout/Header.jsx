@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ChevronDown, Menu, X, ShoppingBag, ArrowRight } from 'lucide-react';
+import { getImageUrl } from '../../utils/getImageUrl';
 
 export const productCategories = [
-  { name: 'Kids T-Shirt', slug: 'kids-t-shirt', category: 'Kids' },
-  { name: 'Kids Joggers & Tracks', slug: 'kids-joggers-tracks', category: 'Kids' },
-  { name: 'Kids Shorts & Bermudas', slug: 'kids-shorts-bermudas', category: 'Kids' },
-  { name: 'Kids Night Suits', slug: 'kids-night-suits', category: 'Kids' },
-  { name: 'Kids Pajama Suits', slug: 'kids-pajama-suits', category: 'Kids' },
-  { name: 'Girl Frocks', slug: 'girl-frocks', category: 'Kids' },
+  { name: 'KIDS Co-ord Suit', slug: 'kids-co-ord-suit', category: 'Kids' },
+  { name: 'KIDS T-shirts', slug: 'kids-t-shirts', category: 'Kids' },
+  { name: 'KIDS Night Suit', slug: 'kids-night-suit', category: 'Kids' },
+  { name: 'KIDS Short Co-ord Suit', slug: 'kids-short-co-ord-suit', category: 'Kids' },
+  { name: 'KIDS Shorts', slug: 'kids-shorts', category: 'Kids' },
+  { name: 'KIDS Sweat_Pants', slug: 'kids-sweat-pants', category: 'Kids' },
+  { name: 'KIDS Track_Pants', slug: 'kids-track-pants', category: 'Kids' },
+  { name: 'KIDS Track_Suit', slug: 'kids-track-suit', category: 'Kids' },
 ];
 
 export default function Header() {
@@ -79,7 +82,7 @@ export default function Header() {
             <Link to="/" className="flex items-center gap-3 group">
               <div className="relative overflow-hidden rounded-xl bg-[#ccff00] p-1.5 transition-transform group-hover:scale-105">
                 <img 
-                  src="/images/logo.png" 
+                  src={getImageUrl('logo.png')} 
                   alt="Jog & Joy Logo" 
                   className="h-7 w-auto object-contain"
                   onError={(e) => {
@@ -276,7 +279,7 @@ export default function Header() {
                         onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
                         className="flex items-center gap-4 p-3 hover:bg-slate-700/50 transition-colors border-b border-slate-700/50 last:border-0"
                       >
-                        <img src={product.image || product.images?.[0] || '/images/placeholder.jpg'} alt={product.title} className="w-12 h-12 rounded-lg object-cover bg-slate-900" />
+                        <img src={product.image || product.images?.[0] || getImageUrl('placeholder.jpg')} alt={product.title} className="w-12 h-12 rounded-lg object-cover bg-slate-900" />
                         <div className="flex-1">
                           <h4 className="text-sm font-bold text-white line-clamp-1">{product.title || product.name}</h4>
                           <p className="text-xs text-slate-400">{product.category}</p>
