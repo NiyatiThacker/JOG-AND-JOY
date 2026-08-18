@@ -7,6 +7,7 @@ export default function AdminProducts() {
   const [showForm, setShowForm] = useState(false);
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [editingId, setEditingId] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -238,7 +239,7 @@ export default function AdminProducts() {
   const applyCareDefault = () => setFormData(prev => ({ ...prev, care: 'Machine wash cold inside out with similar colors. Do not bleach. Tumble dry low. Do not iron directly on print.' }));
   const applyShippingDefault = () => setFormData(prev => ({ ...prev, shipping: 'Standard delivery takes 3-5 business days across India. Free shipping applies on all orders above ₹999. Hassle-free 15-day return policy.' }));
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     
     if (formData.images.length + files.length > 7) {
@@ -247,17 +248,32 @@ export default function AdminProducts() {
       return;
     }
 
-    Promise.all(files.map(file => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(file);
+    setIsUploadingImage(true);
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const uploadData = new FormData();
+        uploadData.append('file', file);
+        uploadData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+        
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+          method: 'POST',
+          body: uploadData
+        });
+        
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        return data.secure_url;
       });
-    })).then(base64Images => {
-      setFormData(prev => ({ ...prev, images: [...prev.images, ...base64Images] }));
-    });
-    
-    e.target.value = '';
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setFormData(prev => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
+    } catch (error) {
+      console.error(error);
+      alert('Failed to upload. Check Cloudinary settings in .env');
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = '';
+    }
   };
 
   const handleAddImageUrl = () => {
@@ -457,9 +473,10 @@ export default function AdminProducts() {
                     multiple 
                     accept="image/*" 
                     onChange={handleImageUpload} 
-                    disabled={formData.images.length >= 7}
+                    disabled={formData.images.length >= 7 || isUploadingImage}
                     className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:border-blue-600 outline-none file:mr-4      file:font-bold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 disabled:opacity-50 transition-all text-sm" 
                   />
+                  {isUploadingImage && <span className="text-xs text-blue-600 mt-1 font-bold">Uploading to Cloudinary...</span>}
                 </div>
                 
                 {/* URL Upload */}
