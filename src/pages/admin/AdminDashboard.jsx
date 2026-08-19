@@ -3,7 +3,7 @@ import { Package, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOrdersList } from '../../queries/useOrders';
 import { useSettingsContext } from '../../context/SettingsContext';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useProductsList } from '../../queries/useProducts';
 
 export default function AdminDashboard() {
@@ -211,49 +211,49 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm">
+        <Link to="/admin/financials" className="block p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-slate-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-4">
-            <p className="font-bold text-zinc-500">Total Sales</p>
+            <p className="font-bold text-zinc-500 group-hover:text-blue-600 transition-colors">Total Sales</p>
             <TrendBadge value={salesTrend} />
           </div>
           <p className="text-2xl font-black text-text-dark">{formatCurrency(totalSales)}</p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm">
+        </Link>
+        <Link to="/admin/orders" className="block p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-slate-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-4">
-            <p className="font-bold text-zinc-500">Total Orders</p>
+            <p className="font-bold text-zinc-500 group-hover:text-blue-600 transition-colors">Total Orders</p>
             <TrendBadge value={ordersTrend} />
           </div>
           <p className="text-2xl font-black text-text-dark">{totalOrdersCount}</p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm">
+        </Link>
+        <Link to="/admin/analytics" className="block p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-slate-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-4">
-            <p className="font-bold text-zinc-500">Avg Order Value</p>
+            <p className="font-bold text-zinc-500 group-hover:text-blue-600 transition-colors">Avg Order Value</p>
             <TrendBadge value={aovTrend} />
           </div>
           <p className="text-2xl font-black text-text-dark">{formatCurrency(avgOrderValue)}</p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col justify-between">
-          <p className="font-bold text-zinc-500 mb-4">Customers</p>
+        </Link>
+        <Link to="/admin/customers" className="block p-5 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all group">
+          <p className="font-bold text-zinc-500 mb-4 group-hover:text-blue-600 transition-colors">Customers</p>
           <div className="flex justify-between items-end">
             <div><p className="text-xl font-black text-text-dark">{newCustomers}</p><p className="text-[10px] font-bold text-zinc-400 uppercase">New</p></div>
             <div className="text-right"><p className="text-xl font-black text-text-dark">{returningCustomers}</p><p className="text-[10px] font-bold text-zinc-400 uppercase">Returning</p></div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Row 2: Sales Chart & Order Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-xl shadow-sm p-6 flex flex-col">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="bg-white border border-slate-100 rounded-xl shadow-sm p-6 flex flex-col">
           <h2 className="font-bold text-text-dark mb-6">Sales Overview</h2>
           <div className="h-64 w-full mt-auto">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
+              <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dx={-10} tickFormatter={(val) => `₹${val}`} />
                 <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
-                <Bar dataKey="sales" fill="#334155" radius={[4, 4, 0, 0]} maxBarSize={40} />
-              </BarChart>
+                <Line type="monotone" dataKey="sales" stroke="#334155" strokeWidth={3} dot={{ r: 4, fill: '#334155', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>

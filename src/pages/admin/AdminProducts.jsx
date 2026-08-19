@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Edit2, Trash2, CheckCircle2, Image as ImageIcon, Plus, X, ChevronLeft, ChevronRight, Link as LinkIcon } from 'lucide-react';
 import { useProductsList, useCreateProduct, useUpdateProduct, useDeleteProduct } from '../../queries/useProducts';
+import { useCategoriesList } from '../../queries/useCategories';
 
 export default function AdminProducts() {
   const [search, setSearch] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [filterStock, setFilterStock] = useState('all');
   const [showForm, setShowForm] = useState(false);
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -27,7 +30,8 @@ export default function AdminProducts() {
     colors: [],
     variants: [],
     collections: [],
-    isNewArrival: false
+    isNewArrival: false,
+    status: 'draft'
   });
   
   const [customColorName, setCustomColorName] = useState('');
@@ -48,8 +52,63 @@ export default function AdminProducts() {
   const { data, isLoading } = useProductsList();
   let products = data?.data || [];
 
+  const { data: categoriesResponse } = useCategoriesList();
+  const dbCategories = categoriesResponse?.data || [];
+
+  // Compute all unique categories (DB + existing on products)
+  const allCategories = React.useMemo(() => {
+    const categoryMap = new Map();
+    const idMap = new Map();
+    dbCategories.forEach(c => {
+      categoryMap.set(c.label, c);
+      if (c.id) idMap.set(c.id, c);
+    });
+    
+    products.forEach(p => {
+      // If the product categoryId matches a known category ID in the DB, skip adding it
+      if (p.categoryId && idMap.has(p.categoryId)) {
+        return;
+      }
+      const catLabel = p.categoryLabel || p.category || p.categoryId;
+      // Skip if it's empty, or if it looks like a raw UUID (36 chars)
+      if (catLabel && typeof catLabel === 'string' && catLabel.length !== 36 && !categoryMap.has(catLabel)) {
+        categoryMap.set(catLabel, { id: `legacy_${catLabel}`, label: catLabel });
+      }
+    });
+    return Array.from(categoryMap.values());
+  }, [dbCategories, products]);
+
   if (search) {
-    products = products.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
+    products = products.filter(p => {
+      const q = search.toLowerCase();
+      const skus = p.variants?.map(v => v.sku).join(' ') || '';
+      const searchStr = `${p.title} ${p.vendor} ${skus}`.toLowerCase();
+      return searchStr.includes(q);
+    });
+  }
+
+  if (filterCategory !== 'all') {
+    const selectedCat = allCategories.find(c => c.id === filterCategory);
+    if (selectedCat) {
+      products = products.filter(p => 
+        p.categoryId === selectedCat.id || 
+        p.categoryId === selectedCat.label || 
+        p.categoryLabel === selectedCat.label || 
+        p.category === selectedCat.label
+      );
+    } else {
+      products = products.filter(p => p.categoryId === filterCategory);
+    }
+  }
+
+  if (filterStock !== 'all') {
+    products = products.filter(p => {
+      const stock = Number(p.stock) || 0;
+      if (filterStock === 'in_stock') return stock > 10;
+      if (filterStock === 'low_stock') return stock > 0 && stock <= 10;
+      if (filterStock === 'out_of_stock') return stock <= 0;
+      return true;
+    });
   }
 
   const createMut = useCreateProduct();
@@ -58,7 +117,7 @@ export default function AdminProducts() {
 
   const resetForm = () => {
     setFormData({
-      title: '', groupId: '', categoryId: 'Boy', vendor: '', originalPrice: '', discountPercent: '20', stock: '', images: [], description: '', fabric: '', care: '', shipping: '', sizes: [], colors: [], variants: [], collections: [], isNewArrival: false
+      title: '', groupId: '', categoryId: '', vendor: '', originalPrice: '', discountPercent: '20', stock: '', images: [], description: '', fabric: '', care: '', shipping: '', sizes: [], colors: [], variants: [], collections: [], isNewArrival: false, ageGroup: '', status: 'draft'
     });
     setEditingId(null);
     setShowForm(false);
@@ -117,7 +176,7 @@ export default function AdminProducts() {
     setFormData({
       title: product.title ? `${product.title} (Variant)` : '',
       groupId: product.groupId || product.id,
-      categoryId: product.categoryId || 'Boy',
+      categoryId: product.categoryId || '',
       vendor: product.vendor || '',
       originalPrice: product.originalPrice || product.basePrice || '',
       discountPercent: discPct,
@@ -131,7 +190,9 @@ export default function AdminProducts() {
       colors: [], 
       variants: [],
       collections: product.collections || [],
-      isNewArrival: product.isNewArrival || false
+      isNewArrival: product.isNewArrival || false,
+      ageGroup: product.ageGroup || '',
+      status: product.status || 'draft'
     });
   };
 
@@ -151,7 +212,7 @@ export default function AdminProducts() {
     setFormData({
       title: product.title || '',
       groupId: product.groupId || '',
-      categoryId: product.categoryId || 'Boy',
+      categoryId: product.categoryId || '',
       vendor: product.vendor || '',
       originalPrice: product.originalPrice || product.basePrice || '',
       discountPercent: discPct,
@@ -165,7 +226,9 @@ export default function AdminProducts() {
       colors: product.colors || [],
       variants: product.variants || [],
       collections: product.collections || [],
-      isNewArrival: product.isNewArrival || false
+      isNewArrival: product.isNewArrival || false,
+      ageGroup: product.ageGroup || '',
+      status: product.status || 'draft'
     });
     
     setShowForm(true);
@@ -192,6 +255,15 @@ export default function AdminProducts() {
       finalStock = finalVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
     }
 
+    let submitStatus = formData.status || 'live';
+    if (submitStatus === 'live') {
+      const isValid = finalVariants.length > 0 && finalVariants.every(v => v.colorHex && v.size && v.sku && Number(v.stock) >= 0) && formData.images.length > 0;
+      if (!isValid) {
+        alert('Validation failed for Publish: Product must have variants with non-negative stock and at least one image. Saving as Draft instead.');
+        submitStatus = 'draft';
+      }
+    }
+
     const productPayload = {
       title: formData.title,
       groupId: formData.groupId || undefined,
@@ -207,11 +279,12 @@ export default function AdminProducts() {
       shipping: formData.shipping,
       sizes: formData.sizes.length > 0 ? formData.sizes : ['Standard'],
       colors: formData.colors,
-      status: 'live',
+      status: submitStatus,
       images: formData.images.length > 0 ? formData.images : ['https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=800&auto=format&fit=crop'],
       stock: finalStock,
       collections: formData.collections || [],
       isNewArrival: formData.isNewArrival || false,
+      ageGroup: formData.ageGroup || undefined,
       variants: finalVariants.map(v => ({
         id: v.id,
         sku: v.sku,
@@ -411,7 +484,7 @@ export default function AdminProducts() {
 
           <form onSubmit={handleSave} className="p-6 space-y-6">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-bold text-text-muted mb-2">Product Title *</label>
                 <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-blue-600 outline-none" placeholder="e.g. Handmade Terracotta Bowl" required />
@@ -419,15 +492,18 @@ export default function AdminProducts() {
               <div>
                 <label className="block text-sm font-bold text-text-muted mb-2">Category *</label>
                 <select value={formData.categoryId} onChange={e => setFormData({ ...formData, categoryId: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-blue-600 outline-none" required>
-                  <option value="Kids T-shirt">Kids T-shirt</option>
-                  <option value="Kids joggers and tracks">Kids joggers and tracks</option>
-                  <option value="Kids shorts and bermudas">Kids shorts and bermudas</option>
-                  <option value="Kids night suits">Kids night suits</option>
-                  <option value="Kids pajama suits">Kids pajama suits</option>
-                  <option value="Men tracks and joggers">Men tracks and joggers</option>
-                  <option value="Men shorts and bermuda">Men shorts and bermuda</option>
-                  <option value="Men boxers">Men boxers</option>
-                  <option value="Girl frocks">Girl frocks</option>
+                  <option value="">Select Category</option>
+                  {allCategories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-text-muted mb-2">Status *</label>
+                <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-blue-600 outline-none" required>
+                  <option value="draft">Draft</option>
+                  <option value="live">Published</option>
+                  <option value="archived">Archived</option>
                 </select>
               </div>
             </div>
@@ -498,6 +574,20 @@ export default function AdminProducts() {
                   </button>
                 </div>
               </div>
+              
+              <div className="grid grid-cols-1 mb-6">
+                <div>
+                  <label className="block text-sm font-bold text-text-muted mb-2">Age Group Targeting</label>
+                  <select value={formData.ageGroup || ''} onChange={e => setFormData({ ...formData, ageGroup: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-blue-600 outline-none">
+                    <option value="">None / All Ages</option>
+                    <option value="0-2 Years">0-2 Years (Baby & Toddler)</option>
+                    <option value="3-5 Years">3-5 Years (Little Adventurers)</option>
+                    <option value="6-8 Years">6-8 Years (Active Explorers)</option>
+                    <option value="9-12 Years">9-12 Years (Junior Fashion)</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-text-muted mb-2">Original Price (₹) *</label>
@@ -751,7 +841,11 @@ export default function AdminProducts() {
                               min="0"
                               value={variant.stock} 
                               onChange={e => handleUpdateVariant(variant.id, 'stock', e.target.value)}
-                              className="w-full p-2 border border-slate-200 rounded-lg focus:border-blue-600 outline-none"
+                              className={`w-full p-2 border rounded-lg focus:outline-none transition-colors ${
+                                Number(variant.stock) === 0 
+                                  ? 'border-red-300 bg-red-50 text-red-600 focus:border-red-500 font-bold' 
+                                  : 'border-slate-200 focus:border-blue-600'
+                              }`}
                               required
                             />
                           </td>
@@ -832,10 +926,46 @@ export default function AdminProducts() {
 
       {/* Active Product Listings */}
       <div className="bg-white border border-slate-100 rounded-xl shadow-sm transition-all overflow-hidden mb-12">
-        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-zinc-50/50">
-          <h2 className="text-xl font-extrabold text-text-dark">Active Product Listings</h2>
-          <div className="px-3 py-1 bg-zinc-100 text-zinc-500 rounded-lg text-sm font-bold">
-            {products.length} Listings Total
+        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50/50">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <h2 className="text-xl font-extrabold text-text-dark whitespace-nowrap">Active Listings</h2>
+            <div className="px-3 py-1 bg-zinc-100 text-zinc-500 rounded-lg text-sm font-bold whitespace-nowrap">
+              {products.length} Total
+            </div>
+          </div>
+          
+          <div className="flex gap-2 w-full sm:w-auto overflow-x-auto hide-scrollbar">
+            <select 
+              value={filterCategory} 
+              onChange={e => setFilterCategory(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="all">All Categories</option>
+              {allCategories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.label}</option>
+              ))}
+            </select>
+            <select 
+              value={filterStock} 
+              onChange={e => setFilterStock(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="all">All Stock Status</option>
+              <option value="in_stock">In Stock ({'>'}10)</option>
+              <option value="low_stock">Low Stock (1-10)</option>
+              <option value="out_of_stock">Out of Stock (0)</option>
+            </select>
+          </div>
+          
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input 
+              type="text" 
+              placeholder="Search products..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg focus:outline-none focus:border-blue-600 text-sm transition-colors shadow-sm"
+            />
           </div>
         </div>
 
@@ -901,14 +1031,20 @@ export default function AdminProducts() {
                         </td>
                         <td className="px-6 py-4 font-mono text-xs font-bold text-zinc-600">{sku}</td>
                         <td className="px-6 py-4 font-bold text-zinc-600">
-                          <span className={totalStock <= 5 ? "text-blue-600" : ""}>{totalStock} units</span>
+                          <span className={totalStock <= 5 ? "text-orange-600" : ""}>{totalStock} units</span>
+                          {product.variants?.some(v => Number(v.stock) === 0) && totalStock > 0 && (
+                            <p className="text-[9px] text-red-500 font-extrabold uppercase mt-1">⚠️ Low Size Avail</p>
+                          )}
+                          {totalStock === 0 && (
+                            <p className="text-[9px] text-red-500 font-extrabold uppercase mt-1">Sold Out</p>
+                          )}
                         </td>
                         <td className="px-6 py-4 font-extrabold text-text-dark">₹{product.price || product.basePrice}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
-                            product.status === 'live' ? 'bg-success/15 text-success-dark' : 
-                            product.status === 'pending_review' ? 'bg-warning/15 text-warning-dark' : 
-                            product.status === 'archived' ? 'bg-error/10 text-error' :
+                            product.status === 'live' ? 'bg-green-500/15 text-green-700' : 
+                            product.status === 'pending_review' ? 'bg-orange-500/15 text-orange-700' : 
+                            product.status === 'archived' ? 'bg-red-500/10 text-red-700' :
                             'bg-zinc-200 text-zinc-600'
                           }`}>
                             {product.status === 'live' && <CheckCircle2 className="w-3 h-3" />}

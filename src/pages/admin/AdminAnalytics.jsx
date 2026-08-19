@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BarChart3, Download, TrendingUp, Users, ShoppingBag, Globe, Plus, Filter, PieChart, Activity } from 'lucide-react';
+import { BarChart3, Download, TrendingUp, Users, ShoppingBag, Globe, Plus, Filter, PieChart, Activity, FileText } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Legend } from 'recharts';
 import { useRevenueSummary } from '../../queries/useFinancials';
 import { useOrdersList } from '../../queries/useOrders';
 import { useCustomersList } from '../../queries/useCustomers';
@@ -97,13 +98,27 @@ export default function AdminAnalytics() {
 
   // Gross vs Net
   const grossSales = filteredOrders.reduce((sum, o) => sum + (o.subtotal || 0), 0);
-  const netSales = filteredOrders.reduce((sum, o) => sum + ((o.subtotal || 0) - (o.discountAmount || 0)), 0);
+  const totalDiscounts = filteredOrders.reduce((sum, o) => sum + (o.discountAmount || 0), 0);
+  const netSales = grossSales - totalDiscounts;
 
-  // Sales by Channel
-  const onlineStoreOrders = filteredOrders.filter(o => o.channel === 'online_store' || o.channel === 'Web Storefront').length;
-  const posOrders = totalOrdersCount - onlineStoreOrders;
-  const onlinePercent = totalOrdersCount > 0 ? Math.round((onlineStoreOrders / totalOrdersCount) * 100) : 0;
-  const posPercent = totalOrdersCount > 0 ? 100 - onlinePercent : 0;
+  // Promotion Tracking
+  const promoStats = {};
+  filteredOrders.forEach(o => {
+    if (o.promotionCodeApplied && o.discountAmount) {
+      if (!promoStats[o.promotionCodeApplied]) {
+        promoStats[o.promotionCodeApplied] = { code: o.promotionCodeApplied, uses: 0, totalDiscount: 0 };
+      }
+      promoStats[o.promotionCodeApplied].uses += 1;
+      promoStats[o.promotionCodeApplied].totalDiscount += o.discountAmount;
+    }
+  });
+  const topPromos = Object.values(promoStats).sort((a, b) => b.totalDiscount - a.totalDiscount);
+
+  // Payment Status Distribution
+  const paidOrders = filteredOrders.filter(o => o.paymentStatus === 'paid').length;
+  const pendingOrdersCount = filteredOrders.filter(o => o.paymentStatus === 'pending' || !o.paymentStatus).length;
+  const paidPercent = totalOrdersCount > 0 ? Math.round((paidOrders / totalOrdersCount) * 100) : 0;
+  const pendingPercent = totalOrdersCount > 0 ? 100 - paidPercent : 0;
 
   const handleExport = () => {
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -126,8 +141,55 @@ export default function AdminAnalytics() {
     link.click();
   };
 
+  // Chart Data for Orders (Count)
+  let ordersChartData = chartData.map(d => {
+    // Find the original day/month/year mapping to get order counts
+    let count = 0;
+    if (period === 'year') {
+      const monthStr = new Date(now.getFullYear(), chartData.indexOf(d), 1).toISOString().substring(0, 7);
+      count = filteredOrders.filter(o => o.createdAt?.startsWith(monthStr) && o.status !== 'cancelled').length;
+    } else if (period === 'all') {
+      const yearStr = d.label;
+      count = filteredOrders.filter(o => o.createdAt?.startsWith(yearStr) && o.status !== 'cancelled').length;
+    } else {
+      let days = period === 'today' ? 1 : period === '30d' ? 30 : 7;
+      const date = new Date();
+      date.setDate(now.getDate() - (days - 1 - chartData.indexOf(d)));
+      const dateStr = date.toISOString().split('T')[0];
+      count = filteredOrders.filter(o => o.createdAt?.startsWith(dateStr) && o.status !== 'cancelled').length;
+    }
+    return { ...d, orders: count };
+  });
+
+  // Order Status Distribution for Pie Chart
+  const statusCounts = {
+    PROCESSING: 0,
+    SHIPPED: 0,
+    DELIVERED: 0,
+    CANCELLED: 0,
+    RETURNS: 0
+  };
+  
+  filteredOrders.forEach(o => {
+    if (['RETURN_REQUESTED', 'EXCHANGE_REQUESTED', 'RETURN_APPROVED', 'EXCHANGE_APPROVED', 'RETURN_REJECTED', 'RETURNS'].includes(o.status)) {
+      statusCounts.RETURNS++;
+    } else if (statusCounts[o.status] !== undefined) {
+      statusCounts[o.status]++;
+    }
+  });
+
+  const pieData = [
+    { name: 'Processing', value: statusCounts.PROCESSING, color: '#f59e0b' },
+    { name: 'Shipped', value: statusCounts.SHIPPED, color: '#3b82f6' },
+    { name: 'Delivered', value: statusCounts.DELIVERED, color: '#10b981' },
+    { name: 'Cancelled', value: statusCounts.CANCELLED, color: '#ef4444' },
+    { name: 'Returns/Exch', value: statusCounts.RETURNS, color: '#8b5cf6' }
+  ].filter(d => d.value > 0);
+
+
   const tabs = [
     { id: 'sales', icon: <TrendingUp className="w-4 h-4" />, label: 'Sales' },
+    { id: 'orders', icon: <FileText className="w-4 h-4" />, label: 'Orders' },
     { id: 'products', icon: <ShoppingBag className="w-4 h-4" />, label: 'Products' },
     { id: 'customers', icon: <Users className="w-4 h-4" />, label: 'Customers' },
   ];
@@ -161,30 +223,30 @@ export default function AdminAnalytics() {
 
       {/* Global KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
-          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Total Sales</p>
+        <button onClick={() => setActiveTab('sales')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm hover:border-blue-300 hover:shadow-md group">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2 group-hover:text-blue-600 transition-colors">Total Sales</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-text-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue || 0)}</p>
           </div>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
-          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Avg Order Value</p>
+        </button>
+        <button onClick={() => setActiveTab('sales')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm hover:border-blue-300 hover:shadow-md group">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2 group-hover:text-blue-600 transition-colors">Avg Order Value</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-text-dark">{isLoading ? '...' : formatCurrency(summary?.totalRevenue / (summary?.totalOrders || 1) || 0)}</p>
           </div>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
-          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Total Orders</p>
+        </button>
+        <button onClick={() => setActiveTab('orders')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm hover:border-blue-300 hover:shadow-md group">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2 group-hover:text-blue-600 transition-colors">Total Orders</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-text-dark">{totalOrdersCount}</p>
           </div>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm">
-          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2">Returning Customer Rate</p>
+        </button>
+        <button onClick={() => setActiveTab('customers')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm hover:border-blue-300 hover:shadow-md group">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2 group-hover:text-blue-600 transition-colors">Returning Customer Rate</p>
           <div className="flex items-end gap-3">
             <p className="text-2xl font-black text-text-dark">{returningRate}%</p>
           </div>
-        </div>
+        </button>
       </div>
 
       <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-125">
@@ -212,48 +274,131 @@ export default function AdminAnalytics() {
           <div className="p-6">
             {activeTab === 'sales' ? (
               <div className="space-y-6">
-                <div className="h-64 bg-zinc-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-end">
-                  <div className="flex justify-between items-end h-full gap-2 px-4">
-                    {chartData.map((d, i) => (
-                      <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
-                        <div 
-                          className={`w-full rounded-t-sm relative transition-colors ${d.value > 0 ? 'bg-blue-600/20 group-hover:bg-blue-600' : 'bg-zinc-100 group-hover:bg-zinc-200'}`} 
-                          style={{ height: `${Math.max((d.value / maxVal) * 100, 2)}%`, minHeight: '4px' }}
-                        >
-                          <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800 text-white px-2 py-1 rounded whitespace-nowrap z-10">
-                            {formatCurrency(d.value)}
-                          </span>
-                        </div>
-                        <span className="text-xs text-text-muted font-bold">{d.label}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="h-72 bg-white border border-slate-200 rounded-xl p-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                      <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fontSize: 12, fill: '#64748b' }}
+                        tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(1) + 'k' : value}`}
+                        dx={-10}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [formatCurrency(value), "Sales"]}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Area type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 border border-slate-200 rounded-xl bg-white">
-                    <h3 className="font-bold text-sm mb-4 text-text-dark">Sales by Channel</h3>
+                    <h3 className="font-bold text-sm mb-4 text-text-dark">Orders by Payment Status</h3>
                     <div className="space-y-3">
                       <div>
-                        <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Online Store</span><span>{onlinePercent}%</span></div>
-                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-blue-600 transition-all" style={{width: `${onlinePercent}%`}}></div></div>
+                        <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Paid</span><span>{paidPercent}%</span></div>
+                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-success transition-all" style={{width: `${paidPercent}%`}}></div></div>
                       </div>
                       <div>
-                        <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Point of Sale (POS)</span><span>{posPercent}%</span></div>
-                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-primary-dark transition-all" style={{width: `${posPercent}%`}}></div></div>
+                        <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Pending / Unpaid</span><span>{pendingPercent}%</span></div>
+                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-warning transition-all" style={{width: `${pendingPercent}%`}}></div></div>
                       </div>
                     </div>
                   </div>
-                  <div className="p-4 border border-slate-200 rounded-xl bg-white">
+                  <div className="p-4 border border-slate-200 rounded-xl bg-white flex flex-col">
                     <h3 className="font-bold text-sm mb-4 text-text-dark">Gross vs Net Sales</h3>
-                    <div className="flex flex-col justify-center h-full space-y-4 pb-4">
-                      <div>
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-1">Gross Sales</p>
-                         <p className="text-xl font-black text-text-dark">{formatCurrency(grossSales)}</p>
+                    <div className="flex-1 flex flex-col space-y-4">
+                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Gross Sales</p>
+                         <p className="text-lg font-black text-text-dark">{formatCurrency(grossSales)}</p>
                       </div>
-                      <div>
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-1">Net Sales <span className="lowercase font-medium opacity-70">(after discounts)</span></p>
+                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest text-red-500">Discounts Applied</p>
+                         <p className="text-lg font-black text-red-500">- {formatCurrency(totalDiscounts)}</p>
+                      </div>
+                      <div className="flex justify-between items-center bg-blue-50/50 p-2 rounded-lg">
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Net Sales</p>
                          <p className="text-xl font-black text-blue-600">{formatCurrency(netSales)}</p>
                       </div>
+                    </div>
+                    
+                    {topPromos.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-slate-100">
+                        <h4 className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-2">Top Promo Codes</h4>
+                        <div className="space-y-2">
+                          {topPromos.slice(0, 3).map(promo => (
+                            <div key={promo.code} className="flex justify-between items-center text-xs">
+                              <span className="font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700">{promo.code}</span>
+                              <span className="text-slate-500">{promo.uses} uses</span>
+                              <span className="font-black text-text-dark">{formatCurrency(promo.totalDiscount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : activeTab === 'orders' ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 h-80 bg-white border border-slate-200 rounded-xl p-4 flex flex-col">
+                    <h3 className="font-bold text-text-dark mb-4 text-sm">Orders Over Time</h3>
+                    <div className="flex-1 min-h-0">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={ordersChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                          <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dx={-10} allowDecimals={false} />
+                          <Tooltip 
+                            cursor={{ fill: '#f1f5f9' }}
+                            formatter={(value) => [value, "Orders"]}
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                          />
+                          <Bar dataKey="orders" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  
+                  <div className="h-80 bg-white border border-slate-200 rounded-xl p-4 flex flex-col">
+                    <h3 className="font-bold text-text-dark mb-2 text-sm">Order Status</h3>
+                    <div className="flex-1 min-h-0">
+                      {pieData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsPieChart>
+                            <Pie
+                              data={pieData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              {pieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip 
+                              formatter={(value) => [value, "Orders"]}
+                              contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            />
+                            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
+                          </RechartsPieChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-text-muted text-sm font-medium">No order data for this period</div>
+                      )}
                     </div>
                   </div>
                 </div>

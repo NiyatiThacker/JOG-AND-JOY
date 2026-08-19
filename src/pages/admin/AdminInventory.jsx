@@ -55,14 +55,14 @@ const StockRow = ({ item, product, updateMut }) => {
       <td className="px-6 py-4 font-extrabold text-text-dark">₹{product.price || product.basePrice}</td>
       <td className="px-6 py-4">
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-widest ${
-          product.status === 'live' ? 'bg-green-50 text-blue-600' : 'bg-zinc-100 text-zinc-500'
+          product.status === 'live' ? 'bg-green-500/15 text-green-700' : 'bg-zinc-100 text-zinc-500'
         }`}>
           {product.status === 'live' ? 'Live' : 'Draft'}
         </span>
       </td>
       <td className="px-6 py-4">
         <span className={`inline-flex items-center px-3 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-widest ${
-          isOut ? 'bg-red-50 text-red-500' : isLow ? 'bg-[#fef5e6] text-[#f39c12]' : 'bg-green-50 text-blue-600'
+          isOut ? 'bg-red-500/10 text-red-700' : isLow ? 'bg-orange-500/15 text-orange-700' : 'bg-green-500/15 text-green-700'
         }`}>
           {isOut ? 'Out of Stock' : isLow ? `Low Stock (${available})` : `Healthy (${available})`}
         </span>
@@ -79,8 +79,12 @@ const StockRow = ({ item, product, updateMut }) => {
             type="number" 
             min="0"
             value={localStock}
-            onChange={(e) => setLocalStock(Math.max(0, Number(e.target.value)))}
-            onBlur={() => commitStockChange(localStock)}
+            onChange={(e) => setLocalStock(e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))}
+            onBlur={() => {
+              const finalStock = localStock === '' ? 0 : Number(localStock);
+              commitStockChange(finalStock);
+              setLocalStock(finalStock);
+            }}
             className="w-14 h-8 text-center border border-slate-200 rounded-lg bg-white font-bold text-sm focus:ring-1 focus:ring-blue-600 outline-none"
           />
           <button 
@@ -97,6 +101,7 @@ const StockRow = ({ item, product, updateMut }) => {
 
 export default function AdminInventory() {
   const [search, setSearch] = useState('');
+  const [filterStockLevel, setFilterStockLevel] = useState('all');
   const [activeTab, setActiveTab] = useState('overview');
 
   const { data: settingsData } = useSettings();
@@ -132,8 +137,19 @@ export default function AdminInventory() {
     const q = search.toLowerCase();
     stockItems = stockItems.filter(item => 
       item.productTitle.toLowerCase().includes(q) || 
-      (item.sku && item.sku.toLowerCase().includes(q))
+      (item.sku && item.sku.toLowerCase().includes(q)) ||
+      (item.productRef?.vendor && item.productRef.vendor.toLowerCase().includes(q))
     );
+  }
+
+  if (filterStockLevel !== 'all') {
+    stockItems = stockItems.filter(item => {
+      const available = item.onHand - item.reserved;
+      if (filterStockLevel === 'low_stock') return available > 0 && available <= item.threshold;
+      if (filterStockLevel === 'out_of_stock') return available <= 0;
+      if (filterStockLevel === 'in_stock') return available > item.threshold;
+      return true;
+    });
   }
 
   const totalItems = stockItems.length;
@@ -149,36 +165,49 @@ export default function AdminInventory() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Items Tracked</p>
+        <button onClick={() => setFilterStockLevel('all')} className="text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-blue-600 transition-colors">Total Items Tracked</p>
           <p className="text-3xl font-extrabold text-text-dark">{totalItems}</p>
-        </div>
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Low Stock Alert</p>
+        </button>
+        <button onClick={() => setFilterStockLevel('low_stock')} className="text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-warning hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-[#f39c12] transition-colors">Low Stock Alert</p>
           <p className="text-3xl font-extrabold text-[#f39c12]">{lowStockItems}</p>
-        </div>
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Out Of Stock</p>
+        </button>
+        <button onClick={() => setFilterStockLevel('out_of_stock')} className="text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-error hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-red-500 transition-colors">Out Of Stock</p>
           <p className="text-3xl font-extrabold text-red-500">{outOfStockItems}</p>
-        </div>
+        </button>
       </div>
 
       {/* Main Content */}
       <div className="bg-white border border-slate-100 rounded-xl shadow-sm transition-all overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-zinc-50/50">
+        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50/50">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-extrabold text-text-dark">Active Product Inventory</h2>
             <Package className="w-5 h-5 text-blue-600 ml-2" />
           </div>
-          <div className="relative w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input 
-              type="text" 
-              placeholder="Search SKU or product..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm transition-colors"
-            />
+          
+          <div className="flex gap-2 w-full sm:w-auto">
+            <select 
+              value={filterStockLevel} 
+              onChange={e => setFilterStockLevel(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="all">All Stock Levels</option>
+              <option value="in_stock">Healthy (In Stock)</option>
+              <option value="low_stock">Low Stock</option>
+              <option value="out_of_stock">Out of Stock</option>
+            </select>
+            <div className="relative flex-1 sm:w-64">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <input 
+                type="text" 
+                placeholder="Search SKU or product..." 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm transition-colors"
+              />
+            </div>
           </div>
         </div>
 

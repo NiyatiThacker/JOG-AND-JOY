@@ -79,7 +79,7 @@ export async function create(table, payload) {
   );
 
   if (!cleanPayload.id) {
-    cleanPayload.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    cleanPayload.id = crypto.randomUUID();
   }
   
   const record = { 

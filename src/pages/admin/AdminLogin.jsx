@@ -25,7 +25,8 @@ export default function AdminLogin() {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     let success = false;
-    success = await login(formData.email, formData.password);
+    const loginResult = await login(formData.email, formData.password);
+    success = loginResult && loginResult.success;
     if (!success) setError('Invalid credentials. Please try again.');
     
     setIsLoading(false);

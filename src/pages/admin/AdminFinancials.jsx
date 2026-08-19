@@ -113,42 +113,42 @@ export default function AdminFinancials() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm transition-all">
+        <button onClick={() => setActiveTab('transactions')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-2">
-            <p className="text-xs font-bold text-text-muted uppercase tracking-widest">Gross Revenue</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-widest group-hover:text-blue-600 transition-colors">Gross Revenue</p>
             <div className="p-1.5 bg-success/10 rounded-lg text-success"><TrendingUp className="w-4 h-4" /></div>
           </div>
           <p className="text-2xl font-black text-text-dark">
             {isLoading ? '...' : formatCurrency(financials.grossRevenue)}
           </p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm transition-all">
+        </button>
+        <button onClick={() => setActiveTab('transactions')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-2">
-            <p className="text-xs font-bold text-text-muted uppercase tracking-widest">Net Revenue</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-widest group-hover:text-blue-600 transition-colors">Net Revenue</p>
             <div className="p-1.5 bg-zinc-100 rounded-lg text-zinc-500"><IndianRupee className="w-4 h-4" /></div>
           </div>
           <p className="text-2xl font-black text-text-dark">
             {isLoading ? '...' : formatCurrency(financials.netRevenue)}
           </p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm transition-all">
+        </button>
+        <button onClick={() => setActiveTab('expenses')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-2">
-            <p className="text-xs font-bold text-text-muted uppercase tracking-widest">Gateway Fees</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-widest group-hover:text-blue-600 transition-colors">Gateway Fees</p>
             <div className="p-1.5 bg-error/10 rounded-lg text-error"><Calculator className="w-4 h-4" /></div>
           </div>
           <p className="text-2xl font-black text-text-dark">
             {isLoading ? '...' : formatCurrency(financials.gatewayFees)}
           </p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm transition-all">
+        </button>
+        <button onClick={() => setActiveTab('taxes')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-2">
-            <p className="text-xs font-bold text-text-muted uppercase tracking-widest">Taxes Collected</p>
+            <p className="text-xs font-bold text-text-muted uppercase tracking-widest group-hover:text-blue-600 transition-colors">Taxes Collected</p>
             <div className="p-1.5 bg-info/10 rounded-lg text-info-dark"><FileText className="w-4 h-4" /></div>
           </div>
           <p className="text-2xl font-black text-text-dark">
             {isLoading ? '...' : formatCurrency(financials.taxesCollected)}
           </p>
-        </div>
+        </button>
       </div>
 
       <div className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden flex flex-col md:flex-row min-h-125">
