@@ -1,79 +1,73 @@
 import React, { useState, useMemo } from 'react';
+import { useCustomersList } from '../../queries/useCustomers';
 import { useOrdersList } from '../../queries/useOrders';
 import { Users, Search, ShoppingBag, ArrowUpRight, FileText, X, Mail, Phone, MapPin, Calendar, CheckCircle, Package } from 'lucide-react';
 import { useSettingsContext } from '../../context/SettingsContext';
 import { Link } from 'react-router-dom';
 
 export default function AdminCustomers() {
-  const { data, isLoading } = useOrdersList({ pageSize: 10000 });
+  const { data: customersData, isLoading } = useCustomersList({ pageSize: 10000 });
   const { formatCurrency, formatDate } = useSettingsContext();
   const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('all'); // all, returning, new
+  const [sortBy, setSortBy] = useState('newest'); // newest, spent, orders
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const customers = useMemo(() => {
-    if (!data?.data) return [];
-    const orders = data.data;
-    const custMap = {};
-
-    orders.forEach(o => {
-      // Use robust fallback for customer identifier
-      const customerId = o.customerInfo?.email || o.shippingAddress?.email || o.userId || o.shippingAddress?.phone || o.shippingAddress?.fullName || o.shippingAddress?.name || o.customerInfo?.name || o.id;
-      if (!customerId) return;
-
-      const displayEmail = o.customerInfo?.email || o.shippingAddress?.email || 'N/A';
-
-      if (!custMap[customerId]) {
-        custMap[customerId] = {
-          id: customerId,
-          name: o.shippingAddress?.name || o.shippingAddress?.fullName || o.customerInfo?.name || 'Guest',
-          email: displayEmail,
-          phone: o.shippingAddress?.phone || 'N/A',
-          city: o.shippingAddress?.city || 'N/A',
-          address: o.shippingAddress?.line1 || 'N/A',
-          state: o.shippingAddress?.state || '',
-          pincode: o.shippingAddress?.postalCode || '',
-          totalOrders: 0,
-          totalSpent: 0,
-          lastOrderDate: o.createdAt,
-          orders: []
-        };
-      }
-
-      const c = custMap[customerId];
-      c.totalOrders += 1;
-      if (o.status !== 'CANCELLED' && o.status !== 'REFUNDED') {
-        c.totalSpent += (o.total || 0);
-      }
-      if (new Date(o.createdAt) > new Date(c.lastOrderDate)) {
-        c.lastOrderDate = o.createdAt;
-      }
-      c.orders.push(o);
-    });
-
-    return Object.values(custMap).sort((a, b) => b.totalSpent - a.totalSpent);
-  }, [data]);
+    return customersData?.data || [];
+  }, [customersData]);
 
   const filteredCustomers = useMemo(() => {
-    if (!search) return customers;
-    const q = search.toLowerCase();
-    return customers.filter(c => 
-      c.name.toLowerCase().includes(q) || 
-      c.email.toLowerCase().includes(q) ||
-      c.city.toLowerCase().includes(q)
-    );
-  }, [customers, search]);
+    let result = [...customers];
+    
+    // Apply Type Filter
+    if (filterType === 'returning') result = result.filter(c => (c.totalOrders || 0) > 1);
+    if (filterType === 'new') result = result.filter(c => (c.totalOrders || 0) <= 1);
+
+    // Apply Search
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(c => 
+        c.name?.toLowerCase().includes(q) || 
+        c.email?.toLowerCase().includes(q) ||
+        c.city?.toLowerCase().includes(q) ||
+        c.phone?.toLowerCase().includes(q) ||
+        c.address?.toLowerCase().includes(q) ||
+        c.postalCode?.toLowerCase().includes(q)
+      );
+    }
+
+    // Apply Sort
+    result.sort((a, b) => {
+      if (sortBy === 'spent') return (b.totalSpent || 0) - (a.totalSpent || 0);
+      if (sortBy === 'orders') return (b.totalOrders || 0) - (a.totalOrders || 0);
+      // newest (default by createdAt if available, else fallback)
+      const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+      const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+      return dateB - dateA;
+    });
+
+    return result;
+  }, [customers, search, filterType, sortBy]);
+
+  // Fetch orders specifically for the selected customer drawer
+  const { data: selectedCustomerOrders } = useOrdersList({ 
+    customerId: selectedCustomer?.id, 
+    pageSize: 50 
+  });
+
 
   const exportToCSV = () => {
     if (!filteredCustomers.length) return;
     const headers = ["Name", "Email", "Phone", "City", "Total Orders", "LTV (INR)", "Last Order Date"];
     const rows = filteredCustomers.map(c => [
-      `"${c.name.replace(/"/g, '""')}"`,
-      c.email,
-      c.phone,
-      `"${c.city.replace(/"/g, '""')}"`,
-      c.totalOrders,
-      c.totalSpent,
-      new Date(c.lastOrderDate).toLocaleDateString()
+      `"${(c.name || '').replace(/"/g, '""')}"`,
+      c.email || '',
+      c.phone || '',
+      `"${(c.city || '').replace(/"/g, '""')}"`,
+      c.totalOrders || 0,
+      c.totalSpent || 0,
+      c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString() : 'N/A'
     ].join(','));
     
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
@@ -88,12 +82,31 @@ export default function AdminCustomers() {
 
   const getStatusBadge = (status) => {
     switch(status) {
-      case 'DELIVERED': return 'bg-success/10 text-success-dark';
-      case 'SHIPPED': return 'bg-info/10 text-info-dark';
-      case 'CANCELLED': case 'REFUNDED': return 'bg-error/10 text-error';
-      default: return 'bg-warning/10 text-warning-dark';
+      case 'DELIVERED': return 'bg-green-500/10 text-green-700';
+      case 'SHIPPED': return 'bg-blue-500/10 text-blue-700';
+      case 'CANCELLED': case 'REFUNDED': return 'bg-red-500/10 text-red-700';
+      default: return 'bg-orange-500/10 text-orange-700';
     }
   };
+
+  const getRelativeDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    
+    if (diffInDays === 0) return 'Today';
+    if (diffInDays === 1) return 'Yesterday';
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric'});
+  };
+
+  const purchasingCustomersCount = customers.filter(c => (c.totalOrders || 0) > 0).length;
+  const repeatCustomersCount = customers.filter(c => (c.totalOrders || 0) > 1).length;
+  const totalSpentAll = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+  const averageLTV = purchasingCustomersCount ? totalSpentAll / purchasingCustomersCount : 0;
+  const repeatRate = purchasingCustomersCount ? Math.round((repeatCustomersCount / purchasingCustomersCount) * 100) : 0;
 
   return (
     <div className="w-full animate-in fade-in duration-300 pb-12 text-sm">
@@ -108,26 +121,46 @@ export default function AdminCustomers() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm">
-          <p className="font-bold text-zinc-500 mb-4">Total Customers</p>
+        <button onClick={() => { setFilterType('all'); setSortBy('newest'); }} className="text-left p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
+          <p className="font-bold text-zinc-500 mb-4 group-hover:text-blue-600 transition-colors">Total Customers</p>
           <p className="text-2xl font-black text-text-dark">{customers.length}</p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm">
-          <p className="font-bold text-zinc-500 mb-4">Average LTV</p>
+        </button>
+        <button onClick={() => { setFilterType('all'); setSortBy('spent'); }} className="text-left p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
+          <p className="font-bold text-zinc-500 mb-4 group-hover:text-blue-600 transition-colors">Average LTV</p>
           <p className="text-2xl font-black text-text-dark">
-            {formatCurrency(customers.length ? customers.reduce((sum, c) => sum + c.totalSpent, 0) / customers.length : 0)}
+            {formatCurrency(averageLTV)}
           </p>
-        </div>
-        <div className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm">
-          <p className="font-bold text-zinc-500 mb-4">Repeat Rate</p>
+        </button>
+        <button onClick={() => { setFilterType('returning'); setSortBy('newest'); }} className="text-left p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
+          <p className="font-bold text-zinc-500 mb-4 group-hover:text-blue-600 transition-colors">Repeat Rate</p>
           <p className="text-2xl font-black text-text-dark">
-            {customers.length ? Math.round((customers.filter(c => c.totalOrders > 1).length / customers.length) * 100) : 0}%
+            {repeatRate}%
           </p>
-        </div>
+        </button>
       </div>
 
       <div className="bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col overflow-hidden">
-        <div className="p-5 border-b border-slate-100 bg-zinc-50/50 flex justify-between items-center">
+        <div className="p-5 border-b border-slate-100 bg-zinc-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex gap-2 w-full sm:w-auto overflow-x-auto hide-scrollbar">
+            <select 
+              value={filterType} 
+              onChange={e => setFilterType(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="all">All Customers</option>
+              <option value="returning">Returning ({'>'}1 orders)</option>
+              <option value="new">New (0-1 orders)</option>
+            </select>
+            <select 
+              value={sortBy} 
+              onChange={e => setSortBy(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="newest">Sort by: Newest</option>
+              <option value="spent">Sort by: Highest Spent</option>
+              <option value="orders">Sort by: Most Orders</option>
+            </select>
+          </div>
           <div className="relative w-full md:w-64">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input 
@@ -171,7 +204,14 @@ export default function AdminCustomers() {
                       className="hover:bg-slate-50 transition-colors group cursor-pointer"
                     >
                       <td className="px-6 py-4">
-                        <p className="font-bold text-text-dark">{c.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-text-dark">{c.name}</p>
+                          {c.isGuest && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500">
+                              Guest
+                            </span>
+                          )}
+                        </div>
                         {c.totalOrders > 1 && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 mt-1">
                             Repeat
@@ -182,8 +222,14 @@ export default function AdminCustomers() {
                         <p className="text-sm font-medium">{c.email}</p>
                         <p className="text-xs text-text-muted">{c.phone}</p>
                       </td>
-                      <td className="px-6 py-4 text-text-muted text-sm">
-                        {c.city}
+                      <td className="px-6 py-4 text-text-muted text-sm max-w-[200px] truncate">
+                        {(() => {
+                          const addr = c.addresses?.[0];
+                          const city = c.city || addr?.city;
+                          const state = c.state || addr?.state;
+                          if (city) return `${city}${state ? `, ${state}` : ''}`;
+                          return c.address || addr?.line1 || 'N/A';
+                        })()}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-slate-100 text-xs font-bold text-slate-700 group-hover:bg-slate-900 group-hover:text-white transition-colors">
@@ -191,10 +237,10 @@ export default function AdminCustomers() {
                         </span>
                       </td>
                       <td className="px-6 py-4 font-black text-text-dark">
-                        {formatCurrency(c.totalSpent)}
+                        {formatCurrency(c.totalSpent || 0)}
                       </td>
                       <td className="px-6 py-4 text-text-muted text-xs font-medium">
-                        {new Date(c.lastOrderDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric'})}
+                        {getRelativeDate(c.lastOrderDate)}
                       </td>
                     </tr>
                   ))
@@ -220,11 +266,18 @@ export default function AdminCustomers() {
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-sm">
-                  {selectedCustomer.name.charAt(0).toUpperCase()}
+                  {(selectedCustomer.name || 'G').charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-900">{selectedCustomer.name}</h2>
-                  <p className="text-xs font-bold text-slate-500">{selectedCustomer.totalOrders} Orders • {formatCurrency(selectedCustomer.totalSpent)} LTV</p>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black text-slate-900">{selectedCustomer.name || 'Guest User'}</h2>
+                    {selectedCustomer.isGuest && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600">
+                        Guest
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-bold text-slate-500">{selectedCustomer.totalOrders || 0} Orders • {formatCurrency(selectedCustomer.totalSpent || 0)} LTV</p>
                 </div>
               </div>
               <button 
@@ -257,8 +310,17 @@ export default function AdminCustomers() {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-bold text-slate-700">{selectedCustomer.address}</p>
-                    <p className="text-xs font-medium text-slate-500">{selectedCustomer.city}{selectedCustomer.state ? `, ${selectedCustomer.state}` : ''} {selectedCustomer.pincode}</p>
+                    <p className="text-sm font-bold text-slate-700">{selectedCustomer.address || selectedCustomer.addresses?.[0]?.line1 || 'No Address Provided'}</p>
+                    <p className="text-xs font-medium text-slate-500">
+                      {(() => {
+                        const addr = selectedCustomer.addresses?.[0];
+                        const city = selectedCustomer.city || addr?.city;
+                        const state = selectedCustomer.state || addr?.state;
+                        const pin = selectedCustomer.postalCode || addr?.postalCode;
+                        if (city || state || pin) return `${city || ''}${state ? `, ${state}` : ''} ${pin || ''}`.trim();
+                        return 'N/A';
+                      })()}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -267,15 +329,15 @@ export default function AdminCustomers() {
               <div className="p-6">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center justify-between">
                   Order History
-                  <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">{selectedCustomer.orders.length}</span>
+                  <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">{selectedCustomerOrders?.data?.length || 0}</span>
                 </h3>
                 
                 <div className="space-y-3">
-                  {selectedCustomer.orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(order => (
+                  {(selectedCustomerOrders?.data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(order => (
                     <div key={order.id} className="border border-slate-100 rounded-xl p-4 hover:border-slate-300 transition-colors bg-slate-50/50">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <Link to="/admin/orders" className="text-sm font-black text-blue-600 hover:underline">
+                          <Link to={`/admin/orders?search=${order.orderNumber || order.id}`} className="text-sm font-black text-blue-600 hover:underline">
                             #{order.orderNumber || order.id.slice(0,8)}
                           </Link>
                           <div className="flex items-center gap-1 mt-1 text-xs text-slate-500 font-medium">

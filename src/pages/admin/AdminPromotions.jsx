@@ -17,6 +17,7 @@ const formatForInput = (isoString) => {
 
 export default function AdminPromotions() {
   const [activeTab, setActiveTab] = useState('active');
+  const [filterDiscountType, setFilterDiscountType] = useState('all');
   const [search, setSearch] = useState('');
   const [view, setView] = useState('list');
   const [editingPromo, setEditingPromo] = useState(null);
@@ -31,21 +32,14 @@ export default function AdminPromotions() {
   const updateMut = useUpdatePromotion();
   const deleteMut = useDeletePromotion();
 
-  React.useEffect(() => {
-    if (data?.data) {
-      const currentTime = new Date();
-      data.data.forEach(promo => {
-        if (promo.active && promo.expiresAt && new Date(promo.expiresAt) < currentTime) {
-          updateMut.mutate({ id: promo.id, patch: { active: false } });
-        }
-      });
-    }
-  }, [data?.data]);
-
   const now = new Date();
   if (activeTab === 'active') promotions = promotions.filter(p => p.active && (!p.startsAt || new Date(p.startsAt) <= now) && (!p.expiresAt || new Date(p.expiresAt) >= now));
   if (activeTab === 'scheduled') promotions = promotions.filter(p => p.startsAt && new Date(p.startsAt) > now);
   if (activeTab === 'expired') promotions = promotions.filter(p => p.expiresAt && new Date(p.expiresAt) < now);
+
+  if (filterDiscountType !== 'all') {
+    promotions = promotions.filter(p => p.discountType === filterDiscountType);
+  }
 
   if (search) {
     const q = search.toLowerCase();
@@ -95,6 +89,11 @@ export default function AdminPromotions() {
     }
     if (payload.expiresAt) {
       payload.expiresAt = new Date(payload.expiresAt).toISOString();
+    }
+
+    if (payload.method === 'automatic' && !payload.code) {
+      // Generate a unique dummy code for automatic promotions to bypass UNIQUE NOT NULL constraints
+      payload.code = `AUTO-${Date.now()}`;
     }
 
     if (editingPromo) {
@@ -179,11 +178,34 @@ export default function AdminPromotions() {
               <div>
                 <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Discount Value</label>
                 <div className="relative w-full">
-                  <input required type="number" value={formData.value} onChange={e => setFormData({...formData, value: Number(e.target.value)})} className={`w-full ${formData.discountType === 'percentage' ? 'pl-8' : 'pl-10'} pr-4 py-2.5 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-blue-600 outline-none font-bold`} />
+                  <input 
+                    required 
+                    type="number" 
+                    min="1"
+                    max={formData.discountType === 'percentage' ? "100" : undefined}
+                    value={formData.value} 
+                    onChange={e => {
+                      let val = Number(e.target.value);
+                      if (formData.discountType === 'percentage' && val > 100) val = 100;
+                      setFormData({...formData, value: val});
+                    }} 
+                    className={`w-full ${formData.discountType === 'percentage' ? 'pl-8' : 'pl-10'} pr-4 py-2.5 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-blue-600 outline-none font-bold`} 
+                  />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">
                     {formData.discountType === 'percentage' ? '%' : '₹'}
                   </span>
                 </div>
+              </div>
+            </div>
+
+            <div className="pt-4 grid grid-cols-2 gap-6 border-t border-slate-100 mt-4">
+              <div>
+                <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Minimum Order Value (Optional)</label>
+                <div className="relative w-full">
+                  <input type="number" value={formData.minOrderValue ?? ''} onChange={e => setFormData({...formData, minOrderValue: e.target.value === '' ? '' : Number(e.target.value)})} className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl bg-zinc-50 focus:bg-white focus:border-blue-600 outline-none font-bold" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">₹</span>
+                </div>
+                <p className="text-[10px] text-text-muted mt-1 font-semibold">Set to 0 or leave empty for no minimum requirement.</p>
               </div>
             </div>
           </div>
@@ -251,15 +273,27 @@ export default function AdminPromotions() {
               </button>
             ))}
           </div>
-          <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input 
-              type="text" 
-              placeholder="Search promos..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-blue-600 text-sm transition-colors"
-            />
+          <div className="flex gap-2 w-full sm:w-auto">
+            <select 
+              value={filterDiscountType} 
+              onChange={e => setFilterDiscountType(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="all">All Discount Types</option>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed Amount (₹)</option>
+              <option value="free_shipping">Free Shipping</option>
+            </select>
+            <div className="relative flex-1 sm:w-64">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <input 
+                type="text" 
+                placeholder="Search promos..." 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg focus:outline-none focus:border-blue-600 text-sm transition-colors shadow-sm"
+              />
+            </div>
           </div>
         </div>
 
@@ -272,6 +306,8 @@ export default function AdminPromotions() {
                 <tr>
                   <th className="px-5 py-3 font-medium">Title / Code</th>
                   <th className="px-5 py-3 font-medium">Type</th>
+                  <th className="px-5 py-3 font-medium">Value</th>
+                  <th className="px-5 py-3 font-medium">Rules</th>
                   <th className="px-5 py-3 font-medium">Uses</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium text-right">Actions</th>
@@ -293,6 +329,14 @@ export default function AdminPromotions() {
                         {promo.method === 'code' && <span className="inline-block px-1.5 py-0.5 bg-zinc-100 rounded text-xs font-mono font-bold mt-1">{promo.code}</span>}
                       </td>
                       <td className="px-6 py-4 text-text-muted capitalize font-semibold">{promo.discountType?.replace('_', ' ')}</td>
+                      
+                      <td className="px-6 py-4 font-bold text-text-dark">
+                        {promo.discountType === 'percentage' ? `${promo.value}%` : formatCurrency(promo.value)}
+                      </td>
+                      
+                      <td className="px-6 py-4 text-xs font-semibold text-text-muted">
+                        {promo.minOrderValue > 0 ? `Min. ${formatCurrency(promo.minOrderValue)}` : 'None'}
+                      </td>
 
                       <td className="px-6 py-4 font-mono text-xs">
                         {promo.usageCount || 0} / {promo.usageLimit || '∞'}
@@ -304,13 +348,13 @@ export default function AdminPromotions() {
                           let style = 'bg-zinc-200 text-zinc-600';
                           if (promo.expiresAt && new Date(promo.expiresAt) < now) {
                             status = 'Expired';
-                            style = 'bg-red-100 text-red-700';
+                            style = 'bg-red-500/10 text-red-700';
                           } else if (promo.startsAt && new Date(promo.startsAt) > now) {
                             status = 'Scheduled';
-                            style = 'bg-blue-100 text-blue-700';
+                            style = 'bg-blue-500/15 text-blue-700';
                           } else if (promo.active) {
                             status = 'Active';
-                            style = 'bg-success/15 text-success-dark';
+                            style = 'bg-green-500/15 text-green-700';
                           }
                           return (
                             <div className="flex flex-col items-start gap-1">

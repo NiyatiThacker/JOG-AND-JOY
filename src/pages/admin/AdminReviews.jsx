@@ -5,6 +5,7 @@ import { useOrder } from '../../queries/useOrders';
 
 export default function AdminReviews() {
   const [activeTab, setActiveTab] = useState('all');
+  const [filterRating, setFilterRating] = useState('all');
   const [search, setSearch] = useState('');
   const [selectedReview, setSelectedReview] = useState(null);
   const [replyText, setReplyText] = useState('');
@@ -23,7 +24,21 @@ export default function AdminReviews() {
   if (activeTab === 'answered') {
     reviews = reviews.filter(r => r.merchantReply?.body);
   } else if (activeTab === 'unanswered') {
-    reviews = reviews.filter(r => !r.merchantReply?.body);
+    reviews = reviews.filter(r => r.status === 'pending' || (r.status === 'approved' && !r.merchantReply?.body));
+  }
+
+  if (filterRating !== 'all') {
+    reviews = reviews.filter(r => r.rating === Number(filterRating));
+  }
+
+  if (search) {
+    const q = search.toLowerCase();
+    reviews = reviews.filter(r => 
+      (r.customerName || '').toLowerCase().includes(q) ||
+      (r.customerEmail || '').toLowerCase().includes(q) ||
+      (r.title || '').toLowerCase().includes(q) ||
+      (r.body || '').toLowerCase().includes(q)
+    );
   }
   
   const updateMut = useUpdateReview();
@@ -90,6 +105,21 @@ export default function AdminReviews() {
                 </button>
               ))}
             </div>
+            
+            <div className="flex gap-2 w-full sm:w-auto overflow-x-auto hide-scrollbar">
+              <select 
+                value={filterRating} 
+                onChange={e => setFilterRating(e.target.value)}
+                className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+              >
+                <option value="all">All Ratings</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
           </div>
 
           <div className="overflow-x-auto min-h-100">
@@ -130,10 +160,10 @@ export default function AdminReviews() {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
-                            review.status === 'approved' ? 'bg-success/15 text-success-dark' : 
-                            review.status === 'rejected' ? 'bg-error/10 text-error' : 
+                            review.status === 'approved' ? 'bg-green-500/15 text-green-700' : 
+                            review.status === 'rejected' ? 'bg-red-500/10 text-red-700' : 
                             review.status === 'spam' ? 'bg-zinc-200 text-zinc-600' :
-                            'bg-warning/15 text-warning-dark'
+                            'bg-orange-500/15 text-orange-700'
                           }`}>
                             {review.status}
                           </span>
@@ -241,10 +271,10 @@ export default function AdminReviews() {
                 <div className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm transition-all space-y-3">
                   <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Moderation Actions</h4>
                   <div className="flex flex-col gap-2">
-                    <button onClick={() => handleStatusChange('approved')} className="flex items-center justify-center gap-2 w-full py-2 bg-success text-white rounded-lg font-bold text-sm hover:bg-success-dark">
+                    <button onClick={() => handleStatusChange('approved')} className="flex items-center justify-center gap-2 w-full py-2 bg-green-600 text-white rounded-lg font-bold text-sm hover:bg-green-700 transition-colors">
                       <Check className="w-4 h-4" /> Approve
                     </button>
-                    <button onClick={() => handleStatusChange('rejected')} className="flex items-center justify-center gap-2 w-full py-2 bg-white border border-error text-error rounded-lg font-bold text-sm hover:bg-error/5">
+                    <button onClick={() => handleStatusChange('rejected')} className="flex items-center justify-center gap-2 w-full py-2 bg-white border border-red-500 text-red-500 rounded-lg font-bold text-sm hover:bg-red-50 transition-colors">
                       <X className="w-4 h-4" /> Reject
                     </button>
                     <button onClick={() => handleStatusChange('spam')} className="flex items-center justify-center gap-2 w-full py-2 bg-white border border-slate-200 text-zinc-600 rounded-lg font-bold text-sm hover:bg-zinc-50">
@@ -267,7 +297,7 @@ export default function AdminReviews() {
                   <button 
                     onClick={handleSaveReply}
                     disabled={updateMut.isPending || !replyText.trim()}
-                    className={`px-4 py-2 text-white rounded-lg font-bold text-sm shadow-sm disabled:opacity-50 w-full transition-colors ${replySuccess ? 'bg-success hover:bg-success-dark' : 'bg-primary-dark hover:bg-primary-hover'}`}
+                    className={`px-4 py-2 text-white rounded-lg font-bold text-sm shadow-sm disabled:opacity-50 w-full transition-colors ${replySuccess ? 'bg-green-600 hover:bg-green-700' : 'bg-primary-dark hover:bg-primary-hover'}`}
                   >
                     {updateMut.isPending ? 'Saving...' : replySuccess ? '✓ Reply Posted!' : (selectedReview.merchantReply ? 'Update Reply' : 'Post Reply')}
                   </button>

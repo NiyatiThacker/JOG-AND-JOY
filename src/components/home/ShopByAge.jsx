@@ -34,7 +34,7 @@ export default function ShopByAge() {
             return (
               <Link
                 key={index}
-                to={`/products?age=${encodeURIComponent(item.label)}`}
+                to={`/kids?age=${encodeURIComponent(item.label)}`}
                 className="group relative p-4 sm:p-7 rounded-[24px] sm:rounded-[28px] bg-white border border-[#ECECEC] shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between overflow-hidden"
               >
                 {/* Top Pill & Icon */}

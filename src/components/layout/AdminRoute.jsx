@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 const AdminRoute = () => {
   const { user, isAuthenticated } = useAuth();
 
-  if (isAuthenticated && user?.role !== 'ADMIN') {
+  if (isAuthenticated && user?.role?.toUpperCase() !== 'ADMIN') {
     // If a non-admin user tries to access admin routes
     return <Navigate to="/" replace />;
   }

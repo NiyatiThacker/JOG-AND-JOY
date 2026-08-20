@@ -60,44 +60,11 @@ export default function DistributorNetwork() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+        <div className="flex justify-center items-start">
           
-          {/* Info Card */}
-          <div className="space-y-6 lg:col-span-1">
-            <div className="p-8 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-6">
-              <h3 className="text-2xl font-black text-slate-900">Why Partner With Us?</h3>
-              
-              <ul className="space-y-4 text-xs sm:text-sm text-slate-600 font-medium">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>High consumer demand across Kids & Men activewear segments.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Exclusive regional distribution rights for qualified partners.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>High-volume production capacity with rapid fulfillment.</span>
-                </li>
-              </ul>
-
-              <div className="pt-4 border-t border-slate-100 space-y-2 text-xs font-bold text-slate-500">
-                <div className="flex items-center gap-2">
-                  <Building className="w-4 h-4 text-sky-600" />
-                  <span>Dharmnath Products / Jog&Joy HQ</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-sky-600" />
-                  <span>Kalupur, Ahmedabad 380001, Gujarat, India</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Form */}
-          <div className="lg:col-span-2 p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-md">
-            <h3 className="text-2xl font-black text-slate-900 mb-6">Distributor Application Form</h3>
+          <div className="w-full max-w-3xl p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-md">
+            <h3 className="text-2xl font-black text-slate-900 mb-6 text-center">Distributor Application Form</h3>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

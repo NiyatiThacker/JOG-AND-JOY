@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
-import { get } from '../api/mockApi';
+import { list } from '../api/mockApi';
 
 export default function OrderTracking() {
   const [orderId, setOrderId] = useState('');
@@ -24,7 +24,8 @@ export default function OrderTracking() {
     try {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 800));
-      const data = await get('orders', orderId);
+      const response = await list('orders', { orderNumber: orderId.trim() });
+      const data = response.data && response.data.length > 0 ? response.data[0] : null;
       
       if (!data) {
         setError('Order not found. Please check your Order ID.');
@@ -32,7 +33,6 @@ export default function OrderTracking() {
         setOrder(data);
       }
     } catch (err) {
-      // For mock purposes, if get throws an error (e.g. invalid UUID format or not found)
       setError('Order not found. Please verify your Order ID.');
     } finally {
       setLoading(false);
@@ -116,7 +116,7 @@ export default function OrderTracking() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <p className="text-sm text-slate-500 font-semibold mb-1">Order #{order.id.substring(0, 8).toUpperCase()}</p>
+                  <p className="text-sm text-slate-500 font-semibold mb-1">Order #{order.orderNumber || order.id.substring(0, 8).toUpperCase()}</p>
                   <p className="text-sm text-slate-400">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">

@@ -6,6 +6,7 @@ import QuickViewModal from '../components/ui/QuickViewModal';
 import CustomDropdown from '../components/ui/CustomDropdown';
 import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
+import { useCategoriesList } from '../queries/useCategories';
 import ShopByAge from '../components/home/ShopByAge';
 
 
@@ -21,30 +22,24 @@ const kidsSortOptions = [
 export default function KidsPage() {
   const [searchParams] = useSearchParams();
   const initialGender = searchParams.get('gender');
+  const ageParam = searchParams.get('age');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     productType: true,
     price: true,
     gender: true,
     size: true,
-    color: true,
-    fabric: true,
-    pattern: true
+    color: true
   });
 
   const [filters, setFilters] = useState({
     types: [],
     prices: [],
-    genders: initialGender ? [initialGender] : [],
     sizes: [],
-    colors: [],
-    fabrics: [],
-    patterns: []
+    colors: []
   });
 
   useEffect(() => {
-    const gender = searchParams.get('gender');
-    setFilters(prev => ({ ...prev, genders: gender ? [gender] : [] }));
     setCurrentPage(1);
   }, [searchParams]);
 
@@ -80,9 +75,7 @@ export default function KidsPage() {
 
   const { combinedProducts, isLoading } = useCombinedProducts();
 
-  const kidsProducts = useMemo(() => {
-    return combinedProducts.filter((p) => ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category));
-  }, [combinedProducts]);
+  const kidsProducts = combinedProducts;
 
   const filteredProducts = useMemo(() => {
     let result = kidsProducts.filter((p) => {
@@ -91,11 +84,9 @@ export default function KidsPage() {
       // Type Filter
       let matchType = filters.types.length === 0;
       if (!matchType) {
-        if (filters.types.includes('T-Shirts') && (nameLower.includes('tee') || nameLower.includes('t-shirt'))) matchType = true;
-        if (filters.types.includes('Joggers') && (nameLower.includes('track') || nameLower.includes('jogger'))) matchType = true;
-        if (filters.types.includes('Shorts') && (nameLower.includes('short') || nameLower.includes('bermuda') || nameLower.includes('dungaree'))) matchType = true;
-        if (filters.types.includes('Suits') && (nameLower.includes('suit') || nameLower.includes('kurta') || nameLower.includes('set'))) matchType = true;
-        if (filters.types.includes('Frocks') && (nameLower.includes('frock') || nameLower.includes('dress'))) matchType = true;
+        if (filters.types.includes(p.categoryId || p.categoryLabel || p.category)) {
+          matchType = true;
+        }
       }
 
       // Price Filter
@@ -106,40 +97,33 @@ export default function KidsPage() {
         if (filters.prices.includes('high') && p.price > 999) matchPrice = true;
       }
 
-      // Gender Filter (maps to category)
-      let matchGender = filters.genders.length === 0;
-      if (!matchGender) {
-        if (filters.genders.includes('Boys') && p.category === 'Boys') matchGender = true;
-        if (filters.genders.includes('Girls') && p.category === 'Girls') matchGender = true;
-        if (filters.genders.includes('Newborn') && p.category === 'Newborn') matchGender = true;
-        if (filters.genders.includes('Unisex') && p.category === 'Unisex') matchGender = true;
-      }
 
-      // Size Filter (mock)
+
+      // Size Filter
       let matchSize = filters.sizes.length === 0;
-      if (!matchSize) matchSize = true; // since size isn't in db, simulate pass or do mock matching
+      if (!matchSize) {
+        const productSizes = p.sizes || [];
+        const variantSizes = (p.variants || []).map(v => v.size).filter(Boolean);
+        const allSizes = [...new Set([...productSizes, ...variantSizes])];
+        matchSize = allSizes.some(s => filters.sizes.includes(s));
+      }
 
-      // Color Filter (mock)
+      // Color Filter
       let matchColor = filters.colors.length === 0;
-      if (!matchColor) matchColor = true; // simulate pass
-
-      // Fabric Filter (mock)
-      let matchFabric = filters.fabrics.length === 0;
-      if (!matchFabric) {
-        if (filters.fabrics.includes('Cotton') && nameLower.includes('cotton')) matchFabric = true;
-        if (filters.fabrics.includes('Denim') && nameLower.includes('denim')) matchFabric = true;
-        // else simulate pass for demo
-        else matchFabric = true;
+      if (!matchColor) {
+        const productColors = (p.colors || []).map(c => typeof c === 'object' ? c.name : c).filter(Boolean);
+        const variantColors = (p.variants || []).map(v => v.colorName).filter(Boolean);
+        const allColors = [...new Set([...productColors, ...variantColors])];
+        matchColor = allColors.some(c => filters.colors.includes(c));
       }
 
-      // Pattern Filter (mock)
-      let matchPattern = filters.patterns.length === 0;
-      if (!matchPattern) {
-        if (filters.patterns.includes('Floral') && nameLower.includes('floral')) matchPattern = true;
-        else matchPattern = true; // simulate pass
+      // Age Group Filter (from URL)
+      let matchAge = !ageParam;
+      if (!matchAge) {
+        if (p.ageGroup === ageParam) matchAge = true;
       }
 
-      return matchType && matchPrice && matchGender && matchSize && matchColor && matchFabric && matchPattern;
+      return matchType && matchPrice && matchSize && matchColor && matchAge;
     });
 
     // Sort Logic
@@ -182,25 +166,43 @@ export default function KidsPage() {
     return pages;
   };
 
-  const productTypes = [
-    { id: 'T-Shirts', label: 'T-Shirts', count: kidsProducts.filter(p => p.name.toLowerCase().includes('tee') || p.name.toLowerCase().includes('t-shirt')).length },
-    { id: 'Joggers', label: 'Joggers & Tracks', count: kidsProducts.filter(p => p.name.toLowerCase().includes('track') || p.name.toLowerCase().includes('jogger')).length },
-    { id: 'Shorts', label: 'Shorts & Bermudas', count: kidsProducts.filter(p => p.name.toLowerCase().includes('short') || p.name.toLowerCase().includes('bermuda') || p.name.toLowerCase().includes('dungaree')).length },
-    { id: 'Suits', label: 'Night Suits', count: kidsProducts.filter(p => p.name.toLowerCase().includes('suit') || p.name.toLowerCase().includes('kurta') || p.name.toLowerCase().includes('set')).length },
-    { id: 'Frocks', label: 'Frocks & Dresses', count: kidsProducts.filter(p => p.name.toLowerCase().includes('frock') || p.name.toLowerCase().includes('dress')).length },
-  ];
+  const { data: categoriesResponse } = useCategoriesList();
+  const dbCategories = categoriesResponse?.data || [];
 
-  const genderOptions = [
-    { id: 'Boys', label: 'Boys' },
-    { id: 'Girls', label: 'Girls' },
-    { id: 'Newborn', label: 'Newborn' },
-    { id: 'Unisex', label: 'Unisex' }
-  ];
+  const productTypes = useMemo(() => {
+    return dbCategories.map(c => ({
+      id: c.label,
+      label: c.label,
+      count: kidsProducts.filter(p => p.categoryId === c.id || p.category === c.label).length
+    }));
+  }, [dbCategories, kidsProducts]);
 
-  const sizeOptions = ['XS', 'S', 'M', 'L', 'XL'];
-  const colorOptions = ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White'];
-  const fabricOptions = ['Cotton', 'Denim', 'Fleece', 'Organic'];
-  const patternOptions = ['Solid', 'Printed', 'Floral', 'Striped'];
+
+
+  const sizeOptions = useMemo(() => {
+    const sizes = new Set();
+    kidsProducts.forEach(p => {
+      p.sizes?.forEach(s => sizes.add(s));
+      p.variants?.forEach(v => {
+        if (v.size && v.size !== 'Standard') sizes.add(v.size);
+      });
+    });
+    return Array.from(sizes).sort();
+  }, [kidsProducts]);
+
+  const colorOptions = useMemo(() => {
+    const colors = new Set();
+    kidsProducts.forEach(p => {
+      p.colors?.forEach(c => {
+        const colorName = typeof c === 'object' ? c.name : c;
+        if (colorName) colors.add(colorName);
+      });
+      p.variants?.forEach(v => {
+        if (v.colorName && v.colorName !== 'Standard') colors.add(v.colorName);
+      });
+    });
+    return Array.from(colors).sort();
+  }, [kidsProducts]);
 
   return (
     <div className="min-h-screen bg-[#FFF8EC] relative overflow-hidden pb-20">
@@ -407,31 +409,7 @@ export default function KidsPage() {
               )}
             </div>
 
-            {/* Gender Accordion */}
-            <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-xs">
-              <button
-                onClick={() => toggleSection('gender')}
-                className="w-full px-5 py-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors"
-              >
-                <span className="text-sm font-black text-slate-800">Gender</span>
-                {expandedSections.gender ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-              </button>
-              {expandedSections.gender && (
-                <div className="p-5 space-y-3">
-                  {genderOptions.map((g) => (
-                    <label key={g.id} className="flex items-center gap-3 group cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={filters.genders.includes(g.id)}
-                        onChange={() => handleFilterChange('genders', g.id)}
-                        className="w-4 h-4 rounded border-slate-300 text-[#A7DEB9] focus:ring-[#A7DEB9] cursor-pointer"
-                      />
-                      <span className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">{g.label}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
+
 
             {/* Size Accordion */}
             <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-xs">
@@ -485,57 +463,7 @@ export default function KidsPage() {
               )}
             </div>
 
-            {/* Fabric Accordion */}
-            <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-xs">
-              <button
-                onClick={() => toggleSection('fabric')}
-                className="w-full px-5 py-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors"
-              >
-                <span className="text-sm font-black text-slate-800">Fabric</span>
-                {expandedSections.fabric ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-              </button>
-              {expandedSections.fabric && (
-                <div className="p-5 space-y-3">
-                  {fabricOptions.map((f) => (
-                    <label key={f} className="flex items-center gap-3 group cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={filters.fabrics.includes(f)}
-                        onChange={() => handleFilterChange('fabrics', f)}
-                        className="w-4 h-4 rounded border-slate-300 text-[#A7DEB9] focus:ring-[#A7DEB9] cursor-pointer"
-                      />
-                      <span className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">{f}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
 
-            {/* Pattern Accordion */}
-            <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-xs">
-              <button
-                onClick={() => toggleSection('pattern')}
-                className="w-full px-5 py-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors"
-              >
-                <span className="text-sm font-black text-slate-800">Pattern</span>
-                {expandedSections.pattern ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-              </button>
-              {expandedSections.pattern && (
-                <div className="p-5 space-y-3">
-                  {patternOptions.map((p) => (
-                    <label key={p} className="flex items-center gap-3 group cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={filters.patterns.includes(p)}
-                        onChange={() => handleFilterChange('patterns', p)}
-                        className="w-4 h-4 rounded border-slate-300 text-[#A7DEB9] focus:ring-[#A7DEB9] cursor-pointer"
-                      />
-                      <span className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">{p}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
 
           </div>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import {
@@ -11,16 +12,35 @@ import {
   ChevronRight,
   ShoppingBag,
   ArrowLeft,
-  UserCircle
+  UserCircle,
+  X
 } from 'lucide-react';
 import { useCreateOrder } from '../queries/useOrders';
+import { useUpsertCustomerByEmail } from '../queries/useCustomers';
+import { productsApi } from '../api/endpoints/products';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { cart, cartSubtotal, discountAmount, shippingFee, expressShippingRate, cartGrandTotal, clearCart } = useCart();
+  const { 
+    cart, 
+    cartSubtotal, 
+    discountAmount, 
+    shippingFee, 
+    expressShippingRate, 
+    cartGrandTotal, 
+    clearCart,
+    appliedCoupon,
+    activeDiscount,
+    applyCoupon,
+    removeCoupon,
+    recordCouponUsage
+  } = useCart();
   const createOrder = useCreateOrder();
+  const upsertCustomer = useUpsertCustomerByEmail();
   const { user, isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
   
   // Try to grab the modal trigger if it was provided via Outlet
   const outletContext = useOutletContext();
@@ -45,6 +65,21 @@ export default function Checkout() {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState(null);
   const [errors, setErrors] = useState({});
+
+  const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState('');
+
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    if (!couponCode.trim()) return;
+    const result = applyCoupon(couponCode);
+    if (!result.success) {
+      setCouponError(result.message);
+    } else {
+      setCouponError('');
+      setCouponCode('');
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -126,9 +161,35 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
+    let finalCustomerId = user?.id || null;
+
+    // Upsert customer profile first
+    try {
+      const orderTotal = formData.shippingMethod === 'express' ? cartGrandTotal + expressShippingRate : cartGrandTotal;
+      const cust = await upsertCustomer.mutateAsync({
+        email: formData.email,
+        data: {
+          name: formData.fullName,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          postalCode: formData.pincode,
+          lastOrderDate: new Date().toISOString(),
+          isGuest: !isAuthenticated
+        },
+        orderAmount: orderTotal
+      });
+      if (cust && cust.id && !user?.id) {
+        finalCustomerId = cust.id;
+      }
+    } catch (err) {
+      console.error("Failed to upsert customer", err);
+    }
+
     const orderPayload = {
       orderNumber: `JJ-${Math.floor(Math.random() * 90000) + 10000}`,
-      customerId: user?.id || null,
+      customerId: finalCustomerId,
       createdAt: new Date().toISOString(),
       status: 'PROCESSING',
       paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'paid',
@@ -137,6 +198,7 @@ export default function Checkout() {
       channel: 'Web Storefront',
       subtotal: cartSubtotal,
       discountAmount: discountAmount,
+      promotionCodeApplied: activeDiscount?.code || null,
       shippingCost: formData.shippingMethod === 'express' ? shippingFee + expressShippingRate : shippingFee,
       tax: 0,
       total: formData.shippingMethod === 'express' ? cartGrandTotal + expressShippingRate : cartGrandTotal,
@@ -164,7 +226,45 @@ export default function Checkout() {
       ]
     };
 
-    const newOrder = await createOrder.mutateAsync(orderPayload);
+    // --- NEW: FULLY ATOMIC RPC ORDER CREATION ---
+    let newOrder;
+    try {
+      const { data, error } = await supabase.rpc('create_order_atomic', {
+        order_payload: orderPayload
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      if (!data) {
+        throw new Error('Failed to create order via RPC. No data returned.');
+      }
+      
+      newOrder = data;
+    } catch (err) {
+      console.error("Atomic order creation failed:", err);
+      let friendlyMessage = err.message || "Failed to place order due to insufficient stock or variant mismatch. Please adjust your cart.";
+      
+      // If the error message mentions a product ID, try to find the product name
+      const match = friendlyMessage.match(/Product ([a-f0-9\-]+) not found/i);
+      if (match && match[1]) {
+        const missingProductId = match[1];
+        const missingItem = cart.find(item => item.id === missingProductId);
+        if (missingItem) {
+          friendlyMessage = `The product "${missingItem.name}" is no longer available (it may have been deleted). Please remove it from your cart.`;
+        } else {
+          friendlyMessage = `A product in your cart is no longer available. Please review your cart.`;
+        }
+      } else if (friendlyMessage.includes('Insufficient stock')) {
+        friendlyMessage = `One or more items in your cart have insufficient stock. Please review your cart quantities before checking out.`;
+      }
+      
+      alert(friendlyMessage);
+      // ABORT checkout! Order is NOT placed.
+      return;
+    }
+    // ------------------------------------------------
     const orderId = newOrder.orderNumber || newOrder.id;
     setCreatedOrderId(orderId);
 
@@ -178,6 +278,9 @@ export default function Checkout() {
 
     const existingOrders = JSON.parse(localStorage.getItem('jj_orders') || '[]');
     localStorage.setItem('jj_orders', JSON.stringify([localOrder, ...existingOrders]));
+
+    recordCouponUsage();
+    queryClient.invalidateQueries({ queryKey: ['orders'] });
 
     setIsOrderPlaced(true);
     clearCart();
@@ -526,6 +629,35 @@ export default function Checkout() {
                   </div>
                 ))}
               </div>
+
+              {/* Coupon Form */}
+              <form onSubmit={handleApplyCoupon} className="pt-2 relative">
+                <input 
+                  type="text" 
+                  placeholder="Have a coupon code?" 
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="w-full pl-4 pr-20 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
+                />
+                <button 
+                  type="submit"
+                  className="absolute right-1.5 top-3.5 bottom-1.5 px-3 bg-slate-800 text-white text-[10px] font-bold rounded-lg hover:bg-slate-900 transition-colors"
+                >
+                  Apply
+                </button>
+                {couponError && <p className="text-red-500 text-[10px] font-bold mt-1.5 ml-1">{couponError}</p>}
+              </form>
+
+              {activeDiscount && (
+                <div className="flex items-center justify-between p-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl mt-2 text-xs font-bold">
+                  <span>Discount {activeDiscount.code} applied!</span>
+                  {appliedCoupon && (
+                    <button onClick={removeCoupon} type="button" className="hover:text-red-500 transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
 
               <div className="pt-3 border-t border-slate-100 space-y-2 text-xs font-bold text-slate-600">
                 <div className="flex justify-between">

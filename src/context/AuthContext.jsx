@@ -8,121 +8,171 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check active sessions and sets the user
     const initializeAuth = async () => {
       try {
-        const storedUserId = localStorage.getItem('jog_joy_user_id');
-        if (storedUserId) {
-          const { data, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', storedUserId)
-            .single();
-          
-          if (!error && data) {
-            setUser(data);
-          } else {
-            localStorage.removeItem('jog_joy_user_id');
-          }
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Error getting session:", sessionError);
+          setLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          await fetchUserProfile(session.user.id);
+        } else {
+          setLoading(false);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-      } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
+
+    // Listen for changes on auth state (sign in, sign out, etc.)
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          await fetchUserProfile(session.user.id);
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+        }
+      }
+    );
+
+    return () => {
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
   }, []);
+
+  const fetchUserProfile = async (userId) => {
+    try {
+      // Fetch the custom user profile from public.users table
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (!error && data) {
+        setUser(data);
+      } else {
+        // If profile not found immediately, it might be due to the trigger delay.
+        // We can set a minimal user object based on Auth.
+        setUser({ id: userId, role: 'CUSTOMER' });
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const isAuthenticated = !!user;
 
   const login = async (email, password) => {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      if (error || !data) {
-        console.error('Login error: User not found');
-        return false;
+      if (error) {
+        console.error('Login error:', error.message);
+        return { success: false, message: error.message };
       }
       
-      // Plain text password comparison as requested
-      if (data.password === password) {
-        setUser(data);
-        localStorage.setItem('jog_joy_user_id', data.id);
-        return true;
-      } else {
-        console.error('Login error: Incorrect password');
-        return false;
-      }
+      // onAuthStateChange will handle fetching the profile
+      return { success: true };
     } catch (err) {
       console.error('Login exception:', err);
-      return false;
+      return { success: false, message: 'An unexpected error occurred' };
     }
   };
 
-  const register = async (name, email, password, role = 'CUSTOMER', phone = '', address = '') => {
+  const register = async (name, email, password, role = 'CUSTOMER', phone = '', address = '', addresses = null) => {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .insert([{ 
-          name, 
-          email, 
-          password, 
-          role, 
-          phone, 
-          address 
-        }])
-        .select()
-        .single();
+      console.log('Starting registration for:', email);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, role }
+        }
+      });
+
+      console.log('Supabase signup response:', { data, error });
 
       if (error) {
-        console.error('Registration error:', error.message);
-        return false;
+        console.error('Registration error from Supabase:', error.message);
+        return { success: false, message: error.message };
+      }
+
+      if (data?.user) {
+        console.log('User created successfully:', data.user.id);
+        if (phone || address || addresses) {
+           console.log('Updating profile with extra fields...');
+           const { error: updateErr } = await supabase.from('users').update({ phone, address, addresses }).eq('id', data.user.id);
+           if (updateErr) console.error('Failed to update profile fields:', updateErr);
+        }
+        return { success: true };
       }
       
-      if (data) {
-        setUser(data);
-        localStorage.setItem('jog_joy_user_id', data.id);
-        return true;
-      }
-      return false;
+      console.warn('Signup returned no error but no user either?');
+      return { success: false };
     } catch (err) {
       console.error('Registration exception:', err);
-      return false;
+      return { success: false, message: 'Unexpected error' };
     }
   };
 
   const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout error:', error.message);
+    }
     setUser(null);
-    localStorage.removeItem('jog_joy_user_id');
   };
 
   const resetPassword = async (email) => {
-    console.error('Reset password is not supported with plain table authentication without a backend.');
-    return { success: false, message: 'Password reset is disabled for custom table auth.' };
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) {
+        return { success: false, message: error.message };
+      }
+      return { success: true, message: 'Password reset email sent.' };
+    } catch (err) {
+      return { success: false, message: 'An unexpected error occurred.' };
+    }
   };
 
   const updateUser = async (updates) => {
     if (!user?.id) return false;
     
-    const { data, error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('id', user.id)
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        .single();
 
-    if (error || !data) {
-      console.error('Update user error:', error?.message);
-      return false;
+      if (error || !data) {
+        console.error('Update user error:', error?.message);
+        return false;
+      }
+
+      setUser(data);
+      return true;
+    } catch (err) {
+       console.error('Update user exception:', err);
+       return false;
     }
-
-    setUser(data);
-    return true;
   };
 
   return (

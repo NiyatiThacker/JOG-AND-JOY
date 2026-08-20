@@ -4,11 +4,13 @@ import { useOrdersList, useUpdateOrder } from '../../queries/useOrders';
 import { useSettingsContext } from '../../context/SettingsContext';
 import { useUIContext } from '../../context/UIContext';
 
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 
 export default function AdminOrders() {
   const { addToast } = useUIContext();
   const [activeTab, setActiveTab] = useState('all');
+  const [filterPayment, setFilterPayment] = useState('all');
+  const [filterDate, setFilterDate] = useState('all');
   const [search, setSearch] = useState('');
   const [view, setView] = useState('list');
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -50,12 +52,28 @@ export default function AdminOrders() {
       if (filters.status && o.status !== filters.status) matches = false;
       if (filters.search) {
         const q = filters.search.toLowerCase();
-        if (!JSON.stringify(o).toLowerCase().includes(q)) matches = false;
+        const searchStr = `${o.orderNumber || ''} ${o.id || ''} ${o.shippingAddress?.name || ''} ${o.shippingAddress?.email || ''} ${o.shippingAddress?.phone || ''} ${o.shippingAddress?.trackingNumber || ''}`.toLowerCase();
+        if (!searchStr.includes(q)) matches = false;
       }
       if (filters.returns && !['RETURN_REQUESTED', 'EXCHANGE_REQUESTED', 'RETURN_APPROVED', 'EXCHANGE_APPROVED', 'RETURN_REJECTED'].includes(o.status)) {
         matches = false;
       }
       return matches;
+    });
+  }
+
+  if (filterPayment !== 'all') {
+    orders = orders.filter(o => o.paymentStatus === filterPayment);
+  }
+
+  if (filterDate !== 'all') {
+    const now = new Date();
+    orders = orders.filter(o => {
+      const d = new Date(o.createdAt);
+      if (filterDate === 'today') return d.toDateString() === now.toDateString();
+      if (filterDate === '7days') return (now - d) <= 7 * 24 * 60 * 60 * 1000;
+      if (filterDate === '30days') return (now - d) <= 30 * 24 * 60 * 60 * 1000;
+      return true;
     });
   }
 
@@ -79,7 +97,7 @@ export default function AdminOrders() {
       const name = o.shippingAddress?.name ? `"${o.shippingAddress.name.replace(/"/g, '""')}"` : 'Guest';
       const email = o.userId || 'Guest'; // Fallback if no email
       return [
-        o.id,
+        o.orderNumber || o.id,
         date,
         name,
         email,
@@ -139,7 +157,7 @@ export default function AdminOrders() {
     const html = `
       <html>
         <head>
-          <title>Packing Slip - ${selectedOrder.id}</title>
+          <title>Packing Slip - ${selectedOrder.orderNumber || selectedOrder.id}</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 40px; }
             .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; }
@@ -154,7 +172,7 @@ export default function AdminOrders() {
               <p style="margin:5px 0; color:#666;">Packing Slip</p>
             </div>
             <div style="text-align: right;">
-              <h2 style="margin:0;">Order #${selectedOrder.id}</h2>
+              <h2 style="margin:0;">Order #${selectedOrder.orderNumber || selectedOrder.id}</h2>
               <p style="margin:5px 0;">Date: ${new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
@@ -267,22 +285,22 @@ export default function AdminOrders() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-extrabold text-text-dark">{o.orderNumber || o.id}</h1>
               <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-md ${
-                o.status === 'DELIVERED' ? 'bg-success/15 text-success-dark' : 
-                o.status === 'SHIPPED' ? 'bg-info/15 text-info-dark' : 
-                ['CANCELLED', 'RETURN_REJECTED'].includes(o.status) ? 'bg-error/10 text-error' : 
-                ['ON_HOLD', 'RETURN_REQUESTED', 'EXCHANGE_REQUESTED'].includes(o.status) ? 'bg-warning/15 text-warning-dark' : 
+                o.status === 'DELIVERED' ? 'bg-green-500/15 text-green-700' : 
+                o.status === 'SHIPPED' ? 'bg-blue-500/15 text-blue-700' : 
+                ['CANCELLED', 'RETURN_REJECTED'].includes(o.status) ? 'bg-red-500/10 text-red-700' : 
+                ['ON_HOLD', 'RETURN_REQUESTED', 'EXCHANGE_REQUESTED'].includes(o.status) ? 'bg-orange-500/15 text-orange-700' : 
                 ['RETURN_APPROVED', 'EXCHANGE_APPROVED'].includes(o.status) ? 'bg-purple-100 text-purple-700' :
                 'bg-zinc-200 text-zinc-600'
               }`}>
                 {o.status.replace('_', ' ')}
               </span>
               <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-md ${
-                o.paymentStatus === 'paid' ? 'bg-success/15 text-success-dark' : 'bg-warning/15 text-warning-dark'
+                o.paymentStatus === 'paid' ? 'bg-green-500/15 text-green-700' : 'bg-orange-500/15 text-orange-700'
               }`}>
                 {o.paymentStatus}
               </span>
             </div>
-            <p className="text-sm text-text-muted mt-1">{formatDate(o.createdAt)} from {o.channel?.replace('_', ' ')}</p>
+            <p className="text-sm text-text-muted mt-1">{formatDate(o.createdAt, true)} from {o.channel?.replace('_', ' ')}</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button onClick={() => setShowRefundModal(true)} className="px-4 py-2 text-sm font-bold bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-zinc-50">Refund</button>
@@ -319,7 +337,18 @@ export default function AdminOrders() {
                             if (o.status === 'SHIPPED') return ['DELIVERED', 'CANCELLED'].includes(st);
                             return false;
                           }).map(st => (
-                            <button key={st} onClick={() => handleStatusChange(st)} className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg">
+                            <button 
+                              key={st} 
+                              onClick={() => {
+                                if (st === 'SHIPPED' && !o.shippingAddress?.trackingNumber) {
+                                  addToast('Please enter and save a tracking number first', 'error');
+                                  setIsMenuOpen(false);
+                                  return;
+                                }
+                                handleStatusChange(st);
+                              }} 
+                              className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-zinc-50 rounded-lg"
+                            >
                               Mark as {st.replace('_', ' ')}
                             </button>
                           ))}
@@ -424,7 +453,7 @@ export default function AdminOrders() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-text-dark">{evt.note || `Status changed to ${evt.status}`}</p>
-                      <p className="text-xs text-text-muted">{formatDate(evt.timestamp)}</p>
+                      <p className="text-xs text-text-muted">{formatDate(evt.timestamp, true)}</p>
                     </div>
                   </div>
                 ))}
@@ -446,9 +475,14 @@ export default function AdminOrders() {
               <hr className="border-slate-200 my-4" />
               <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Shipping Address</h3>
               <p className="text-sm text-text-muted leading-relaxed">
-                {o.shippingAddress?.line1}<br/>
-                {o.shippingAddress?.city}, {o.shippingAddress?.state} {o.shippingAddress?.postalCode}<br/>
-                {o.shippingAddress?.country}
+                {o.shippingAddress?.line1 || o.shippingAddress?.address || 'No Address Provided'}
+                {(o.shippingAddress?.city || o.shippingAddress?.state || o.shippingAddress?.postalCode) && (
+                  <>
+                    <br/>
+                    {o.shippingAddress.city || ''}{o.shippingAddress.city && o.shippingAddress.state ? ', ' : ''}{o.shippingAddress.state || ''} {o.shippingAddress.postalCode || ''}
+                  </>
+                )}
+                {o.shippingAddress?.country && <><br/>{o.shippingAddress.country}</>}
               </p>
               
               <hr className="border-slate-200 my-4" />
@@ -501,7 +535,7 @@ export default function AdminOrders() {
                       }
                     });
                   }}
-                  className="w-full mt-3 px-3 py-2 bg-success/15 text-success-dark text-sm font-bold rounded-lg hover:bg-success/25 transition-colors flex items-center justify-center gap-2"
+                  className="w-full mt-3 px-3 py-2 bg-green-500/15 text-green-700 text-sm font-bold rounded-lg hover:bg-green-500/25 transition-colors flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   Mark as Delivered
@@ -588,6 +622,9 @@ export default function AdminOrders() {
   const allOrders = data?.data || [];
   const totalOrders = allOrders.length;
   const pendingOrders = allOrders.filter(o => o.status === 'PROCESSING' || o.status === 'PENDING').length;
+  const shippedOrders = allOrders.filter(o => o.status === 'SHIPPED').length;
+  const deliveredOrders = allOrders.filter(o => o.status === 'DELIVERED').length;
+  const cancelledOrders = allOrders.filter(o => o.status === 'CANCELLED').length;
   const returnRequests = allOrders.filter(o => o.status === 'RETURN_REQUESTED' || o.status === 'EXCHANGE_REQUESTED').length;
   const totalRevenue = allOrders
     .filter(o => !['CANCELLED', 'REFUNDED', 'RETURN_APPROVED'].includes(o.status))
@@ -609,62 +646,102 @@ export default function AdminOrders() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Orders</p>
+      <div className="flex overflow-x-auto hide-scrollbar gap-4 mb-8 pb-2">
+        <button onClick={() => setActiveTab('all')} className="min-w-[200px] text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-blue-600">Total Orders</p>
           <p className="text-3xl font-extrabold text-text-dark">{totalOrders}</p>
-        </div>
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Processing</p>
-          <p className="text-3xl font-extrabold text-warning-dark">{pendingOrders}</p>
-        </div>
-        <div className="bg-white border border-amber-200 bg-amber-50 rounded-xl p-6 shadow-sm transition-all relative overflow-hidden">
-          {returnRequests > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full animate-pulse m-4"></span>}
-          <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2">Returns / Exchanges</p>
-          <p className="text-3xl font-extrabold text-amber-900">{returnRequests}</p>
-        </div>
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm transition-all">
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Total Revenue</p>
+        </button>
+        <Link to="/admin/financials" className="min-w-[200px] text-left block bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-blue-600">Total Revenue</p>
           <p className="text-3xl font-extrabold text-blue-600">{formatCurrency(totalRevenue)}</p>
-        </div>
+        </Link>
+        <button onClick={() => setActiveTab('PROCESSING')} className="min-w-[200px] text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-warning hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-warning-dark">Processing</p>
+          <p className="text-3xl font-extrabold text-warning-dark">{pendingOrders}</p>
+        </button>
+        <button onClick={() => setActiveTab('SHIPPED')} className="min-w-[200px] text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-info hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-info-dark">Shipped</p>
+          <p className="text-3xl font-extrabold text-info-dark">{shippedOrders}</p>
+        </button>
+        <button onClick={() => setActiveTab('DELIVERED')} className="min-w-[200px] text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-success hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-success-dark">Delivered</p>
+          <p className="text-3xl font-extrabold text-success-dark">{deliveredOrders}</p>
+        </button>
+        <button onClick={() => setActiveTab('RETURNS')} className="min-w-[200px] text-left bg-white border border-amber-200 bg-amber-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+          {returnRequests > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full animate-pulse m-4"></span>}
+          <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-2 group-hover:text-amber-900">Returns</p>
+          <p className="text-3xl font-extrabold text-amber-900">{returnRequests}</p>
+        </button>
+        <button onClick={() => setActiveTab('CANCELLED')} className="min-w-[200px] text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-error hover:shadow-md transition-all group">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-error">Cancelled</p>
+          <p className="text-3xl font-extrabold text-error">{cancelledOrders}</p>
+        </button>
       </div>
 
       {/* Tabs & Search */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
-        <div className="flex-1 overflow-hidden">
-          <div className="flex overflow-x-auto w-full hide-scrollbar gap-2">
-            {[
-              { id: 'all', label: 'All' },
-              { id: 'PROCESSING', label: 'Processing' },
-              { id: 'SHIPPED', label: 'Shipped' },
-              { id: 'DELIVERED', label: 'Delivered' },
-              { id: 'RETURNS', label: 'Returns & Exchanges' },
-              { id: 'CANCELLED', label: 'Cancelled' },
-              { id: 'ON_HOLD', label: 'On Hold' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                  activeTab === tab.id 
-                    ? 'bg-white border border-slate-200 shadow-sm text-text-dark' 
-                    : 'text-text-muted hover:text-text-primary hover:bg-zinc-100/50'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+          <div className="flex-1 overflow-hidden w-full">
+            <div className="flex overflow-x-auto w-full hide-scrollbar gap-2 pb-1">
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'PROCESSING', label: 'Processing' },
+                { id: 'SHIPPED', label: 'Shipped' },
+                { id: 'DELIVERED', label: 'Delivered' },
+                { id: 'RETURNS', label: 'Returns & Exchanges' },
+                { id: 'CANCELLED', label: 'Cancelled' },
+                { id: 'ON_HOLD', label: 'On Hold' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                    activeTab === tab.id 
+                      ? 'bg-white border border-slate-200 shadow-sm text-text-dark' 
+                      : 'text-text-muted hover:text-text-primary hover:bg-zinc-100/50'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="relative w-full md:w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-          <input 
-            type="text" 
-            placeholder="Search orders..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-green-500 text-sm transition-colors"
-          />
+
+        <div className="flex flex-col sm:flex-row gap-4 w-full justify-between items-center bg-zinc-50/50 p-4 rounded-xl border border-slate-200">
+          <div className="flex gap-2 w-full sm:w-auto overflow-x-auto hide-scrollbar">
+            <select 
+              value={filterPayment} 
+              onChange={e => setFilterPayment(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="all">All Payments</option>
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+              <option value="refunded">Refunded</option>
+            </select>
+            <select 
+              value={filterDate} 
+              onChange={e => setFilterDate(e.target.value)}
+              className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm"
+            >
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="7days">Last 7 Days</option>
+              <option value="30days">Last 30 Days</option>
+            </select>
+          </div>
+          
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input 
+              type="text" 
+              placeholder="Search orders..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-blue-600 text-sm transition-colors shadow-sm"
+            />
+          </div>
         </div>
       </div>
 
@@ -696,20 +773,20 @@ export default function AdminOrders() {
                   orders.map((order) => (
                     <tr key={order.id} onClick={() => handleOpenDetail(order)} className="hover:bg-zinc-50/50 transition-colors cursor-pointer group">
                       <td className="px-6 py-4">
-                        <p className="font-bold text-text-dark group-hover:text-blue-600 transition-colors">{order.id}</p>
+                        <p className="font-bold text-text-dark group-hover:text-blue-600 transition-colors">{order.orderNumber || order.id.slice(0, 8)}</p>
                         <p className="text-xs text-text-muted mt-0.5">{order.items?.length || 0} items</p>
                       </td>
                       <td className="px-6 py-4 text-text-muted font-medium">
-                        {formatDate(order.createdAt)}
+                        {formatDate(order.createdAt, true)}
                       </td>
                       <td className="px-6 py-4">
                         <p className="font-bold text-text-dark">{order.shippingAddress?.name || 'Guest'}</p>
-                        <p className="text-xs text-text-muted">{order.shippingAddress?.city || 'Unknown'}</p>
+                        <p className="text-xs text-text-muted">{order.shippingAddress?.city || order.shippingAddress?.line1 || order.shippingAddress?.address || 'Unknown'}</p>
                       </td>
                       <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                         {['DELIVERED', 'CANCELLED', 'REFUNDED'].includes(order.status) ? (
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
-                            order.status === 'DELIVERED' ? 'bg-success/15 text-success-dark' : 'bg-error/10 text-error'
+                            order.status === 'DELIVERED' ? 'bg-green-500/15 text-green-700' : 'bg-red-500/10 text-red-700'
                           }`}>
                             {order.status === 'DELIVERED' && <CheckCircle2 className="w-3 h-3" />}
                             {order.status}
@@ -720,6 +797,10 @@ export default function AdminOrders() {
                               value={order.status || 'PROCESSING'}
                               onChange={(e) => {
                                 const newStatus = e.target.value;
+                                if (newStatus === 'SHIPPED' && !order.shippingAddress?.trackingNumber) {
+                                  addToast('Please open the order details and add a tracking number first', 'error');
+                                  return;
+                                }
                                 const historyEntry = { status: newStatus, timestamp: new Date().toISOString(), note: 'Status updated by admin via table' };
                                 updateMut.mutate({ 
                                   id: order.id, 
@@ -732,7 +813,7 @@ export default function AdminOrders() {
                                 });
                               }}
                               className={`inline-flex items-center px-2.5 py-1.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border-none outline-none focus:ring-2 focus:ring-blue-600/50 pr-6 ${
-                                order.status === 'SHIPPED' ? 'bg-info/15 text-info-dark' : 'bg-warning/15 text-warning-dark'
+                                order.status === 'SHIPPED' ? 'bg-blue-500/15 text-blue-700' : 'bg-orange-500/15 text-orange-700'
                               }`}
                             >
                               {(order.status === 'PROCESSING' || order.status === 'ON_HOLD') && <option value="PROCESSING">Processing</option>}
@@ -752,7 +833,7 @@ export default function AdminOrders() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
-                          order.paymentStatus === 'paid' ? 'bg-success/15 text-success-dark' : 'bg-warning/15 text-warning-dark'
+                          order.paymentStatus === 'paid' ? 'bg-green-500/15 text-green-700' : 'bg-orange-500/15 text-orange-700'
                         }`}>
                           {order.paymentStatus === 'paid' && <CheckCircle2 className="w-3 h-3" />}
                           {order.paymentStatus}
