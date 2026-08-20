@@ -4,6 +4,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { flyToCart } from '../../utils/animations';
 import { Link } from 'react-router-dom';
 import { Sparkles, Heart, Eye, ShoppingBag } from 'lucide-react';
+import { createSlug } from '../../utils/helpers';
 
 export default function NewArrivalProductCard({ product, onQuickView }) {
   const { addToCart } = useCart();
@@ -23,7 +24,7 @@ export default function NewArrivalProductCard({ product, onQuickView }) {
       
       {/* Image Block */}
       <div className="relative aspect-square sm:aspect-4/5 w-full bg-[#FFF8EC] rounded-2xl overflow-hidden mb-3 border border-[#FFE0D6]">
-        <Link to={`/product/${product.id}`} className="absolute inset-0">
+        <Link to={`/product/${createSlug(product.name || product.title) || product.id}`} className="absolute inset-0">
           <img
             src={product.image}
             alt={product.name}

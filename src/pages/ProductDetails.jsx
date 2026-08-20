@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { useReviewsList, useCreateReview } from '../queries/useReviews';
 import { ordersApi } from '../api/endpoints/orders';
+import { createSlug } from '../utils/helpers';
 
 import ProductCard from '../components/ui/ProductCard';
 import SizeGuideModal from '../components/ui/SizeGuideModal';
@@ -28,15 +29,20 @@ import {
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const { combinedProducts, isLoading } = useCombinedProducts();
-  const product = combinedProducts.find((p) => String(p.id) === String(id));
+  const product = combinedProducts.find((p) => {
+    if (String(p.id) === String(id)) return true;
+    return createSlug(p.title || p.name) === id;
+  });
 
   const [activeImage, setActiveImage] = useState(null);
-  const [selectedSize, setSelectedSize] = useState('4Y-5Y');
+  const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState('#AEE6FF');
+  const [sizeError, setSizeError] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
@@ -57,6 +63,20 @@ export default function ProductDetails() {
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('review') === 'true') {
+      setActiveTab('reviews');
+      setIsReviewModalOpen(true);
+      const prefillOrderId = searchParams.get('orderId');
+      if (prefillOrderId) {
+        setReviewForm(prev => ({ ...prev, orderId: prefillOrderId }));
+      }
+      setTimeout(() => {
+        document.getElementById('reviews-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    }
+  }, [searchParams]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -125,12 +145,12 @@ export default function ProductDetails() {
       const inStockVariant = product.variants?.find(v => Number(v.stock) > 0);
       
       if (inStockVariant) {
-        setSelectedSize(inStockVariant.size);
         setSelectedColor(inStockVariant.colorHex);
       } else {
-        setSelectedSize(product.sizes?.[0] || '4Y-5Y');
         setSelectedColor(product.colors?.[0]?.hex || '#AEE6FF');
       }
+      setSelectedSize(null);
+      setSizeError(false);
       setQuantity(1);
       window.scrollTo(0, 0);
     }
@@ -209,8 +229,24 @@ export default function ProductDetails() {
   const isFavorited = isInWishlist(product.id, selectedSize, selectedColor);
 
   const handleBuyNow = () => {
+    if (!selectedSize && product.sizes && product.sizes.length > 0) {
+      setSizeError(true);
+      document.getElementById('size-selector')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => setSizeError(false), 2000);
+      return;
+    }
     addToCart(product, selectedSize, selectedColor, null, quantity, false, displayStock);
     navigate('/checkout');
+  };
+
+  const handleAddToCart = (e, isBuyNow = false) => {
+    if (!selectedSize && product.sizes && product.sizes.length > 0) {
+      setSizeError(true);
+      document.getElementById('size-selector')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => setSizeError(false), 2000);
+      return;
+    }
+    addToCart(product, selectedSize, selectedColor, e, quantity, isBuyNow, displayStock);
   };
 
   const galleryImages = product.gallery || [product.image];
@@ -406,10 +442,10 @@ export default function ProductDetails() {
             </div>
 
             {/* Size Selector + Size Guide Modal Trigger */}
-            <div className="space-y-3 pt-3">
+            <div id="size-selector" className={`space-y-3 pt-3 p-2 -mx-2 rounded-xl transition-colors duration-300 ${sizeError ? 'bg-red-50 border border-red-200' : ''}`}>
               <div className="flex items-center justify-between">
-                <label className="text-[15px] font-semibold text-slate-700">
-                  Size in Age
+                <label className={`text-[15px] font-semibold ${sizeError ? 'text-red-600' : 'text-slate-700'}`}>
+                  {sizeError ? 'Please select a size' : 'Size in Age'}
                 </label>
                 <button
                   onClick={() => setIsSizeGuideOpen(true)}
@@ -491,7 +527,7 @@ export default function ProductDetails() {
             {/* Primary Action Buttons */}
             <div className="pt-4 flex flex-col gap-3">
               <button
-                onClick={(e) => addToCart(product, selectedSize, selectedColor, e, quantity, true, displayStock)}
+                onClick={(e) => handleAddToCart(e, true)}
                 disabled={displayStock === 0}
                 className={`w-full py-3.5 rounded-full font-medium text-[16px] transition-all ${
                   displayStock === 0
@@ -536,7 +572,7 @@ export default function ProductDetails() {
         </div>
 
         {/* Tabs for Description, Fabric Details, Shipping Info */}
-        <div className="mt-12 bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-100">
+        <div id="reviews-section" className="mt-12 bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-100">
           <div className="flex border-b border-slate-100 font-black text-sm text-slate-500 space-x-8 overflow-x-auto pb-1">
             {['description', 'fabric', 'care', 'shipping', 'reviews'].map((tab) => (
               <button
@@ -803,8 +839,9 @@ export default function ProductDetails() {
           <p className="text-lg font-black text-slate-900">₹{product.price}</p>
         </div>
         <button
-          onClick={(e) => addToCart(product, selectedSize, selectedColor, e, quantity, true)}
-          className="grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5"
+          onClick={(e) => handleAddToCart(e, true)}
+          disabled={displayStock === 0}
+          className="grow py-3 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
         >
           <ShoppingBag className="w-4 h-4" /> Add To Bag
         </button>

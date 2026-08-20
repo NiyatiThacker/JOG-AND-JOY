@@ -4,6 +4,7 @@ import { Heart, Eye, ShoppingBag, Star } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCombinedProducts } from '../../queries/useCombinedProducts';
+import { createSlug } from '../../utils/helpers';
 
 export default function ProductCard({ product, onQuickView }) {
   const { combinedProducts } = useCombinedProducts();
@@ -42,7 +43,7 @@ export default function ProductCard({ product, onQuickView }) {
 
       {/* Product Image Container */}
       <div className="relative aspect-square sm:aspect-auto sm:h-72 w-full overflow-hidden bg-[#FFF8EC]">
-        <Link to={`/product/${activeProduct.id}`}>
+        <Link to={`/product/${createSlug(activeProduct.name || activeProduct.title) || activeProduct.id}`}>
           <img
             src={activeProduct.image}
             alt={activeProduct.name}
@@ -116,7 +117,7 @@ export default function ProductCard({ product, onQuickView }) {
           </div>
 
           {/* Product Name */}
-          <Link to={`/product/${activeProduct.id}`}>
+          <Link to={`/product/${createSlug(activeProduct.name || activeProduct.title) || activeProduct.id}`}>
             <h3 className="font-extrabold text-slate-900 text-[11px] sm:text-base line-clamp-2 sm:line-clamp-1 group-hover:text-[#FF7A59] transition-colors mt-1">
               {activeProduct.name}
             </h3>

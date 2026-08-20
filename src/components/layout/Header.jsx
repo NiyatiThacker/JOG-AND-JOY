@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, ChevronDown, Menu, X, ShoppingBag, ArrowRight } from 'lucide-react';
 import { getImageUrl } from '../../utils/getImageUrl';
+import { createSlug } from '../../utils/helpers';
 
 export const productCategories = [
   { name: 'KIDS Co-ord Suit', slug: 'kids-co-ord-suit', category: 'Kids' },
@@ -275,7 +276,7 @@ export default function Header() {
                     {searchResults.map((product) => (
                       <Link 
                         key={product.id}
-                        to={`/product/${product.id}`}
+                        to={`/product/${createSlug(product.name || product.title) || product.id}`}
                         onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
                         className="flex items-center gap-4 p-3 hover:bg-slate-700/50 transition-colors border-b border-slate-700/50 last:border-0"
                       >

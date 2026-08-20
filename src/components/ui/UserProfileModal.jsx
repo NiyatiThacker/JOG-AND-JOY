@@ -170,37 +170,7 @@ export default function UserProfileModal({ isOpen, onClose }) {
   };
 
   const handleDownloadInvoice = (order) => {
-    const invoiceText = `
-========================================
-             JOG & JOY
-         Official Invoice
-========================================
-Order ID: ${order.orderNumber}
-Date: ${order.date}
-Status: ${order.status}
-Customer: ${order.shippingAddress?.name || user?.name || 'Customer'}
-Email: ${order.shippingAddress?.email || user?.email || 'N/A'}
-
-SHIPPING ADDRESS:
-${order.shippingAddress?.line1 || 'N/A'}
-${order.shippingAddress?.city || 'N/A'}, ${order.shippingAddress?.state || 'N/A'} ${order.shippingAddress?.postalCode || ''}
-
-ITEMS:
-${order.items.map(item => `- ${item.quantity}x ${item.titleSnapshot || item.name} @ ₹${item.unitPrice} = ₹${item.unitPrice * item.quantity}`).join('\n')}
-
-----------------------------------------
-Total Paid: ${order.total}
-Payment Method: ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online'}
-========================================
-Thank you for shopping with Jog & Joy!
-    `;
-    const blob = new Blob([invoiceText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Invoice_${order.orderNumber}.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
+    window.open(`/invoice/${order.id}`, '_blank');
   };
 
   return (

@@ -21,6 +21,7 @@ import Checkout from './pages/Checkout';
 import Collections from './pages/Collections';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
+import Invoice from './pages/Invoice';
 import NotFound from './pages/NotFound';
 import KidsPage from './pages/KidsPage';
 import NewArrivalsPage from './pages/NewArrivalsPage';
@@ -144,6 +145,7 @@ export default function App() {
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/why-us" element={<WhyUs />} />
                 <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/invoice/:orderId" element={<Invoice />} />
                 <Route path="/track-order" element={<OrderTracking />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/distributor-network" element={<DistributorNetworkPage />} />

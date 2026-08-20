@@ -7,6 +7,7 @@ import Button from './Button';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCombinedProducts } from '../../queries/useCombinedProducts';
+import { createSlug } from '../../utils/helpers';
 import { useNavigate } from 'react-router-dom';
 
 export default function QuickViewModal({ product, onClose }) {
@@ -133,11 +134,9 @@ export default function QuickViewModal({ product, onClose }) {
                 <Button 
                   variant="outline" 
                   size="md" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                  onClick={() => {
                     onClose();
-                    navigate(`/product/${product.id}`);
+                    navigate(`/product/${createSlug(product.name || product.title) || product.id}`);
                   }} 
                   className="w-full"
                 >

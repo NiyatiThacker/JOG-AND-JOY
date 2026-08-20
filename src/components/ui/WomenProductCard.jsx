@@ -4,6 +4,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { flyToCart } from '../../utils/animations';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
+import { createSlug } from '../../utils/helpers';
 
 export default function WomenProductCard({ product }) {
   const { addToCart } = useCart();
@@ -29,8 +30,8 @@ export default function WomenProductCard({ product }) {
   return (
     <div className="flex flex-col group cursor-pointer w-full">
       {/* Image Block */}
-      <div className="relative aspect-square sm:aspect-3/4 w-full bg-[#f8f8f8] overflow-hidden mb-4">
-        <Link to={`/product/${product.id}`} className="absolute inset-0">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-slate-50 mb-4">
+        <Link to={`/product/${createSlug(product.name || product.title) || product.id}`} className="absolute inset-0">
           <img
             src={product.image}
             alt={product.name}
@@ -60,8 +61,8 @@ export default function WomenProductCard({ product }) {
       </div>
 
       {/* Details (Ultra Minimalist) */}
-      <div className="flex flex-col items-center text-center space-y-1">
-        <Link to={`/product/${product.id}`}>
+      <div className="mt-4 space-y-1 flex flex-col items-center text-center">
+        <Link to={`/product/${createSlug(product.name || product.title) || product.id}`}>
           <h3 className="text-sm font-semibold text-black tracking-wide line-clamp-1 uppercase hover:underline">
             {product.name}
           </h3>

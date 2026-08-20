@@ -80,20 +80,17 @@ function AdminLayoutContent() {
 
  {/* Sidebar */}
  <div className={`w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
- <div className="p-6 pb-5 border-b border-slate-200 flex flex-col items-start shrink-0 relative">
-  <BrandLogo className="h-12 mb-5" linkTo="/admin" showTagline={false} animate={true} />
-  <div className="px-3 py-1.5 border border-blue-200 text-blue-600 text-[11px] font-bold rounded uppercase tracking-wider bg-blue-50 inline-block">
-    Admin Console
-  </div>
-  <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden absolute top-6 right-4 p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+ <div className="p-4 pb-4 border-b border-slate-200 flex flex-col items-start shrink-0 relative">
+  <BrandLogo className="h-10 mb-0" linkTo="/admin" showTagline={false} animate={true} />
+  <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
     <X className="w-5 h-5" />
   </button>
  </div>
  
  <nav className="flex-1 flex flex-col overflow-y-auto pb-4 hide-scrollbar">
  {navGroups.map((group, index) => (
-   <div key={group.title} className={index > 0 ? "mt-6" : "mt-4"}>
-     <div className="mb-3 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-[0.15em]">{group.title}</div>
+   <div key={group.title} className={index > 0 ? "mt-4" : "mt-2"}>
+     <div className="mb-1.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-[0.15em]">{group.title}</div>
      <div className="flex flex-col">
        {group.items.map((item) => {
          const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
@@ -102,7 +99,7 @@ function AdminLayoutContent() {
            <Link
              key={item.name}
              to={item.path}
-             className={`flex items-center justify-between transition-all duration-200 text-[14px] font-medium py-[10px] pl-5 pr-6 border-l-[4px] ${
+             className={`flex items-center justify-between transition-all duration-200 text-[14px] font-medium py-2 pl-4 pr-4 border-l-[4px] ${
                isActive 
                  ? 'bg-[#f0f4ff] text-[#2563eb] border-[#2563eb]' 
                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent'

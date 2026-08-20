@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import { Search, Package, Truck, CheckCircle, Clock, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { list } from '../api/mockApi';
+import { createSlug } from '../utils/helpers';
 
 export default function OrderTracking() {
   const [orderId, setOrderId] = useState('');
@@ -135,7 +137,7 @@ export default function OrderTracking() {
                   <p className="text-sm text-slate-500 font-semibold mb-1">Order #{order.orderNumber || order.id.substring(0, 8).toUpperCase()}</p>
                   <p className="text-sm text-slate-400">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end gap-3">
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
                     ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
                       order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
@@ -143,6 +145,16 @@ export default function OrderTracking() {
                   >
                     {order.status}
                   </span>
+                  
+                  {['DELIVERED', 'SHIPPED', 'PROCESSING'].includes(order.status) && (
+                    <button 
+                      onClick={() => window.open(`/invoice/${order.id}`, '_blank')}
+                      className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-colors"
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                      View Invoice
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -185,6 +197,41 @@ export default function OrderTracking() {
               ) : (
                 <div className="text-center py-8">
                   <p className="text-red-500 font-bold">This order has been cancelled.</p>
+                </div>
+              )}
+
+              {/* Order Items Section */}
+              {order.items && order.items.length > 0 && (
+                <div className="mt-12 border-t border-slate-100 pt-8">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">Items in this Order</h3>
+                  <div className="space-y-4">
+                    {order.items.map((item, idx) => (
+                      <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-bold text-slate-800">{item.titleSnapshot || 'Product'}</h4>
+                          <p className="text-sm text-slate-500 mt-1">
+                            {item.size && `Size: ${item.size} • `} 
+                            {item.color && `Color: ${item.color} • `} 
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4 shrink-0">
+                          <div className="text-right">
+                            <span className="font-bold text-slate-900">₹{item.unitPrice * item.quantity}</span>
+                          </div>
+                          {order.status === 'DELIVERED' && (
+                            <Link
+                              to={`/product/${createSlug(item.titleSnapshot || 'product') || item.productId}?review=true&orderId=${order.orderNumber || order.id}`}
+                              className="px-4 py-2 bg-white border border-slate-200 shadow-sm rounded-lg text-sm font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-colors flex items-center gap-1.5"
+                            >
+                              <Star className="w-4 h-4 text-amber-500" />
+                              Write a Review
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </motion.div>

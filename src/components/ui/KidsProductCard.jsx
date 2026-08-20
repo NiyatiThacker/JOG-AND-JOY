@@ -3,6 +3,7 @@ import { Heart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { createSlug } from '../../utils/helpers';
 import { flyToCart } from '../../utils/animations';
 
 export default function KidsProductCard({ product }) {
@@ -25,7 +26,7 @@ export default function KidsProductCard({ product }) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <Link to={`/product/${product.id}`} className="absolute inset-0">
+        <Link to={`/product/${createSlug(product.name || product.title) || product.id}`} className="absolute inset-0">
           <img
             src={isHovered && product.gallery?.[1] ? product.gallery[1] : product.image}
             alt={product.name}
@@ -55,7 +56,7 @@ export default function KidsProductCard({ product }) {
       <div className="flex flex-col items-center text-center space-y-2 grow justify-between">
         <div className="space-y-1.5 w-full">
           {/* Title */}
-          <Link to={`/product/${product.id}`}>
+          <Link to={`/product/${createSlug(product.name || product.title) || product.id}`}>
             <h3 className="text-sm font-extrabold text-slate-900 tracking-tight line-clamp-1 group-hover:text-[#FF7A59] transition-colors">
               {product.name}
             </h3>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { createSlug } from '../../utils/helpers';
 import { flyToCart } from '../../utils/animations';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
@@ -31,7 +32,7 @@ export default function MenProductCard({ product }) {
     <div className="flex flex-col group cursor-pointer w-full">
       {/* Image Block */}
       <div className="relative aspect-square w-full bg-[#F5F5F5] rounded-3xl overflow-hidden mb-4">
-        <Link to={`/product/${product.id}`} className="absolute inset-0">
+        <Link to={`/product/${createSlug(product.name || product.title) || product.id}`} className="absolute inset-0">
           <img
             src={product.image}
             alt={product.name}
@@ -81,7 +82,7 @@ export default function MenProductCard({ product }) {
 
       {/* Details */}
       <div className="px-1 space-y-1">
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/product/${createSlug(product.name || product.title) || product.id}`}>
           <h3 className="text-sm font-bold text-[#1f2923] leading-snug line-clamp-2 hover:underline">
             {product.name}
           </h3>

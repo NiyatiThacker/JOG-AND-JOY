@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Minus, Plus, X, ArrowRight, Truck, CreditCard, Clock, ChevronRight, Trash2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { createSlug } from '../utils/helpers';
 
 export default function CartPage() {
   const {
@@ -100,7 +101,7 @@ export default function CartPage() {
                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                               </div>
                               <div className="flex flex-col">
-                                <Link to={`/product/${item.id}`} className="font-bold text-slate-800 hover:text-[#EF4A45] transition-colors leading-tight mb-1">
+                                <Link to={`/product/${createSlug(item.name || item.title) || item.id}`} className="font-bold text-slate-800 hover:text-[#EF4A45] transition-colors leading-tight mb-1">
                                   {item.name}
                                 </Link>
                                 <div className="text-xs font-semibold text-slate-500">
