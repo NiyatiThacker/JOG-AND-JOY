@@ -24,13 +24,29 @@ export default function OrderTracking() {
     try {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 800));
-      const response = await list('orders', { orderNumber: orderId.trim() });
+      
+      // Try to fetch from DB first (works for authenticated users / admins)
+      const response = await list('orders', { id: orderId.trim() });
       const data = response.data && response.data.length > 0 ? response.data[0] : null;
       
-      if (!data) {
-        setError('Order not found. Please check your Order ID.');
-      } else {
+      if (data) {
         setOrder(data);
+      } else {
+        // Fallback for guest users blocked by RLS: Check localStorage
+        const localOrders = JSON.parse(localStorage.getItem('jj_orders') || '[]');
+        const localMatch = localOrders.find(o => o.id === `#${orderId.trim()}` || o.id === orderId.trim());
+        
+        if (localMatch) {
+          // Reconstruct order object for UI
+          setOrder({
+            id: localMatch.id.replace('#', ''),
+            orderNumber: localMatch.id.replace('#', ''),
+            createdAt: new Date().toISOString(), // fallback date
+            status: localMatch.status === 'Placed 📦' ? 'PROCESSING' : 'PENDING'
+          });
+        } else {
+          setError('Order not found. Please check your Order ID.');
+        }
       }
     } catch (err) {
       setError('Order not found. Please verify your Order ID.');

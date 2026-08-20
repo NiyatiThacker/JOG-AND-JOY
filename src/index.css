@@ -221,6 +221,14 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(239, 74, 69, 1);
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Playful Icon System Hover Animations */
 @keyframes icon-bounce {
   0%, 100% { transform: translateY(0); }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import BrandLogo from '../../components/ui/BrandLogo';
-import { LayoutDashboard, ShoppingBag, PackageSearch, Settings, LogOut, Package, Tag, BarChart3, Star, Truck, MessageSquare, IndianRupee, Bell, BellOff, CheckCircle, Users, Menu, X, Home, Folder } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, PackageSearch, Settings, LogOut, Package, Tag, BarChart3, Star, Truck, MessageSquare, IndianRupee, Bell, BellOff, CheckCircle, Users, Menu, X, Home, Folder, LayoutGrid, Diamond, Square, PanelTop, Columns, PieChart, Circle, Asterisk, Mail } from 'lucide-react';
 import { useAuth as useAdmin } from '../../context/AuthContext';
 import AdminLogin from './AdminLogin';
 import { SettingsProvider, useSettingsContext } from '../../context/SettingsContext';
@@ -32,19 +32,39 @@ function AdminLayoutContent() {
     setReadState(newReadState);
   };
 
- const navItems = [
- { name: 'Overview', path: '/admin', icon: LayoutDashboard },
- { name: 'Customers', path: '/admin/customers', icon: Users },
- { name: 'Products', path: '/admin/products', icon: PackageSearch },
- { name: 'Categories', path: '/admin/categories', icon: Folder },
- { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
- { name: 'Inventory', path: '/admin/inventory', icon: Package },
- { name: 'Promotions', path: '/admin/promotions', icon: Tag },
- { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
- { name: 'Reviews', path: '/admin/reviews', icon: Star },
- { name: 'Messages', path: '/admin/messages', icon: MessageSquare },
- { name: 'Financials', path: '/admin/financials', icon: IndianRupee },
- { name: 'Settings', path: '/admin/settings', icon: Settings },
+ const navGroups = [
+   {
+     title: 'OVERVIEW',
+     items: [
+       { name: 'Dashboard', path: '/admin', icon: LayoutGrid },
+       { name: 'Analytics', path: '/admin/analytics', icon: Diamond },
+     ]
+   },
+   {
+     title: 'CATALOGUE',
+     items: [
+       { name: 'Products', path: '/admin/products', icon: Square },
+       { name: 'Categories', path: '/admin/categories', icon: PanelTop },
+       { name: 'Inventory', path: '/admin/inventory', icon: Columns, badge: 3 },
+     ]
+   },
+   {
+     title: 'SALES',
+     items: [
+       { name: 'Orders', path: '/admin/orders', icon: PieChart, badge: 12 },
+       { name: 'Customers', path: '/admin/customers', icon: Circle },
+       { name: 'Promotions', path: '/admin/promotions', icon: Asterisk },
+       { name: 'Financials', path: '/admin/financials', icon: IndianRupee },
+     ]
+   },
+   {
+     title: 'CONTENT',
+     items: [
+       { name: 'Reviews', path: '/admin/reviews', icon: Star },
+       { name: 'Messages', path: '/admin/messages', icon: Mail },
+       { name: 'Settings', path: '/admin/settings', icon: Settings },
+     ]
+   }
  ];
 
  if (!isAuthenticated) {
@@ -60,51 +80,52 @@ function AdminLayoutContent() {
 
  {/* Sidebar */}
  <div className={`w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full z-50 transition-transform duration-300 md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
- <div className="h-16 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
-  <BrandLogo className="h-12" linkTo="/admin" showTagline={false} animate={true} />
-  <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+ <div className="p-6 pb-5 border-b border-slate-200 flex flex-col items-start shrink-0 relative">
+  <BrandLogo className="h-12 mb-5" linkTo="/admin" showTagline={false} animate={true} />
+  <div className="px-3 py-1.5 border border-blue-200 text-blue-600 text-[11px] font-bold rounded uppercase tracking-wider bg-blue-50 inline-block">
+    Admin Console
+  </div>
+  <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden absolute top-6 right-4 p-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
     <X className="w-5 h-5" />
   </button>
  </div>
  
- <nav className="mt-4 px-4 flex-1 flex flex-col gap-1 overflow-y-auto pb-4 custom-scrollbar">
- <div className="mb-2 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Management</div>
- {navItems.map((item) => {
- const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
- const Icon = item.icon;
- return (
- <Link
- key={item.name}
- to={item.path}
- className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold ${
- isActive 
-  ? 'bg-blue-50 text-blue-700' 
-  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
- }`}
- >
- <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
- {item.name}
- </Link>
- );
- })}
+ <nav className="flex-1 flex flex-col overflow-y-auto pb-4 hide-scrollbar">
+ {navGroups.map((group, index) => (
+   <div key={group.title} className={index > 0 ? "mt-6" : "mt-4"}>
+     <div className="mb-3 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-[0.15em]">{group.title}</div>
+     <div className="flex flex-col">
+       {group.items.map((item) => {
+         const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
+         const Icon = item.icon;
+         return (
+           <Link
+             key={item.name}
+             to={item.path}
+             className={`flex items-center justify-between transition-all duration-200 text-[14px] font-medium py-[10px] pl-5 pr-6 border-l-[4px] ${
+               isActive 
+                 ? 'bg-[#f0f4ff] text-[#2563eb] border-[#2563eb]' 
+                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent'
+             }`}
+           >
+             <div className="flex items-center gap-3">
+               <Icon className={`w-4 h-4 ${isActive ? 'text-[#2563eb]' : 'text-slate-400'}`} />
+               {item.name}
+             </div>
+             {item.badge && (
+               <span className="bg-[#e11d48] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                 {item.badge}
+               </span>
+             )}
+           </Link>
+         );
+       })}
+     </div>
+   </div>
+ ))}
  </nav>
 
- <div className="p-4 border-t border-slate-200 mt-auto flex flex-col gap-1">
- <Link 
- to="/"
- className="md:hidden flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 w-full"
- >
- <Home className="w-5 h-5 text-slate-400" />
- Go to Storefront
- </Link>
- <button 
- onClick={logout}
- className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-semibold text-slate-600 hover:bg-red-50 hover:text-red-600 w-full"
- >
- <LogOut className="w-5 h-5 text-slate-400" />
- Logout
- </button>
- </div>
+
  </div>
 
  {/* Main Content */}
@@ -132,15 +153,16 @@ function AdminLayoutContent() {
  Go to Home
  </Link>
  
- <div className="relative">
-   <button onClick={() => setIsNotifOpen(!isNotifOpen)} className="relative p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 rounded-lg transition-colors">
-     {isNotifMuted ? <BellOff className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
-     {!isNotifMuted && notifications.some(n => !n.read) && (
-       <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-     )}
-   </button>
-   
-   {isNotifOpen && (
+ <div className="flex items-center gap-1">
+   <div className="relative">
+     <button onClick={() => setIsNotifOpen(!isNotifOpen)} className="relative p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 rounded-lg transition-colors">
+       {isNotifMuted ? <BellOff className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
+       {!isNotifMuted && notifications.some(n => !n.read) && (
+         <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+       )}
+     </button>
+     
+     {isNotifOpen && (
      <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-zinc-50/80 rounded-t-xl">
          <h3 className="font-bold text-primary-dark">Notifications</h3>
@@ -179,6 +201,14 @@ function AdminLayoutContent() {
         </div>
      </div>
    )}
+ </div>
+ <button 
+   onClick={logout} 
+   title="Logout" 
+   className="p-2 text-zinc-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+ >
+   <LogOut className="w-5 h-5" />
+ </button>
  </div>
  <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
  <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-zinc-600 font-bold text-xs uppercase">

@@ -82,6 +82,11 @@ export async function create(table, payload) {
     cleanPayload.id = crypto.randomUUID();
   }
   
+  // Temporary fix for schema cache issue
+  if (table === 'orders' && cleanPayload.channel !== undefined) {
+    delete cleanPayload.channel;
+  }
+  
   const record = { 
     ...cleanPayload,
     createdAt: now, 
