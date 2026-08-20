@@ -8,7 +8,7 @@ import { useProductsList } from '../../queries/useProducts';
 
 export default function AdminDashboard() {
   const [period, setPeriod] = useState('30d');
-  const { formatCurrency, formatDate } = useSettingsContext();
+  const { formatCurrency, formatCompactCurrency, formatDate } = useSettingsContext();
   const { data: ordersData, isLoading: isLoadingOrders } = useOrdersList({ pageSize: 10000 });
   const { data: productsData } = useProductsList();
   
@@ -201,6 +201,7 @@ export default function AdminDashboard() {
           onChange={e => setPeriod(e.target.value)}
           className="px-4 py-2 border border-slate-200 bg-white rounded-lg text-sm font-bold text-text-dark focus:outline-none focus:ring-1 focus:ring-slate-400 shadow-sm cursor-pointer"
         >
+          <option value="all">All Time</option>
           <option value="today">Today</option>
           <option value="week">This Week</option>
           <option value="30d">This Month</option>
@@ -216,7 +217,7 @@ export default function AdminDashboard() {
             <p className="font-bold text-zinc-500 group-hover:text-blue-600 transition-colors">Total Sales</p>
             <TrendBadge value={salesTrend} />
           </div>
-          <p className="text-2xl font-black text-text-dark">{formatCurrency(totalSales)}</p>
+          <p className="text-2xl font-black text-text-dark">{formatCompactCurrency(totalSales)}</p>
         </Link>
         <Link to="/admin/orders" className="block p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-slate-300 hover:shadow-md transition-all group">
           <div className="flex justify-between items-start mb-4">
@@ -230,7 +231,7 @@ export default function AdminDashboard() {
             <p className="font-bold text-zinc-500 group-hover:text-blue-600 transition-colors">Avg Order Value</p>
             <TrendBadge value={aovTrend} />
           </div>
-          <p className="text-2xl font-black text-text-dark">{formatCurrency(avgOrderValue)}</p>
+          <p className="text-2xl font-black text-text-dark">{formatCompactCurrency(avgOrderValue)}</p>
         </Link>
         <Link to="/admin/customers" className="block p-5 bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all group">
           <p className="font-bold text-zinc-500 mb-4 group-hover:text-blue-600 transition-colors">Customers</p>
@@ -252,37 +253,27 @@ export default function AdminDashboard() {
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dx={-10} tickFormatter={(val) => `₹${val}`} />
                 <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
-                <Line type="monotone" dataKey="sales" stroke="#334155" strokeWidth={3} dot={{ r: 4, fill: '#334155', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                <Line type="monotone" dataKey="sales" stroke="#334155" strokeWidth={3} dot={false} activeDot={{ r: 6, strokeWidth: 0 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-100 rounded-xl shadow-sm p-6 flex flex-col justify-between">
-          <h2 className="font-bold text-text-dark mb-4">Order Status</h2>
-          {statusData.length > 0 ? (
-            <div className="h-48 w-full relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
-                    {statusData.map((entry, index) => <Cell key={`cell-${index}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} stroke="transparent" />)}
-                  </Pie>
-                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none flex-col">
-                <span className="text-2xl font-black text-text-dark">{filteredOrders.length}</span>
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Orders</span>
-              </div>
-            </div>
-          ) : <p className="text-sm text-zinc-400 text-center py-8">No data</p>}
-          <div className="flex flex-wrap justify-center gap-3 mt-4">
-             {statusData.map((s, i) => (
-                <div key={s.name} className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[i % STATUS_COLORS.length] }}></span>
-                  {s.name} <span className="font-bold text-text-dark ml-0.5">{s.value}</span>
+        <div className="bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col justify-between">
+          <div className="p-4 border-b border-slate-100 bg-zinc-50/50">
+            <h2 className="font-bold text-text-dark flex items-center gap-2"><Package className="w-4 h-4 text-zinc-400"/> Top Products</h2>
+          </div>
+          <div className="divide-y divide-slate-50 px-4 py-2 flex-1">
+            {topProducts.length === 0 ? <p className="text-zinc-400 py-4 text-center">No data.</p> : 
+              topProducts.map((p, i) => (
+                <div key={i} className="flex justify-between items-center py-3">
+                  <p className="font-medium text-text-dark truncate mr-2">{p.name}</p>
+                  <div className="text-right shrink-0">
+                    <p className="font-bold text-text-dark">{formatCurrency(p.rev)}</p>
+                  </div>
                 </div>
-              ))}
+              ))
+            }
           </div>
         </div>
       </div>
@@ -313,9 +304,9 @@ export default function AdminDashboard() {
                   recentOrders.map(order => (
                     <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-5 py-3 font-bold text-text-dark">
-                        <Link to="/admin/orders" className="hover:text-blue-600 hover:underline">#{order.orderNumber}</Link>
+                        <Link to="/admin/orders" className="hover:text-blue-600 hover:underline">#{order.orderNumber || (order.id ? order.id.slice(0, 8) : 'N/A')}</Link>
                       </td>
-                      <td className="px-5 py-3 text-zinc-500">{formatDate(order.createdAt)}</td>
+                      <td className="px-5 py-3 text-zinc-500">{formatDate(order.createdAt, true)}</td>
                       <td className="px-5 py-3 text-text-dark font-medium">{order.shippingAddress?.name || order.shippingAddress?.fullName || 'Guest'}</td>
                       <td className="px-5 py-3">
                         <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase ${getStatusColor(order.status)}`}>
@@ -357,21 +348,36 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-xl shadow-sm flex flex-col flex-1">
-            <div className="p-4 border-b border-slate-100 bg-zinc-50/50">
-              <h2 className="font-bold text-text-dark flex items-center gap-2"><Package className="w-4 h-4 text-zinc-400"/> Top Products</h2>
+          <div className="bg-white border border-slate-100 rounded-xl shadow-sm p-6 flex flex-col flex-1 justify-between">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-bold text-text-dark">Order Status</h2>
+              <div className="text-right">
+                <span className="text-sm font-black text-text-dark">{filteredOrders.length}</span>
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider ml-1">Orders</span>
+              </div>
             </div>
-            <div className="divide-y divide-slate-50 px-4 py-2">
-              {topProducts.length === 0 ? <p className="text-zinc-400 py-4 text-center">No data.</p> : 
-                topProducts.map((p, i) => (
-                  <div key={i} className="flex justify-between items-center py-2.5">
-                    <p className="font-medium text-text-dark truncate mr-2">{p.name}</p>
-                    <div className="text-right shrink-0">
-                      <p className="font-bold text-text-dark">{formatCurrency(p.rev)}</p>
-                    </div>
+            {statusData.length > 0 ? (
+              <div className="h-32 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={statusData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={5} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} allowDecimals={false} />
+                    <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                      {statusData.map((entry, index) => <Cell key={`cell-${index}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : <p className="text-sm text-zinc-400 text-center py-8">No data</p>}
+            <div className="flex flex-wrap justify-center gap-3 mt-4">
+               {statusData.map((s, i) => (
+                  <div key={s.name} className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[i % STATUS_COLORS.length] }}></span>
+                    {s.name} <span className="font-bold text-text-dark ml-0.5">{s.value}</span>
                   </div>
-                ))
-              }
+                ))}
             </div>
           </div>
         </div>

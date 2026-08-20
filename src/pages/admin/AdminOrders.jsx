@@ -18,9 +18,9 @@ export default function AdminOrders() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [editFormData, setEditFormData] = useState({});
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   
-  const { formatCurrency, formatDate } = useSettingsContext();
+  const { formatCurrency, formatCompactCurrency, formatDate } = useSettingsContext();
 
   const { data, isLoading } = useOrdersList({ pageSize: 1000 });
   
@@ -278,7 +278,13 @@ export default function AdminOrders() {
     return (
       <div className="w-full max-w-5xl mx-auto pb-12 animate-in fade-in duration-300">
         <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => setView('list')} className="p-2 bg-white rounded-lg border border-slate-200 hover:bg-zinc-50 transition-colors">
+          <button onClick={() => {
+            if (searchParams.has('orderId')) {
+              searchParams.delete('orderId');
+              setSearchParams(searchParams);
+            }
+            setView('list');
+          }} className="p-2 bg-white rounded-lg border border-slate-200 hover:bg-zinc-50 transition-colors">
             <ArrowLeft className="w-5 h-5 text-zinc-500" />
           </button>
           <div>
@@ -653,7 +659,7 @@ export default function AdminOrders() {
         </button>
         <Link to="/admin/financials" className="min-w-[200px] text-left block bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-blue-600">Total Revenue</p>
-          <p className="text-3xl font-extrabold text-blue-600">{formatCurrency(totalRevenue)}</p>
+          <p className="text-3xl font-extrabold text-blue-600">{formatCompactCurrency(totalRevenue)}</p>
         </Link>
         <button onClick={() => setActiveTab('PROCESSING')} className="min-w-[200px] text-left bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:border-warning hover:shadow-md transition-all group">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 group-hover:text-warning-dark">Processing</p>

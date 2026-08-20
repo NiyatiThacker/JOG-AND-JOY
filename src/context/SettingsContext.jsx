@@ -22,6 +22,16 @@ export function SettingsProvider({ children }) {
     }).format(amount);
   };
 
+  const formatCompactCurrency = (amount) => {
+    const currency = settings?.currency || 'INR';
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency,
+      notation: 'compact',
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
+
   const formatDate = (isoString, includeTime = false) => {
     if (!isoString) return '';
     const pattern = includeTime ? 'MMM dd, yyyy - hh:mm a' : 'MMM dd, yyyy';
@@ -29,7 +39,7 @@ export function SettingsProvider({ children }) {
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, isLoading, formatCurrency, formatDate }}>
+    <SettingsContext.Provider value={{ settings, isLoading, formatCurrency, formatCompactCurrency, formatDate }}>
       {children}
     </SettingsContext.Provider>
   );

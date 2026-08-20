@@ -87,14 +87,37 @@ export default function AdminAnalytics() {
   const totalOrdersCount = filteredOrders.length;
   
   // Returning Customer Rate
-  const customerOrderCounts = {};
-  filteredOrders.forEach(o => {
-    if (o.customerId) {
-      customerOrderCounts[o.customerId] = (customerOrderCounts[o.customerId] || 0) + 1;
+  const allValidOrders = orders.filter(o => o.status !== 'CANCELLED' && o.status !== 'REFUNDED');
+  const customerOrderHistory = {};
+  allValidOrders.forEach(o => {
+    const customerId = o.customerId || o.customerInfo?.email || o.shippingAddress?.email || o.userId || o.shippingAddress?.phone || o.id;
+    if (customerId) {
+      if (!customerOrderHistory[customerId]) {
+        customerOrderHistory[customerId] = [];
+      }
+      customerOrderHistory[customerId].push(new Date(o.createdAt || new Date()));
     }
   });
-  const returningCustomers = Object.values(customerOrderCounts).filter(count => count > 1).length;
-  const returningRate = filteredCustomers.length > 0 ? ((returningCustomers / filteredCustomers.length) * 100).toFixed(1) : 0;
+
+  let newCustomers = 0;
+  let returningCustomers = 0;
+  
+  Object.values(customerOrderHistory).forEach(dates => {
+    dates.sort((a, b) => a - b);
+    const firstOrderDate = dates[0];
+    const ordersInPeriod = dates.filter(d => d >= startDate);
+
+    if (ordersInPeriod.length > 0) {
+      if (firstOrderDate >= startDate) {
+        newCustomers++;
+      } else {
+        returningCustomers++;
+      }
+    }
+  });
+
+  const totalActiveCustomers = newCustomers + returningCustomers;
+  const returningRate = totalActiveCustomers > 0 ? ((returningCustomers / totalActiveCustomers) * 100).toFixed(1) : 0;
 
   // Gross vs Net
   const grossSales = filteredOrders.reduce((sum, o) => sum + (o.subtotal || 0), 0);
@@ -241,11 +264,12 @@ export default function AdminAnalytics() {
             <p className="text-2xl font-black text-text-dark">{totalOrdersCount}</p>
           </div>
         </button>
-        <button onClick={() => setActiveTab('customers')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm hover:border-blue-300 hover:shadow-md group">
-          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2 group-hover:text-blue-600 transition-colors">Returning Customer Rate</p>
+        <button onClick={() => setActiveTab('sales')} className="text-left p-5 bg-white border border-slate-100 rounded-2xl transition-all shadow-sm hover:border-blue-300 hover:shadow-md group flex flex-col justify-between">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-2 group-hover:text-blue-600 transition-colors">Net Sales</p>
           <div className="flex items-end gap-3">
-            <p className="text-2xl font-black text-text-dark">{returningRate}%</p>
+            <p className="text-2xl font-black text-blue-600">{isLoading ? '...' : formatCurrency(netSales)}</p>
           </div>
+          <p className="text-[10px] font-bold text-zinc-400 mt-2">GROSS: {formatCurrency(grossSales)}</p>
         </button>
       </div>
 
@@ -315,36 +339,25 @@ export default function AdminAnalytics() {
                     </div>
                   </div>
                   <div className="p-4 border border-slate-200 rounded-xl bg-white flex flex-col">
-                    <h3 className="font-bold text-sm mb-4 text-text-dark">Gross vs Net Sales</h3>
+                    <h3 className="font-bold text-sm mb-4 text-text-dark">Customer Overview</h3>
                     <div className="flex-1 flex flex-col space-y-4">
                       <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Gross Sales</p>
-                         <p className="text-lg font-black text-text-dark">{formatCurrency(grossSales)}</p>
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Total Customers</p>
+                         <p className="text-lg font-black text-text-dark">{totalActiveCustomers}</p>
                       </div>
                       <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest text-red-500">Discounts Applied</p>
-                         <p className="text-lg font-black text-red-500">- {formatCurrency(totalDiscounts)}</p>
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">New Customers</p>
+                         <p className="text-lg font-black text-blue-600">{newCustomers}</p>
                       </div>
-                      <div className="flex justify-between items-center bg-blue-50/50 p-2 rounded-lg">
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Net Sales</p>
-                         <p className="text-xl font-black text-blue-600">{formatCurrency(netSales)}</p>
+                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Return Customers</p>
+                         <p className="text-lg font-black text-success">{returningCustomers}</p>
+                      </div>
+                      <div className="flex justify-between items-center bg-blue-50/50 p-2 rounded-lg mt-auto">
+                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Return Rate</p>
+                         <p className="text-xl font-black text-blue-600">{returningRate}%</p>
                       </div>
                     </div>
-                    
-                    {topPromos.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-slate-100">
-                        <h4 className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-2">Top Promo Codes</h4>
-                        <div className="space-y-2">
-                          {topPromos.slice(0, 3).map(promo => (
-                            <div key={promo.code} className="flex justify-between items-center text-xs">
-                              <span className="font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700">{promo.code}</span>
-                              <span className="text-slate-500">{promo.uses} uses</span>
-                              <span className="font-black text-text-dark">{formatCurrency(promo.totalDiscount)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

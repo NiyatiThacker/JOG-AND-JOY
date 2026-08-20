@@ -120,6 +120,22 @@ export const AuthProvider = ({ children }) => {
            const { error: updateErr } = await supabase.from('users').update({ phone, address, addresses }).eq('id', data.user.id);
            if (updateErr) console.error('Failed to update profile fields:', updateErr);
         }
+        
+        // Add to customers CRM table so admins can see them as prospects
+        const { error: custErr } = await supabase.from('customers').insert([{
+          id: data.user.id,
+          name: name || '',
+          email: email,
+          phone: phone || '',
+          address: address || '',
+          totalOrders: 0,
+          totalSpent: 0,
+          isGuest: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }]);
+        if (custErr) console.error('Failed to add to CRM customers:', custErr);
+
         return { success: true };
       }
       

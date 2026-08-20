@@ -222,25 +222,25 @@ export default function AdminProducts() {
     const computedTotalStock = p.variants?.reduce((sum, v) => sum + (Number(v.stock) || 0), 0) || p.stock || 0;
 
     setFormData({
-      title: product.title || '',
-      groupId: product.groupId || '',
-      categoryId: product.categoryId || '',
-      vendor: product.vendor || '',
-      originalPrice: product.originalPrice || product.basePrice || '',
+      title: p.title || '',
+      groupId: p.groupId || '',
+      categoryId: p.categoryId || '',
+      vendor: p.vendor || '',
+      originalPrice: p.originalPrice || p.basePrice || '',
       discountPercent: discPct,
       stock: computedTotalStock.toString(),
-      images: product.images || [],
-      description: product.description || '',
-      fabric: product.fabric || '',
-      care: product.care || '',
-      shipping: product.shipping || '',
-      sizes: product.sizes || [],
-      colors: product.colors || [],
-      variants: product.variants || [],
-      collections: product.collections || [],
-      isNewArrival: product.isNewArrival || false,
-      ageGroup: product.ageGroup || '',
-      status: product.status || 'draft'
+      images: p.images || [],
+      description: p.description || '',
+      fabric: p.fabric || '',
+      care: p.care || '',
+      shipping: p.shipping || '',
+      sizes: p.sizes || [],
+      colors: p.colors || [],
+      variants: p.variants || [],
+      collections: p.collections || [],
+      isNewArrival: p.isNewArrival || false,
+      ageGroup: p.ageGroup || '',
+      status: p.status || 'draft'
     });
     
     setShowForm(true);
