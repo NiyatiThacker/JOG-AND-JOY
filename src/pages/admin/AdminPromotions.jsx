@@ -118,7 +118,7 @@ export default function AdminPromotions() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => setView('list')} className="px-4 py-2 font-bold text-sm text-text-muted hover:text-text-primary">Discard</button>
-            <button onClick={handleSave} disabled={createMut.isPending || updateMut.isPending} className="px-6 py-2 bg-primary-dark text-white font-bold text-sm rounded-xl hover:bg-primary-hover shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            <button onClick={handleSave} disabled={createMut.isPending || updateMut.isPending} className="px-6 py-2 bg-white border border-slate-200 text-[#003366] font-bold text-sm rounded-xl hover:bg-slate-50 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all">
               {(createMut.isPending || updateMut.isPending) ? 'Processing...' : (editingPromo ? 'Save Changes' : 'Create Promotion')}
             </button>
           </div>
@@ -245,7 +245,7 @@ export default function AdminPromotions() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-text-dark mt-0.5">Promotions</h1>
           <p className="text-xs text-text-muted mt-1">Discounts, coupons, and automatic rules</p>
         </div>
-        <button onClick={() => handleOpenEdit()} className="flex items-center gap-2 px-6 py-2.5 bg-primary-dark text-white rounded-xl font-bold text-sm hover:bg-primary-hover shadow-sm transition-all">
+        <button onClick={() => handleOpenEdit()} className="flex items-center gap-2 px-6 py-2.5 bg-white border border-slate-200 text-[#003366] rounded-xl font-bold text-sm hover:bg-slate-50 shadow-sm transition-all">
           <Plus className="w-4 h-4 text-blue-600" />
           Create Promotion
         </button>

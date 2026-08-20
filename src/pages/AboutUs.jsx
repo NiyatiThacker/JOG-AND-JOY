@@ -265,39 +265,6 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* 7. Logos Section */}
-      <section className="py-16 px-4 bg-white relative z-10 rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="w-full md:w-auto text-center md:text-left">
-            <h4 className="text-2xl font-black text-slate-900 leading-tight font-heading-primary">
-              Our Trusted<br /><span className="text-[#EF4A45]">Retail Partners</span>
-            </h4>
-          </div>
-
-          <div className="flex-1 w-full overflow-hidden relative">
-            {/* Gradient masks for smooth fading edges on marquee */}
-            <div className="absolute inset-y-0 left-0 w-16 bg-linear-to-r from-white to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute inset-y-0 right-0 w-16 bg-linear-to-l from-white to-transparent z-10 pointer-events-none"></div>
-
-            <motion.div
-              className="flex items-center gap-16 md:gap-24 min-w-max text-slate-400 opacity-70 hover:opacity-100 transition-opacity duration-500"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ ease: "linear", duration: 25, repeat: Infinity }}
-            >
-              {[1, 2].map((_, index) => (
-                <React.Fragment key={index}>
-                  <span className="text-3xl md:text-4xl font-black tracking-tighter text-blue-600 grayscale hover:grayscale-0 transition-all cursor-pointer">firstcry</span>
-                  <span className="text-3xl md:text-4xl font-black italic tracking-widest text-pink-500 grayscale hover:grayscale-0 transition-all cursor-pointer">Myntra</span>
-                  <span className="text-3xl md:text-4xl font-bold uppercase tracking-tight text-amber-500 grayscale hover:grayscale-0 transition-all cursor-pointer">amazon</span>
-                  <span className="text-3xl md:text-4xl font-black tracking-tight text-yellow-500 grayscale hover:grayscale-0 transition-all cursor-pointer">flipkart</span>
-                  <span className="text-3xl md:text-4xl font-bold uppercase tracking-[0.2em] text-slate-800 grayscale hover:grayscale-0 transition-all cursor-pointer">AJIO</span>
-                </React.Fragment>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }

@@ -50,11 +50,24 @@ export default function AdminCustomers() {
     return result;
   }, [customers, search, filterType, sortBy]);
 
-  // Fetch orders specifically for the selected customer drawer
-  const { data: selectedCustomerOrders } = useOrdersList({ 
-    customerId: selectedCustomer?.id, 
-    pageSize: 50 
-  });
+  const { data: allOrdersData } = useOrdersList({ pageSize: 10000 });
+  
+  // Filter orders specifically for the selected customer drawer
+  const selectedCustomerOrders = useMemo(() => {
+    if (!selectedCustomer || !allOrdersData?.data) return [];
+    
+    return allOrdersData.data.filter(o => {
+      const matchEmail = selectedCustomer.email && selectedCustomer.email !== 'N/A' && 
+        (o.customerInfo?.email === selectedCustomer.email || o.shippingAddress?.email === selectedCustomer.email || o.email === selectedCustomer.email);
+      
+      const matchPhone = selectedCustomer.phone && selectedCustomer.phone !== 'N/A' && 
+        (o.shippingAddress?.phone === selectedCustomer.phone || o.phone === selectedCustomer.phone);
+        
+      const matchId = o.customerId === selectedCustomer.id || o.userId === selectedCustomer.id || o.customerInfo?.id === selectedCustomer.id;
+      
+      return matchEmail || matchPhone || matchId;
+    });
+  }, [selectedCustomer, allOrdersData]);
 
 
   const exportToCSV = () => {
@@ -329,11 +342,11 @@ export default function AdminCustomers() {
               <div className="p-6">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center justify-between">
                   Order History
-                  <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">{selectedCustomerOrders?.data?.length || 0}</span>
+                  <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px]">{selectedCustomerOrders?.length || 0}</span>
                 </h3>
                 
                 <div className="space-y-3">
-                  {(selectedCustomerOrders?.data || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(order => (
+                  {(selectedCustomerOrders || []).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map(order => (
                     <div key={order.id} className="border border-slate-100 rounded-xl p-4 hover:border-slate-300 transition-colors bg-slate-50/50">
                       <div className="flex justify-between items-start mb-2">
                         <div>
@@ -367,7 +380,7 @@ export default function AdminCustomers() {
               <div className="p-4 border-t border-slate-100 bg-white">
                 <a 
                   href={`mailto:${selectedCustomer.email}`}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-slate-900 text-white font-extrabold text-sm shadow-md hover:bg-slate-800 transition-colors"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white border border-slate-200 text-[#003366] font-extrabold text-sm shadow-sm hover:bg-slate-50 transition-colors"
                 >
                   <Mail className="w-4 h-4" />
                   Email Customer

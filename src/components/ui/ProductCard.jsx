@@ -162,18 +162,14 @@ export default function ProductCard({ product, onQuickView }) {
         </div>
 
         {/* Add to Bag Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            addToCart(activeProduct, selectedSize, selectedColor, e);
-          }}
-          aria-label="Add To Bag"
+        <Link
+          to={`/product/${createSlug(activeProduct.name || activeProduct.title) || activeProduct.id}`}
+          aria-label="Add To Cart"
           className="hidden sm:flex w-full py-1.5 sm:py-2.5 rounded-full bg-slate-900 hover:bg-[#FF7A59] text-white font-extrabold text-[10px] sm:text-xs shadow-md hover:shadow-lg transition-all duration-200 items-center justify-center gap-1.5 sm:gap-2 mt-2 active:scale-95 cursor-pointer"
         >
           <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          <span>Add To Bag</span>
-        </button>
+          <span>Add to Cart</span>
+        </Link>
 
       </div>
 

@@ -375,11 +375,7 @@ export default function ProductDetails() {
               </label>
               {globalColors && globalColors.length > 0 ? (
                 <div className="relative group">
-                  {/* Left Scroll Chevron Overlay */}
-                  <button onClick={() => scrollColors('left')} className="absolute left-[-10px] top-1/2 -translate-y-[60%] w-8 h-8 rounded-full bg-black/60 border border-slate-700 shadow-sm flex items-center justify-center z-10 text-white hover:bg-black/80 transition-colors opacity-90">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                  </button>
-                  <div ref={colorScrollRef} className="flex overflow-hidden gap-2 pb-2 snap-x items-center pl-3 -ml-3 pr-3 -mr-3">
+                  <div ref={colorScrollRef} className="flex overflow-x-auto no-scrollbar gap-2 pb-2 snap-x items-center pl-3 -ml-3 pr-3 -mr-3">
                     {getVisibleColors()?.map((col, idx) => (
                       <button
                         key={col.hex}
@@ -413,10 +409,6 @@ export default function ProductDetails() {
                       </button>
                     )}
                   </div>
-                  {/* Right Scroll Chevron Overlay */}
-                  <button onClick={() => scrollColors('right')} className="absolute right-[-10px] top-1/2 -translate-y-[60%] w-8 h-8 rounded-full bg-black/60 border border-slate-700 shadow-sm flex items-center justify-center z-10 text-white hover:bg-black/80 transition-colors opacity-90">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                  </button>
                 </div>
               ) : (
                 <div className="inline-flex px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl">

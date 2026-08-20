@@ -68,7 +68,7 @@ export default function AdminFinancials() {
       gatewayFees,
       transactions,
     };
-  }, [orders]);
+  }, [orders, period]);
 
   const handleExport = () => {
     let csvData = "data:text/csv;charset=utf-8,Date,Order,Gross,Net,Fee,Tax\n";

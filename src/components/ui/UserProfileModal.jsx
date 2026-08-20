@@ -78,10 +78,6 @@ export default function UserProfileModal({ isOpen, onClose }) {
       alert("Valid 10-digit Phone Number is required.");
       return;
     }
-    if (!editForm.address?.trim()) {
-      alert("Address is required.");
-      return;
-    }
     if (editForm.name && !/^[A-Za-z\s]+$/.test(editForm.name)) {
       alert("Name can only contain letters and spaces.");
       return;

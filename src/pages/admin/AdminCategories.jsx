@@ -100,7 +100,7 @@ export default function AdminCategories() {
         </div>
         <button 
           onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-dark text-white rounded-lg font-bold text-sm hover:bg-primary-hover shadow-sm transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-[#003366] rounded-lg font-bold text-sm hover:bg-slate-50 shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> Add Category
         </button>
@@ -251,7 +251,7 @@ export default function AdminCategories() {
                 Cancel
               </button>
               <button 
-                className="px-5 py-2.5 bg-primary-dark text-white font-bold text-sm hover:bg-primary-hover rounded-xl transition-colors disabled:opacity-50" 
+                className="px-5 py-2.5 bg-white border border-slate-200 text-[#003366] font-bold text-sm hover:bg-slate-50 shadow-sm rounded-xl transition-colors disabled:opacity-50" 
                 disabled={createMut.isPending || updateMut.isPending} 
                 onClick={handleSave}
               >

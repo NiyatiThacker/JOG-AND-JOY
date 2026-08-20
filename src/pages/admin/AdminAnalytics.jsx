@@ -4,6 +4,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useRevenueSummary } from '../../queries/useFinancials';
 import { useOrdersList } from '../../queries/useOrders';
 import { useCustomersList } from '../../queries/useCustomers';
+import { useProductsList } from '../../queries/useProducts';
+import { useCategoriesList } from '../../queries/useCategories';
 import { useSettingsContext } from '../../context/SettingsContext';
 
 export default function AdminAnalytics() {
@@ -14,9 +16,13 @@ export default function AdminAnalytics() {
   const { data: summary, isLoading } = useRevenueSummary();
   const { data: ordersData } = useOrdersList({ pageSize: 10000 });
   const { data: customersData } = useCustomersList({ pageSize: 10000 });
+  const { data: productsData } = useProductsList({ pageSize: 10000 });
+  const { data: categoriesData } = useCategoriesList({ pageSize: 1000 });
 
   const orders = ordersData?.data || [];
   const customers = customersData?.data || [];
+  const products = productsData?.data || [];
+  const categories = categoriesData?.data || [];
 
   const now = new Date();
   let startDate = new Date();
@@ -66,8 +72,9 @@ export default function AdminAnalytics() {
   }
   const maxVal = Math.max(...chartData.map(d => d.value), 100);
 
-  // Real logic for Top Products
+  // Real logic for Top Products and Categories
   const productStats = {};
+  const categoryStats = {};
   filteredOrders.forEach(order => {
     if (order.status !== 'cancelled') {
       order.items?.forEach(item => {
@@ -78,10 +85,31 @@ export default function AdminAnalytics() {
         }
         productStats[key].units += item.quantity || 1;
         productStats[key].revenue += ((item.unitPrice || item.price) * (item.quantity || 1)) || 0;
+
+        let category = item.category;
+        if (!category && item.productId) {
+          const product = products.find(p => p.id === item.productId);
+          if (product) {
+            const categoryId = product.categoryId || product.category;
+            const matchedCat = categories.find(c => c.id === categoryId || c.label === categoryId);
+            if (matchedCat) {
+              category = matchedCat.label;
+            } else {
+              category = categoryId;
+            }
+          }
+        }
+        category = category || 'Uncategorized';
+        
+        if (!categoryStats[category]) {
+          categoryStats[category] = { name: category, units: 0 };
+        }
+        categoryStats[category].units += item.quantity || 1;
       });
     }
   });
   const topProducts = Object.values(productStats).sort((a, b) => b.units - a.units).slice(0, 10);
+  const topCategories = Object.values(categoryStats).sort((a, b) => b.units - a.units).slice(0, 10);
 
   // KPI Calculations
   const totalOrdersCount = filteredOrders.length;
@@ -324,39 +352,27 @@ export default function AdminAnalytics() {
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 border border-slate-200 rounded-xl bg-white">
-                    <h3 className="font-bold text-sm mb-4 text-text-dark">Orders by Payment Status</h3>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Paid</span><span>{paidPercent}%</span></div>
-                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-success transition-all" style={{width: `${paidPercent}%`}}></div></div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs mb-1"><span className="font-semibold">Pending / Unpaid</span><span>{pendingPercent}%</span></div>
-                        <div className="h-2 bg-zinc-100 rounded-full overflow-hidden"><div className="h-full bg-warning transition-all" style={{width: `${pendingPercent}%`}}></div></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 border border-slate-200 rounded-xl bg-white flex flex-col">
-                    <h3 className="font-bold text-sm mb-4 text-text-dark">Customer Overview</h3>
-                    <div className="flex-1 flex flex-col space-y-4">
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Total Customers</p>
-                         <p className="text-lg font-black text-text-dark">{totalActiveCustomers}</p>
-                      </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">New Customers</p>
-                         <p className="text-lg font-black text-blue-600">{newCustomers}</p>
-                      </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Return Customers</p>
-                         <p className="text-lg font-black text-success">{returningCustomers}</p>
-                      </div>
-                      <div className="flex justify-between items-center bg-blue-50/50 p-2 rounded-lg mt-auto">
-                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Return Rate</p>
-                         <p className="text-xl font-black text-blue-600">{returningRate}%</p>
-                      </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="p-4 border border-slate-200 rounded-xl bg-white h-80 flex flex-col">
+                    <h3 className="font-bold text-sm mb-4 text-text-dark">Top Categories by Units Sold</h3>
+                    <div className="flex-1 min-h-0">
+                      {topCategories.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={topCategories} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dx={-10} allowDecimals={false} />
+                            <Tooltip 
+                              cursor={{ fill: '#f1f5f9' }}
+                              formatter={(value) => [value, "Units Sold"]}
+                              contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                            />
+                            <Bar dataKey="units" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-text-muted text-sm font-medium">No category data for this period</div>
+                      )}
                     </div>
                   </div>
                 </div>

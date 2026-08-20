@@ -84,7 +84,11 @@ export default function KidsPage() {
       // Type Filter
       let matchType = filters.types.length === 0;
       if (!matchType) {
-        if (filters.types.includes(p.categoryId || p.categoryLabel || p.category)) {
+        if (
+          filters.types.includes(p.categoryId) || 
+          filters.types.includes(p.categoryLabel) || 
+          filters.types.includes(p.category)
+        ) {
           matchType = true;
         }
       }

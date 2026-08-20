@@ -95,14 +95,14 @@ export default function NewArrivalProductCard({ product, onQuickView }) {
         </div>
 
         {/* Add to Cart Button on Every Card */}
-        <button
-          onClick={handleQuickAdd}
+        <Link
+          to={`/product/${createSlug(product.name || product.title) || product.id}`}
           aria-label="Add to Cart"
           className="w-full py-2.5 rounded-full bg-slate-900 hover:bg-[#FF7A59] text-white font-extrabold text-xs shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 mt-2 active:scale-95 cursor-pointer"
         >
           <ShoppingBag className="w-3.5 h-3.5" />
           <span>Add to Cart</span>
-        </button>
+        </Link>
       </div>
 
     </div>

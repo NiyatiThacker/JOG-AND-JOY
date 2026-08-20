@@ -172,22 +172,24 @@ export default function AdminProducts() {
       variants: productData.variants?.filter(v => !v._isMetadata) || []
     };
 
-    let discPct = '0';
-    if (p.originalPrice && p.price) {
+    let discPct = '20';
+    if (p.compareAtPrice && p.basePrice) {
+      discPct = Math.round((1 - (p.basePrice / p.compareAtPrice)) * 100).toString();
+    } else if (p.originalPrice && p.price) {
       discPct = Math.round((1 - (p.price / p.originalPrice)) * 100).toString();
     } else if (p.discountPercent) {
       discPct = p.discountPercent.toString();
     }
 
     setFormData({
-      title: product.title ? `${product.title} (Variant)` : '',
-      groupId: product.groupId || product.id,
-      categoryId: product.categoryId || '',
-      vendor: product.vendor || '',
-      originalPrice: product.originalPrice || product.basePrice || '',
+      title: p.title ? `${p.title} (Variant)` : '',
+      groupId: p.groupId || p.id,
+      categoryId: p.categoryId || '',
+      vendor: p.vendor || 'Jog & Joy',
+      originalPrice: p.compareAtPrice || p.originalPrice || p.basePrice || '',
       discountPercent: discPct,
       stock: '0',
-      images: p.images || (p.image ? [p.image] : []),
+      images: p.images && p.images.length > 0 ? p.images : (p.image ? [p.image] : []),
       description: p.description || '',
       fabric: p.fabric || '',
       care: p.care || '',
@@ -195,10 +197,10 @@ export default function AdminProducts() {
       sizes: p.sizes || [],
       colors: [], 
       variants: [],
-      collections: product.collections || [],
-      isNewArrival: product.isNewArrival || false,
-      ageGroup: product.ageGroup || '',
-      status: product.status || 'draft'
+      collections: p.collections || [],
+      isNewArrival: p.isNewArrival || false,
+      ageGroup: p.ageGroup || '',
+      status: p.status || 'draft'
     });
   };
 
@@ -212,8 +214,10 @@ export default function AdminProducts() {
     setEditingId(p.id);
     
     // Calculate reverse discount percentage if not explicitly present
-    let discPct = '0';
-    if (p.originalPrice && p.price) {
+    let discPct = '20'; // default
+    if (p.compareAtPrice && p.basePrice) {
+      discPct = Math.round((1 - (p.basePrice / p.compareAtPrice)) * 100).toString();
+    } else if (p.originalPrice && p.price) {
       discPct = Math.round((1 - (p.price / p.originalPrice)) * 100).toString();
     } else if (p.discountPercent) {
       discPct = p.discountPercent.toString();
@@ -225,11 +229,11 @@ export default function AdminProducts() {
       title: p.title || '',
       groupId: p.groupId || '',
       categoryId: p.categoryId || '',
-      vendor: p.vendor || '',
-      originalPrice: p.originalPrice || p.basePrice || '',
+      vendor: p.vendor || 'Jog & Joy',
+      originalPrice: p.compareAtPrice || p.originalPrice || p.basePrice || '',
       discountPercent: discPct,
       stock: computedTotalStock.toString(),
-      images: p.images || [],
+      images: p.images && p.images.length > 0 ? p.images : (p.image ? [p.image] : []),
       description: p.description || '',
       fabric: p.fabric || '',
       care: p.care || '',
@@ -249,8 +253,12 @@ export default function AdminProducts() {
 
   const handleSave = (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.categoryId || !formData.vendor || !formData.originalPrice) {
-      return alert('Please fill out all required fields.');
+    if (!formData.title || !formData.categoryId || !formData.vendor || !formData.originalPrice || 
+        !formData.collections || formData.collections.length === 0 || 
+        formData.images.length === 0 || 
+        formData.sizes.length === 0 || 
+        formData.colors.length === 0) {
+      return alert('Please fill out all required fields (including Seasonal Collections, Images, Sizes, and Colors).');
     }
 
     const calculatedPrice = Math.round(Number(formData.originalPrice) * (1 - Number(formData.discountPercent) / 100));
@@ -463,7 +471,7 @@ export default function AdminProducts() {
             if (showForm) resetForm();
             else setShowForm(true);
           }}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:opacity-90 shadow-sm transition-all"
+          className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-[#003366] rounded-xl font-bold hover:bg-slate-50 shadow-sm transition-all"
         >
           {showForm ? (
             <>
@@ -548,7 +556,7 @@ export default function AdminProducts() {
               
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center p-4 bg-zinc-50 border border-slate-200 rounded-xl">
                 <div className="flex-1">
-                  <label className="block text-sm font-bold text-text-muted mb-3">Seasonal Collections</label>
+                  <label className="block text-sm font-bold text-text-muted mb-3">Seasonal Collections *</label>
                   <div className="flex flex-wrap gap-3">
                     {['Summer', 'Winter', 'Monsoon', 'Festive'].map(season => (
                       <label key={season} className="flex items-center gap-2 cursor-pointer group">
@@ -616,7 +624,7 @@ export default function AdminProducts() {
 
             <div className="md:col-span-3">
               <label className="block text-sm font-bold text-text-muted mb-2">
-                Product Images (Max 7) <span className="font-normal text-xs ml-2 text-slate-400">First image is the Main Picture</span>
+                Product Images (Max 7) * <span className="font-normal text-xs ml-2 text-slate-400">First image is the Main Picture</span>
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
@@ -650,7 +658,7 @@ export default function AdminProducts() {
                       type="button" 
                       onClick={handleAddImageUrl}
                       disabled={formData.images.length >= 7 || !imageUrlInput.trim()}
-                      className="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 flex items-center gap-1 shrink-0 text-sm transition-colors"
+                      className="px-4 py-2 bg-white border border-slate-200 text-[#003366] rounded-xl font-bold hover:bg-slate-50 disabled:opacity-50 flex items-center gap-1 shrink-0 text-sm transition-colors shadow-sm"
                     >
                       <LinkIcon className="w-4 h-4" /> Add
                     </button>
@@ -717,7 +725,7 @@ export default function AdminProducts() {
               <h3 className="font-bold text-slate-800 border-b border-slate-200 pb-2">Variants & Options</h3>
 
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-3">Available Sizes</label>
+                <label className="block text-sm font-bold text-slate-600 mb-3">Available Sizes *</label>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABLE_SIZES.map(size => (
                     <button
@@ -741,7 +749,7 @@ export default function AdminProducts() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-3">Available Colors</label>
+                <label className="block text-sm font-bold text-slate-600 mb-3">Available Colors *</label>
                 <div className="flex flex-wrap gap-3">
                   {(() => {
                     const displayedColors = [...AVAILABLE_COLORS];
@@ -807,7 +815,7 @@ export default function AdminProducts() {
                         setCustomColorName('');
                       }
                     }}
-                    className="text-xs font-bold bg-slate-900 text-white px-3 py-1.5 rounded-md hover:bg-slate-800 transition-colors"
+                    className="text-xs font-bold bg-white border border-slate-200 text-[#003366] px-3 py-1.5 rounded-md hover:bg-slate-50 transition-colors shadow-sm"
                   >
                     Add
                   </button>
@@ -926,7 +934,7 @@ export default function AdminProducts() {
               <textarea rows="4" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-blue-600 outline-none resize-none" placeholder="Rich description of the product..."></textarea>
             </div>
 
-            <button type="submit" disabled={createMut.isPending || updateMut.isPending} className="w-full py-4 bg-blue-600 hover:opacity-90 text-white font-bold rounded-xl transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="submit" disabled={createMut.isPending || updateMut.isPending} className="w-full py-4 bg-white border border-slate-200 hover:bg-slate-50 text-[#003366] font-bold rounded-xl shadow-sm transition-all text-lg disabled:opacity-50 disabled:cursor-not-allowed">
               {(createMut.isPending || updateMut.isPending) ? 'Processing...' : (editingId ? 'Update Product Listing' : 'Submit Product Listing')}
             </button>
           </form>

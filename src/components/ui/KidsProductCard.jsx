@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Star } from 'lucide-react';
+import { Heart, Star, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -79,16 +79,13 @@ export default function KidsProductCard({ product }) {
         </div>
 
         {/* Add to Cart Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            flyToCart(e, product.image);
-            addToCart(product, product.sizes?.[0] || '4Y-5Y', product.colors?.[0]?.hex || '#FF7A59');
-          }}
-          className="w-full mt-3 py-2.5 rounded-full bg-slate-900 hover:bg-[#FF7A59] text-white font-extrabold text-xs shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
+        <Link
+          to={`/product/${createSlug(product.name || product.title) || product.id}`}
+          className="flex items-center justify-center gap-2 w-full mt-3 py-2.5 rounded-full bg-slate-900 hover:bg-[#FF7A59] text-white font-extrabold text-xs shadow-sm hover:shadow-md transition-all active:scale-95 cursor-pointer"
         >
+          <ShoppingBag className="w-3.5 h-3.5" />
           Add to Cart
-        </button>
+        </Link>
       </div>
     </div>
   );

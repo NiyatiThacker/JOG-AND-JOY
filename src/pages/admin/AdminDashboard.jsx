@@ -139,12 +139,26 @@ export default function AdminDashboard() {
   }
 
   // Order Status Distribution
-  const statusCounts = {};
+  const statusCounts = { PROCESSING: 0, SHIPPED: 0, Others: 0, DELIVERED: 0, CANCELLED: 0, REFUNDED: 0 };
   filteredOrders.forEach(o => {
-    statusCounts[o.status || 'PROCESSING'] = (statusCounts[o.status || 'PROCESSING'] || 0) + 1;
+    const s = o.status || 'PROCESSING';
+    if (statusCounts[s] !== undefined && s !== 'Others') {
+      statusCounts[s] += 1;
+    } else {
+      statusCounts['Others'] += 1;
+    }
   });
-  const statusData = Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
-  const STATUS_COLORS = ['#334155', '#64748b', '#94a3b8', '#cbd5e1', '#f1f5f9'];
+
+  const statusData = [
+    { name: 'PROCESSING', value: statusCounts.PROCESSING },
+    { name: 'SHIPPED', value: statusCounts.SHIPPED },
+    { name: 'DELIVERED', value: statusCounts.DELIVERED },
+    { name: 'CANCELLED', value: statusCounts.CANCELLED },
+    { name: 'REFUNDED', value: statusCounts.REFUNDED },
+    { name: 'Others', value: statusCounts.Others }
+  ].filter(item => item.value > 0 || item.name === 'SHIPPED' || item.name === 'Others');
+  
+  const STATUS_COLORS = ['#334155', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#f1f5f9'];
 
   // Payment Method Distribution
   const paymentCounts = {};

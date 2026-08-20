@@ -15,7 +15,14 @@ export default function SeasonalCollection({ onQuickView }) {
   ];
 
   const activeFilterTag = tabs.find(t => t.name === activeTab)?.filterTag;
-  const filtered = combinedProducts.filter((p) => p.collections && Array.isArray(p.collections) && p.collections.includes(activeFilterTag));
+  
+  const filtered = combinedProducts.filter((p) => {
+    let colls = p.collections || [];
+    if (typeof colls === 'string') {
+      try { colls = JSON.parse(colls); } catch (e) { colls = []; }
+    }
+    return Array.isArray(colls) && colls.includes(activeFilterTag);
+  });
 
   return (
     <section className="py-16 bg-white relative">
@@ -55,11 +62,17 @@ export default function SeasonalCollection({ onQuickView }) {
         </div>
 
         {/* Tab Product Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          {(filtered.length > 0 ? filtered : combinedProducts.slice(0, 4)).map((product) => (
-            <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
-          ))}
-        </div>
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            {filtered.map((product) => (
+              <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 px-4 rounded-3xl bg-slate-50 border border-slate-100">
+            <p className="text-sm font-bold text-slate-500">No products available in the {activeTab} collection right now.</p>
+          </div>
+        )}
 
       </div>
     </section>

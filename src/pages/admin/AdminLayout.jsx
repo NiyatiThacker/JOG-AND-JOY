@@ -87,11 +87,11 @@ function AdminLayoutContent() {
   </button>
  </div>
  
- <nav className="flex-1 flex flex-col overflow-y-auto pb-4 hide-scrollbar">
+ <nav className="flex-1 flex flex-col pb-4">
  {navGroups.map((group, index) => (
-   <div key={group.title} className={index > 0 ? "mt-4" : "mt-2"}>
-     <div className="mb-1.5 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-[0.15em]">{group.title}</div>
-     <div className="flex flex-col">
+   <div key={group.title} className={index > 0 ? "mt-6" : "mt-4"}>
+     <div className="mb-3 pl-8 pr-4 text-[11px] font-bold text-[#7d8fb3] uppercase tracking-[0.15em]">{group.title}</div>
+     <div className="flex flex-col gap-1">
        {group.items.map((item) => {
          const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
          const Icon = item.icon;
@@ -99,18 +99,18 @@ function AdminLayoutContent() {
            <Link
              key={item.name}
              to={item.path}
-             className={`flex items-center justify-between transition-all duration-200 text-[14px] font-medium py-2 pl-4 pr-4 border-l-[4px] ${
+             className={`flex items-center justify-between transition-all duration-200 text-[15px] py-2.5 pr-6 border-l-[4px] ${
                isActive 
-                 ? 'bg-[#f0f4ff] text-[#2563eb] border-[#2563eb]' 
-                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-transparent'
+                 ? 'bg-[#f4f7fe] text-[#3366ff] border-[#3366ff] font-semibold pl-[28px]' 
+                 : 'text-[#7d8fb3] hover:bg-[#f8f9fc] hover:text-[#3366ff] border-transparent font-medium pl-[28px]'
              }`}
            >
-             <div className="flex items-center gap-3">
-               <Icon className={`w-4 h-4 ${isActive ? 'text-[#2563eb]' : 'text-slate-400'}`} />
+             <div className="flex items-center gap-4">
+               <Icon className={`w-5 h-5 ${isActive ? 'text-[#3366ff]' : 'text-[#a1b0cc]'}`} strokeWidth={isActive ? 2.5 : 2} />
                {item.name}
              </div>
              {item.badge && (
-               <span className="bg-[#e11d48] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+               <span className="bg-[#e11d48] text-white text-[10px] font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
                  {item.badge}
                </span>
              )}
