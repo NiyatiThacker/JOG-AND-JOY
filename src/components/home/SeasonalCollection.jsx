@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import ProductCard from '../ui/ProductCard';
 import { useCombinedProducts } from '../../queries/useCombinedProducts';
-import { Sun, Snowflake, Sparkles, PartyPopper } from 'lucide-react';
+import { Sun, Snowflake, Sparkles, CloudRain } from 'lucide-react';
 
 export default function SeasonalCollection({ onQuickView }) {
   const [activeTab, setActiveTab] = useState('Summer');
   const { combinedProducts } = useCombinedProducts();
 
   const tabs = [
-    { name: 'Summer', icon: Sun, color: '#AEE6FF' },
-    { name: 'Winter', icon: Snowflake, color: '#E6D6FF' },
-    { name: 'Festival Wear', icon: Sparkles, color: '#FFD6BA' },
-    { name: 'Birthday Collection', icon: PartyPopper, color: '#CFFFE5' }
+    { name: 'Summer', filterTag: 'Summer', icon: Sun, color: '#AEE6FF' },
+    { name: 'Winter', filterTag: 'Winter', icon: Snowflake, color: '#E6D6FF' },
+    { name: 'Festival Wear', filterTag: 'Festive', icon: Sparkles, color: '#FFD6BA' },
+    { name: 'Monsoon', filterTag: 'Monsoon', icon: CloudRain, color: '#CFFFE5' }
   ];
 
-  const filtered = combinedProducts.filter((p) => p.season === activeTab);
+  const activeFilterTag = tabs.find(t => t.name === activeTab)?.filterTag;
+  const filtered = combinedProducts.filter((p) => p.collections && Array.isArray(p.collections) && p.collections.includes(activeFilterTag));
 
   return (
     <section className="py-16 bg-white relative">

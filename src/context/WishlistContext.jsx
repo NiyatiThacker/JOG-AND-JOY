@@ -50,16 +50,14 @@ export function WishlistProvider({ children }) {
 
   const toggleWishlist = async (productId) => {
     let newWishlist = [];
-    setWishlist((prev) => {
-      if (prev.includes(productId)) {
-        showToast && showToast('Removed from Wishlist 💔');
-        newWishlist = prev.filter((id) => id !== productId);
-      } else {
-        showToast && showToast('Added to Wishlist 💖');
-        newWishlist = [...prev, productId];
-      }
-      return newWishlist;
-    });
+    if (wishlist.includes(productId)) {
+      showToast && showToast('Removed from Wishlist 💔');
+      newWishlist = wishlist.filter((id) => id !== productId);
+    } else {
+      showToast && showToast('Added to Wishlist 💖');
+      newWishlist = [...wishlist, productId];
+    }
+    setWishlist(newWishlist);
 
     // Sync to DB
     if (user?.id) {

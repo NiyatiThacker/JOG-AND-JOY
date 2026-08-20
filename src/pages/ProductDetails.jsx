@@ -209,7 +209,7 @@ export default function ProductDetails() {
   const isFavorited = isInWishlist(product.id, selectedSize, selectedColor);
 
   const handleBuyNow = () => {
-    addToCart(product, selectedSize, selectedColor, null, quantity, false);
+    addToCart(product, selectedSize, selectedColor, null, quantity, false, displayStock);
     navigate('/checkout');
   };
 
@@ -455,9 +455,22 @@ export default function ProductDetails() {
 
             {/* Quantity Selector */}
             <div className="space-y-3 pt-3">
-              <label className="text-[15px] font-semibold text-black block">
-                Quantity
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[15px] font-semibold text-black block">
+                  Quantity
+                </label>
+                {displayStock > 0 && displayStock < 5 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-orange-50 border border-orange-200 rounded-full"
+                  >
+                    <span className="text-[10px] uppercase font-black tracking-widest text-orange-600">
+                      🔥 Hurry! Only {displayStock} left
+                    </span>
+                  </motion.div>
+                )}
+              </div>
               <div className="inline-flex items-center rounded-full border border-slate-300 bg-white h-11">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -467,7 +480,7 @@ export default function ProductDetails() {
                 </button>
                 <span className="w-12 text-center font-medium text-[15px] text-black">{quantity}</span>
                 <button
-                  onClick={() => setQuantity((q) => q + 1)}
+                  onClick={() => setQuantity((q) => Math.min(q + 1, displayStock))}
                   className="w-12 h-full flex items-center justify-center text-black text-xl transition-colors hover:bg-slate-50"
                 >
                   +
@@ -478,7 +491,7 @@ export default function ProductDetails() {
             {/* Primary Action Buttons */}
             <div className="pt-4 flex flex-col gap-3">
               <button
-                onClick={(e) => addToCart(product, selectedSize, selectedColor, e, quantity, true)}
+                onClick={(e) => addToCart(product, selectedSize, selectedColor, e, quantity, true, displayStock)}
                 disabled={displayStock === 0}
                 className={`w-full py-3.5 rounded-full font-medium text-[16px] transition-all ${
                   displayStock === 0

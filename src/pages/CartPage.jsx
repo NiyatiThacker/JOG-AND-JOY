@@ -14,6 +14,8 @@ export default function CartPage() {
     shippingFee,
     cartGrandTotal,
     appliedCoupon,
+    autoCoupon,
+    activeDiscount,
     applyCoupon,
     removeCoupon
   } = useCart();
@@ -124,7 +126,8 @@ export default function CartPage() {
                               <span className="font-black text-slate-800 text-sm w-4 text-center">{item.quantity}</span>
                               <button 
                                 onClick={() => updateQuantity(item.id, item.size, item.color, 1)}
-                                className="text-slate-400 hover:text-[#EF4A45] transition-colors"
+                                disabled={item.quantity >= (item.stock || Infinity)}
+                                className={`transition-colors ${item.quantity >= (item.stock || Infinity) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-[#EF4A45]'}`}
                               >
                                 <Plus className="w-3.5 h-3.5" />
                               </button>
@@ -180,12 +183,14 @@ export default function CartPage() {
                   {couponError && <p className="text-red-500 text-xs font-bold mt-2 ml-1">{couponError}</p>}
                 </form>
 
-                {appliedCoupon && (
+                {activeDiscount && (
                   <div className="flex items-center justify-between p-3 bg-green-50 text-green-700 border border-green-200 rounded-xl mb-6 text-sm font-bold">
-                    <span>Coupon {appliedCoupon.code} applied!</span>
-                    <button onClick={removeCoupon} className="hover:text-red-500 transition-colors">
-                      <X className="w-4 h-4" />
-                    </button>
+                    <span>Discount {activeDiscount.code} applied!</span>
+                    {appliedCoupon && (
+                      <button onClick={removeCoupon} className="hover:text-red-500 transition-colors">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 )}
 

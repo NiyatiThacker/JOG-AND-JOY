@@ -67,47 +67,7 @@ export default function ContactUs() {
 
   const [errors, setErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const testimonials = [
-    {
-      quote: "Super fast delivery, great material, and I am simply loving it! Looking forward to making my next wholesale order for our sports academy!",
-      name: "Karen Tan",
-      role: "Sports Academy Director",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop",
-      stars: 5
-    },
-    {
-      quote: "I love this tracksuit! I have zero regrets buying it for my kids. Quality is outstanding and Jog&Joy customer support helped resolve fit questions instantly.",
-      name: "Ana Gomez",
-      role: "Verified Parent Customer",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop",
-      stars: 5
-    },
-    {
-      quote: "As a retail distributor, working with Jog&Joy has been seamless. High margin activewear, top notch stitching, and reliable delivery every single time.",
-      name: "Rajesh Sharma",
-      role: "Retail Chain Owner, Delhi",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
-      stars: 5
-    },
-    {
-      quote: "The fabric is incredibly soft and breathable for active kids. After multiple washes, colors stay vibrant and shapes remain perfect!",
-      name: "Priya Mehta",
-      role: "Parent & Kids Blogger",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
-      stars: 5
-    },
-    {
-      quote: "Our sports club ordered custom athletic sets for 120 kids. Every single set fitted perfectly. Will definitely reorder next season!",
-      name: "David Miller",
-      role: "Youth Athletics Coordinator",
-      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop",
-      stars: 5
-    }
-  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -158,13 +118,6 @@ export default function ContactUs() {
     }
   };
 
-  const handleNextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-  };
-
-  const handlePrevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
 
   return (
     <div className="bg-[#FAF9F5] min-h-screen font-sans text-slate-900 overflow-x-hidden">
@@ -176,11 +129,11 @@ export default function ContactUs() {
         <div className="absolute top-12 left-10 w-16 h-16 bg-[#FF5500]/10 rounded-2xl rotate-12 blur-sm pointer-events-none"></div>
         <div className="absolute top-1/3 right-12 w-24 h-24 bg-[#FF5500]/20 rounded-3xl -rotate-12 blur-md pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-center">
+          <div className="flex flex-col items-center justify-center">
 
-            {/* Left Column (Headline + CTA) */}
-            <div className="lg:col-span-6 space-y-8">
+            {/* Headline + CTA */}
+            <div className="space-y-8 flex flex-col items-center">
               <motion.div 
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -237,273 +190,14 @@ export default function ContactUs() {
                 </button>
               </motion.div>
 
-              {/* Brand Logos Row */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="pt-6 border-t border-slate-200/60"
-              >
-                <p className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">Featured Brands & Partners</p>
-                <div className="flex flex-wrap items-center gap-6 sm:gap-10 opacity-75 font-black text-slate-800 text-sm tracking-tighter">
-                  <span className="hover:text-[#FF5500] transition-colors cursor-pointer">adidas</span>
-                  <span className="hover:text-[#FF5500] transition-colors cursor-pointer">Jordan</span>
-                  <span className="hover:text-[#FF5500] transition-colors cursor-pointer">Levi's</span>
-                  <span className="text-[#FF5500] font-black cursor-pointer">JOG & JOY</span>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Right Column (Floating Photo Grid Matrix - 4F WEARS Style) */}
-            <div className="lg:col-span-6 relative flex justify-center items-center">
-              
-              {/* Main Model Showcase Box with Orange Accents */}
-              <div className="relative w-full max-w-125">
-                
-                {/* Floating Orange Block (Background accent) */}
-                <div className="absolute -top-4 -right-4 w-28 h-28 bg-[#FF5500] rounded-3xl z-0"></div>
-                <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-[#FF5500]/80 rounded-2xl z-0"></div>
-
-                {/* Main Hero Card Grid */}
-                <div className="grid grid-cols-2 gap-4 relative z-10">
-                  
-                  {/* Card 1: Top Left Big Image */}
-                  <motion.div 
-                    whileHover={{ scale: 1.02 }}
-                    className="relative col-span-2 sm:col-span-1 rounded-3xl overflow-hidden shadow-xl border-4 border-white h-70"
-                  >
-                    <img 
-                      src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop" 
-                      alt="Jog & Joy Vibrant Activewear" 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-orange-950/70 via-transparent to-transparent p-4 flex flex-col justify-end">
-                      <span className="bg-[#FF5500] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider w-max mb-1">
-                        Orange Series
-                      </span>
-                      <p className="text-white font-bold text-sm">Pink Soda Tracksuit</p>
-                    </div>
-                  </motion.div>
-
-                  {/* Card 2: Right Top Image */}
-                  <motion.div 
-                    whileHover={{ scale: 1.02 }}
-                    className="relative hidden sm:block rounded-3xl overflow-hidden shadow-xl border-4 border-white h-70"
-                  >
-                    <img 
-                      src="https://images.unsplash.com/photo-1483721074892-4a85d909158a?q=80&w=800&auto=format&fit=crop" 
-                      alt="Adidas Hoodie Style" 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-sky-950/70 via-transparent to-transparent p-4 flex flex-col justify-end">
-                      <span className="bg-[#00A3E0] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider w-max mb-1">
-                        Best Fit
-                      </span>
-                      <p className="text-white font-bold text-sm">Hoodie Collection</p>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* Floating Response Speed Widget Overlay */}
-                <motion.div 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="absolute -bottom-4 right-4 sm:-right-6 z-20 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4 max-w-60"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 text-[#FF5500] flex items-center justify-center font-black">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Avg Response Time</p>
-                    <p className="text-sm font-black text-slate-900">&lt; 5 Minutes</p>
-                  </div>
-                </motion.div>
-
-                {/* Floating 24/7 Agent Badge (Top Left) */}
-                <motion.div 
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                  className="absolute -top-6 left-4 z-20 bg-[#FF5500] text-white p-3 px-4 rounded-2xl shadow-xl flex items-center gap-3"
-                >
-                  <div className="relative">
-                    <div className="w-3 h-3 rounded-full bg-amber-300"></div>
-                    <div className="w-3 h-3 rounded-full bg-amber-300 absolute inset-0 animate-ping opacity-75"></div>
-                  </div>
-                  <span className="text-xs font-bold tracking-wide">Live Support Online</span>
-                </motion.div>
-
-              </div>
 
             </div>
-
           </div>
         </div>
       </section>
 
 
-      {/* --- IDENTITY BANNER SECTION (4F WEARS Style) --- */}
-      <section className="py-16 bg-white border-y border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <div className="lg:col-span-7 space-y-4">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#FF5500]">Our Core Purpose</span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
-                We Provide The Best Outfit to Help You <span className="text-[#FF5500]">Express</span> Your Identity
-              </h2>
-              <p className="text-slate-500 font-medium leading-relaxed max-w-xl text-base">
-                From vibrant kids activewear to high-durability school sports kits, Jog & Joy empowers active youngsters across India with maximum comfort, dynamic stretch, and bold style.
-              </p>
-            </div>
 
-            <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-3xl bg-[#FAF9F5] border border-slate-200/80 flex flex-col justify-between hover:border-[#FF5500]/50 transition-colors">
-                <div className="w-12 h-12 rounded-2xl bg-[#FF5500] text-white flex items-center justify-center font-bold mb-6 shadow-md shadow-orange-500/20">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-slate-900">100% Quality</h3>
-                  <p className="text-xs text-slate-500 mt-1 font-medium">Breathable anti-microbial active fabrics.</p>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-3xl bg-[#00A3E0] text-white flex flex-col justify-between hover:bg-sky-600 transition-colors shadow-md shadow-sky-500/20">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center font-bold mb-6">
-                  <Globe className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white">15+ States</h3>
-                  <p className="text-xs text-sky-100 mt-1 font-medium">Nationwide distributor network delivery.</p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-
-      {/* --- INQUIRY CHANNELS / SUPPORT COLLECTIONS SECTION --- */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
-          <div>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-[#FF5500]">Support Collections</span>
-            <h2 className="text-4xl font-black text-slate-900 mt-1">Choose Your Channel</h2>
-            <p className="text-slate-500 font-medium text-sm mt-2 max-w-md">Select how you'd like to get in touch with our specialized support team.</p>
-          </div>
-
-          <a 
-            href="#contact-form" 
-            className="inline-flex items-center gap-2 text-sm font-bold text-slate-900 hover:text-[#FF5500] transition-colors"
-          >
-            See form details <ArrowRight className="w-4 h-4" />
-          </a>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          
-          {/* Card 1 */}
-          <motion.div 
-            whileHover={{ y: -6 }}
-            className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between"
-          >
-            <div className="relative h-60 rounded-2xl overflow-hidden mb-6">
-              <img 
-                src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=800&auto=format&fit=crop" 
-                alt="Sweatshirt Collections" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-xs font-extrabold text-slate-900 shadow-xs">
-                Bulk Orders
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-black text-slate-900">Wholesale & Distributor</h3>
-              <p className="text-xs text-slate-500 font-medium mt-1 mb-6">Inquire about bulk pricing, catalog requests, and dealership inquiries.</p>
-              
-              <a 
-                href="#contact-form"
-                onClick={() => setFormData(prev => ({ ...prev, inquiryType: 'wholesale' }))}
-                className="flex items-center justify-between p-3 px-4 bg-orange-50/80 rounded-xl hover:bg-[#FF5500] hover:text-white transition-all text-slate-900 font-bold text-sm group"
-              >
-                <span>Wholesale Inquiry</span>
-                <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF5500] shadow-xs group-hover:scale-110 transition-transform">
-                  <ArrowRight className="w-4 h-4" />
-                </span>
-              </a>
-            </div>
-          </motion.div>
-
-          {/* Card 2 */}
-          <motion.div 
-            whileHover={{ y: -6 }}
-            className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between"
-          >
-            <div className="relative h-60 rounded-2xl overflow-hidden mb-6">
-              <img 
-                src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop" 
-                alt="Adidas Hoodie Collections" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-3 left-3 bg-[#FF5500] text-white px-3 py-1 rounded-full text-xs font-extrabold shadow-xs">
-                Fast Help
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-black text-slate-900">Customer Support</h3>
-              <p className="text-xs text-slate-500 font-medium mt-1 mb-6">Assistance with existing orders, size exchanges, or shipment tracking.</p>
-              
-              <a 
-                href="#contact-form"
-                onClick={() => setFormData(prev => ({ ...prev, inquiryType: 'support' }))}
-                className="flex items-center justify-between p-3 px-4 bg-orange-50/80 rounded-xl hover:bg-[#FF5500] hover:text-white transition-all text-slate-900 font-bold text-sm group"
-              >
-                <span>Order Support</span>
-                <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF5500] shadow-xs group-hover:scale-110 transition-transform">
-                  <ArrowRight className="w-4 h-4" />
-                </span>
-              </a>
-            </div>
-          </motion.div>
-
-          {/* Card 3 */}
-          <motion.div 
-            whileHover={{ y: -6 }}
-            className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between md:col-span-2 lg:col-span-1"
-          >
-            <div className="relative h-60 rounded-2xl overflow-hidden mb-6">
-              <img 
-                src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop" 
-                alt="Active Wear Fitting" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-3 left-3 bg-[#00A3E0] text-white px-3 py-1 rounded-full text-xs font-extrabold shadow-xs">
-                Head Office
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-black text-slate-900">Store & Head Office</h3>
-              <p className="text-xs text-slate-500 font-medium mt-1 mb-6">Visit our head office in Ahmedabad or schedule a showroom walkthrough.</p>
-              
-              <a 
-                href="tel:917922139665"
-                className="flex items-center justify-between p-3 px-4 bg-orange-50/80 rounded-xl hover:bg-[#FF5500] hover:text-white transition-all text-slate-900 font-bold text-sm group"
-              >
-                <span>Call +91-79-2213 9665</span>
-                <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF5500] shadow-xs group-hover:scale-110 transition-transform">
-                  <Phone className="w-4 h-4" />
-                </span>
-              </a>
-            </div>
-          </motion.div>
-
-        </div>
-      </section>
 
 
       {/* --- MAIN CONTACT FORM & DIRECT CARDS SECTION --- */}
@@ -556,11 +250,25 @@ export default function ContactUs() {
                   <div>
                     <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">Head Office Location</h4>
                     <p className="text-sm font-black text-slate-900 mt-0.5 leading-snug">
-                      488, Navo Vas, Swaminarayan Mandir, Kalupur, Ahmedabad 380001, Gujarat, India.
+                      49, Kamal House, Pankaj Society, Nr. SBI Bank, Bhthha, Paldi, Ahmedabad - 380007, Gujarat, India.
                     </p>
                   </div>
                 </div>
 
+                {/* Live Google Map Embedded */}
+                <div className="w-full h-48 mt-4 rounded-3xl overflow-hidden border border-slate-200 shadow-sm relative group">
+                  <iframe 
+                    title="Jog and Joy Location"
+                    src="https://www.google.com/maps?q=49,Kamal+House,pankaj+society,nr.+Sbi+bank,bhthha,paldi,ahmedabad-7&output=embed" 
+                    width="100%" 
+                    height="100%" 
+                    style={{ border: 0 }} 
+                    allowFullScreen="" 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0 z-0 grayscale group-hover:grayscale-0 transition-all duration-500"
+                  ></iframe>
+                </div>
               </div>
             </div>
 
@@ -724,214 +432,7 @@ export default function ContactUs() {
       </section>
 
 
-      {/* --- ASYMMETRIC FEATURED GRID --- */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="mb-12">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#FF5500]">Featured Locations & Network</span>
-          <h2 className="text-4xl font-black text-slate-900 mt-1">Our Nationwide Footprint</h2>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Left Tall Card: Head Office Flagship */}
-          <div className="lg:col-span-6 relative rounded-3xl overflow-hidden min-h-105 bg-slate-900 group shadow-xl border-4 border-white">
-            <img 
-              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000&auto=format&fit=crop" 
-              alt="Hoodie Collection Flagship Store" 
-              className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/30 to-transparent p-8 flex flex-col justify-end">
-              <span className="bg-[#FF7A59] text-white text-xs font-black px-3.5 py-1.5 rounded-full w-max uppercase tracking-wider mb-3 shadow-md">
-                Flagship Office
-              </span>
-              <h3 className="text-3xl font-black text-white">Ahmedabad HQ & Showroom</h3>
-              <p className="text-slate-200 text-sm font-medium mt-2 max-w-md">
-                Visit our experience center in Kalupur to feel the fabric quality, check color options, and consult with our production team.
-              </p>
-              <div className="mt-6 flex items-center gap-2 text-white text-sm font-bold group-hover:translate-x-2 transition-transform">
-                <span>View Directions</span>
-                <ArrowRight className="w-4 h-4 text-[#FF7A59]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: 2 Stacked Cards */}
-          <div className="lg:col-span-6 grid grid-rows-2 gap-8">
-            
-            {/* Top Wide Card: Distributor Network */}
-            <div className="relative rounded-3xl overflow-hidden bg-slate-900 p-8 flex flex-col justify-between shadow-xl text-white group">
-              <img 
-                src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=800&auto=format&fit=crop" 
-                alt="Pants Collections" 
-                className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/40 to-transparent z-0"></div>
-              <div className="relative z-10">
-                <span className="bg-[#AEE6FF] text-slate-900 text-xs font-black px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-                  Distributor Network
-                </span>
-                <h3 className="text-2xl font-black text-white mt-4">100+ Authorized Retail Partners</h3>
-                <p className="text-slate-200 text-xs sm:text-sm font-medium mt-1">Available across leading apparel stores in Gujarat, Maharashtra, Rajasthan, and MP.</p>
-              </div>
-              <div className="relative z-10 pt-4">
-                <span className="text-xs font-extrabold text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  Explore Partnership <ChevronRight className="w-4 h-4 text-[#AEE6FF]" />
-                </span>
-              </div>
-            </div>
-
-            {/* Bottom Wide Card: Fit Guarantee */}
-            <div className="relative rounded-3xl overflow-hidden bg-linear-to-r from-[#FF6B00] to-[#FF4500] p-8 text-white flex flex-col justify-between shadow-xl">
-              <div>
-                <span className="bg-white text-[#FF5500] text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                  Jog & Joy Guarantee
-                </span>
-                <h3 className="text-2xl font-black text-white mt-4">Hassle-Free Size Exchanges</h3>
-                <p className="text-orange-100 text-xs sm:text-sm font-medium mt-1">We ensure your kids get the exact comfortable fit every single time.</p>
-              </div>
-              <div className="pt-4 flex items-center justify-between">
-                <span className="text-xs font-extrabold tracking-wider uppercase text-white/90">Activewear Tested for Motion</span>
-                <div className="w-8 h-8 rounded-full bg-white text-[#FF5500] flex items-center justify-center font-bold shadow-md">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-
-      {/* --- CUSTOMER TESTIMONIALS SECTION (Infinite Marquee Carousel) --- */}
-      <section className="py-20 bg-linear-to-b from-[#FFF5EC] via-[#FFEFE4] to-[#FFF8F2] border-y border-orange-200/60 overflow-hidden">
-        
-        {/* Inline CSS animation for smooth infinite marquee */}
-        <style>{`
-          @keyframes testimonial-marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-testimonial-marquee {
-            animation: testimonial-marquee 35s linear infinite;
-          }
-          .animate-testimonial-marquee:hover {
-            animation-play-state: paused;
-          }
-        `}</style>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-            <div>
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#FF5500]">Our Testimonials</span>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-1">Our Satisfied Customer Reviews</h2>
-              <p className="text-slate-500 font-medium text-sm mt-1">Real feedback from parents, academies, and retail partners.</p>
-            </div>
-
-            {/* Marquee Status Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-orange-200 shadow-xs text-xs font-bold text-slate-700 select-none">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>Live Reviews • Hover to Pause</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Infinite Marquee Track */}
-        <div className="w-full overflow-hidden py-4 select-none">
-          <div className="flex space-x-6 w-max animate-testimonial-marquee">
-            {[...testimonials, ...testimonials, ...testimonials].map((item, idx) => (
-              <div 
-                key={idx}
-                className="w-85 sm:w-110 bg-white p-8 rounded-[2.5rem] border-2 border-orange-200/80 shadow-md hover:shadow-2xl hover:border-[#FF5500] transition-all duration-300 flex flex-col justify-between space-y-6 shrink-0 group text-left"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="text-4xl font-serif text-[#FF5500] opacity-80 leading-none group-hover:scale-110 transition-transform">“</div>
-                  <div className="flex items-center gap-1 text-amber-400">
-                    {[...Array(item.stars)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                </div>
-                
-                <p className="text-slate-800 text-base sm:text-lg font-bold leading-relaxed">
-                  "{item.quote}"
-                </p>
-
-                <div className="flex items-center gap-4 pt-4 border-t border-orange-100">
-                  <img 
-                    src={item.avatar} 
-                    alt={item.name} 
-                    className="w-12 h-12 rounded-full object-cover border-2 border-[#FF5500] shadow-sm group-hover:scale-105 transition-transform"
-                    onError={(e) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"; }}
-                  />
-                  <div className="text-left">
-                    <h4 className="text-base font-black text-slate-900">{item.name}</h4>
-                    <p className="text-xs text-slate-500 font-bold">{item.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </section>
-
-
-      {/* --- GET TO KNOW MORE ABOUT US (Video Banner & Modal) --- */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
-          <div className="lg:col-span-6">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-[#FF5500]">Our Story</span>
-            <h2 className="text-4xl font-black text-slate-900 mt-1">Get to Know More About Us</h2>
-          </div>
-          <div className="lg:col-span-6">
-            <p className="text-slate-500 font-medium text-sm leading-relaxed">
-              Founded with a passion for vibrant children's sportswear, Jog & Joy combines premium quality fabrics, ergonomic active design, and vibrant color palettes so every child feels confident.
-            </p>
-          </div>
-        </div>
-
-        {/* Video Player Box */}
-        <div className="relative w-full h-100 sm:h-125 rounded-[2.5rem] overflow-hidden shadow-2xl group border-4 border-white">
-          <img 
-            src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop" 
-            alt="Jog and Joy Brand Story" 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          />
-          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center">
-            
-            {/* Pulsing Play Button */}
-            <motion.button 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsVideoOpen(true)}
-              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white text-[#FF5500] flex items-center justify-center shadow-2xl cursor-pointer"
-            >
-              <div className="absolute inset-0 rounded-full bg-white animate-ping opacity-30"></div>
-              <Play className="w-8 h-8 sm:w-10 sm:h-10 fill-[#FF5500] translate-x-0.5" />
-            </motion.button>
-
-          </div>
-        </div>
-
-      </section>
-
-
-      {/* --- INFINITE TICKER / NEWSLETTER MARQUEE BANNER --- */}
-      <section className="bg-linear-to-r from-[#FF5500] via-[#FF6B00] to-[#FF4500] text-white py-5 overflow-hidden shadow-inner">
-        <div className="flex whitespace-nowrap animate-marquee font-black text-xl sm:text-2xl uppercase tracking-wider gap-8 items-center">
-          <span>+ Join Our Newsletter</span>
-          <span>+ Fast Nationwide Delivery</span>
-          <span>+ Premium Kids Activewear</span>
-          <span>+ 24/7 Support Service</span>
-          <span>+ Join Our Newsletter</span>
-          <span>+ Fast Nationwide Delivery</span>
-          <span>+ Premium Kids Activewear</span>
-          <span>+ 24/7 Support Service</span>
-        </div>
-      </section>
 
 
       {/* --- MODALS --- */}
@@ -946,33 +447,7 @@ export default function ContactUs() {
         message={`Thank you, ${formData.name}! Your inquiry has been logged with Jog&Joy support. We will get back to you shortly at ${formData.email}.`}
       />
 
-      {/* 2. Brand Video Modal */}
-      <AnimatePresence>
-        {isVideoOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md">
-            <div className="relative w-full max-w-4xl bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-[#FF5500]">
-              <button 
-                onClick={() => setIsVideoOpen(false)}
-                className="absolute top-4 right-4 text-slate-800 bg-orange-100 hover:bg-[#FF5500] hover:text-white p-2 rounded-full transition-colors z-10 cursor-pointer shadow-md"
-              >
-                <X className="w-6 h-6" />
-              </button>
 
-              <div className="aspect-video w-full flex items-center justify-center bg-linear-to-br from-[#FFF9F2] to-[#FFEBE0] p-8 text-center">
-                <div className="space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-[#FF5500] flex items-center justify-center text-white mx-auto shadow-lg shadow-orange-500/30">
-                    <Play className="w-8 h-8 fill-white translate-x-0.5" />
-                  </div>
-                  <h3 className="text-2xl font-black text-slate-900">Jog & Joy Brand Film</h3>
-                  <p className="text-slate-600 font-semibold text-sm max-w-md mx-auto">
-                    Take a behind-the-scenes look at our activewear manufacturing process and craftsmanship in Ahmedabad.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </AnimatePresence>
 
     </div>
   );

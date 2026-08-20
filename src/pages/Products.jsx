@@ -4,6 +4,7 @@ import ProductCard from '../components/ui/ProductCard';
 import QuickViewModal from '../components/ui/QuickViewModal';
 import CategoryHero from '../components/ui/CategoryHero';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
+import { useCategoriesList } from '../queries/useCategories';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 import CustomDropdown from '../components/ui/CustomDropdown';
 
@@ -13,71 +14,42 @@ export default function Products({ pageCategory = null }) {
   const ageFilterParam = searchParams.get('age') || '';
   const searchParam = searchParams.get('search') || '';
 
-  const [selectedCategory, setSelectedCategory] = useState(categoryFilterParam);
-  const [selectedAge, setSelectedAge] = useState(ageFilterParam);
+  const [selectedCategory, setSelectedCategory] = useState(categoryFilterParam || 'All');
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'low' | 'high'
   const [quickViewProduct, setQuickViewProduct] = useState(null);
-  const [selectedItemFilter, setSelectedItemFilter] = useState(searchParams.get('item') || '');
   const [showFilters, setShowFilters] = useState(false);
 
-  const categories = ['All', 'Kids', 'Male', 'Female'];
-  const ageGroups = ['All', '0–2 Years', '3–5 Years', '6–8 Years', '9–12 Years'];
-
   React.useEffect(() => {
-    setSelectedCategory(pageCategory || searchParams.get('category') || '');
-    setSelectedItemFilter(searchParams.get('item') || '');
+    setSelectedCategory(pageCategory || searchParams.get('category') || 'All');
     setSearchQuery(searchParams.get('search') || '');
   }, [pageCategory, searchParams]);
 
   const { combinedProducts, isLoading } = useCombinedProducts();
+  const { data: categoriesResponse } = useCategoriesList();
+  const dbCategories = categoriesResponse?.data || [];
 
   const filteredProducts = useMemo(() => {
     return combinedProducts.filter((p) => {
       let matchCat = false;
       if (!selectedCategory || selectedCategory === 'All') {
         matchCat = true;
-      } else if (selectedCategory === 'Kids') {
-        matchCat = ['Boys', 'Girls', 'Newborn', 'Unisex'].includes(p.category);
-      } else if (selectedCategory === 'Male') {
-        matchCat = p.category === "Men's Collection" || p.category === 'Men';
-      } else if (selectedCategory === 'Female') {
-        matchCat = p.category === 'Girls' || p.category === "Women's Collection" || p.category === 'Women';
+      } else {
+        matchCat = p.category === selectedCategory || p.categoryId === selectedCategory;
       }
 
-      // Item Filter Keyword Logic
-      let matchItem = true;
-      if (selectedItemFilter) {
-        const nameLower = (p.name || '').toLowerCase();
-
-        if (selectedItemFilter === 'Kids T-Shirt') {
-          matchItem = nameLower.includes('tee') || nameLower.includes('t-shirt');
-        } else if (selectedItemFilter.includes('Joggers') || selectedItemFilter.includes('Tracks')) {
-          matchItem = nameLower.includes('track') || nameLower.includes('jogger');
-        } else if (selectedItemFilter.includes('Shorts') || selectedItemFilter.includes('Bermuda')) {
-          matchItem = nameLower.includes('short') || nameLower.includes('bermuda') || nameLower.includes('dungaree');
-        } else if (selectedItemFilter.includes('Night Suits') || selectedItemFilter.includes('Pajama')) {
-          matchItem = nameLower.includes('suit') || nameLower.includes('pajama') || nameLower.includes('kurta');
-        } else if (selectedItemFilter.includes('Boxers')) {
-          matchItem = nameLower.includes('boxer');
-        } else if (selectedItemFilter === 'Girl Frocks') {
-          matchItem = nameLower.includes('frock');
-        }
-      }
-
-      const matchAge = !selectedAge || selectedAge === 'All' || p.ageGroup === selectedAge;
       const matchSearch =
         !searchQuery ||
         (p.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.category || '').toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchCat && matchAge && matchSearch && matchItem;
+      return matchCat && matchSearch;
     }).sort((a, b) => {
       if (sortBy === 'low') return a.price - b.price;
       if (sortBy === 'high') return b.price - a.price;
-      return b.rating - a.rating;
+      return (b.rating || 0) - (a.rating || 0);
     });
-  }, [selectedCategory, selectedAge, searchQuery, sortBy, selectedItemFilter]);
+  }, [selectedCategory, searchQuery, sortBy, combinedProducts]);
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -93,7 +65,7 @@ export default function Products({ pageCategory = null }) {
             <Sparkles className="w-3.5 h-3.5 text-sky-600" /> Explore Collection
           </span>
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight capitalize pt-1">
-            {pageCategory === 'Kids' ? 'Kids Fashion' : pageCategory === 'Male' ? "Men's Fashion" : pageCategory === 'Female' ? "Women's Fashion" : "All Products"} <span className="text-[#EF4A45]">Catalog</span>
+            {selectedCategory && selectedCategory !== 'All' ? selectedCategory : "All Products"} <span className="text-[#EF4A45]">Catalog</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed px-2">
             Browse our premium collection of bio-washed cotton apparel, ethnic wear, and activewear.
@@ -160,92 +132,31 @@ export default function Products({ pageCategory = null }) {
               <div>
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Category</h4>
                 <div className="flex flex-wrap gap-2">
-                  {categories.map((cat) => (
+                  <button
+                    onClick={() => setSelectedCategory('All')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                      !selectedCategory || selectedCategory === 'All'
+                        ? 'bg-[#EF4A45] text-white shadow-md'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    All
+                  </button>
+                  {dbCategories.map((cat) => (
                     <button
-                      key={cat}
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        setSelectedItemFilter(''); // Reset sub-filters on category change
-                      }}
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.label)}
                       className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                        selectedCategory === cat || (!selectedCategory && cat === 'All')
+                        selectedCategory === cat.label
                           ? 'bg-[#EF4A45] text-white shadow-md'
                           : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
                       }`}
                     >
-                      {cat}
+                      {cat.label}
                     </button>
                   ))}
                 </div>
               </div>
-
-              {/* Age Groups (Only show if Kids is selected or All is selected) */}
-              {(selectedCategory === 'Kids' || selectedCategory === 'All' || !selectedCategory) && (
-                <div>
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Kids Age Group</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {ageGroups.map((age) => (
-                      <button
-                        key={age}
-                        onClick={() => setSelectedAge(age)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                          selectedAge === age || (!selectedAge && age === 'All')
-                            ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF]'
-                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                        }`}
-                      >
-                        {age}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Sub-Item Filters */}
-          {(selectedCategory === 'Kids' || selectedCategory === 'Male' || selectedCategory === 'Female') && (
-            <div className="flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 no-scrollbar">
-              <span className="text-xs font-black text-slate-400 uppercase tracking-wider shrink-0 mr-2">Filters:</span>
-
-              {selectedCategory === 'Kids' && ['Kids T-Shirt', 'Kids Joggers & Tracks', 'Kids Shorts & Bermudas', 'Kids Night Suits', 'Kids Pajama Suits'].map(item => (
-                <button
-                  key={item}
-                  onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                      ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                    }`}
-                >
-                  {item}
-                </button>
-              ))}
-
-              {selectedCategory === 'Male' && ['Men Tracks & Joggers', 'Men Shorts & Bermuda', 'Men Boxers'].map(item => (
-                <button
-                  key={item}
-                  onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                      ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                    }`}
-                >
-                  {item}
-                </button>
-              ))}
-
-              {selectedCategory === 'Female' && ['Girl Frocks'].map(item => (
-                <button
-                  key={item}
-                  onClick={() => setSelectedItemFilter(selectedItemFilter === item ? '' : item)}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition-all shrink-0 border ${selectedItemFilter === item
-                      ? 'bg-[#AEE6FF] text-sky-900 border-[#AEE6FF] shadow-sm'
-                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                    }`}
-                >
-                  {item}
-                </button>
-              ))}
             </div>
           )}
         </div>
@@ -268,10 +179,8 @@ export default function Products({ pageCategory = null }) {
             <p className="text-xs text-slate-500 font-semibold">Try resetting filters or searching with different keywords.</p>
             <button
               onClick={() => {
-                setSelectedCategory(pageCategory || '');
-                setSelectedAge('');
+                setSelectedCategory('All');
                 setSearchQuery('');
-                setSelectedItemFilter('');
               }}
               className="px-6 py-2.5 rounded-full bg-[#EF4A45] text-white font-extrabold text-xs shadow-sm hover:bg-red-600"
             >
