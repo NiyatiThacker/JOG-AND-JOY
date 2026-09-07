@@ -38,6 +38,7 @@ Jog & Joy specializes in categorizing products across departments (Men, Women, K
 - **Routing**: React Router DOM v6
 - **State Management**: React Context API (`AuthContext`, `CartContext`, `WishlistContext`)
 - **Backend & Database**: Supabase (`@supabase/supabase-js`)
+- **Image CDN**: Cloudinary (Dynamic format & quality optimization)
 - **Animations**: Framer Motion, GSAP, Web Animations API (WAAPI)
 - **Icons**: Lucide React & React Icons
 
@@ -58,10 +59,10 @@ graph TD
         UI --> Router
     end
 
-    subgraph Backend ["Supabase"]
+    subgraph Backend ["Backend & CDN"]
         Auth["Supabase Auth"]
         DB[("PostgreSQL DB")]
-        Storage["Blob Storage"]
+        Storage["Cloudinary Image CDN"]
     end
 
     Context -- "API Calls" --> Auth
@@ -181,7 +182,11 @@ Follow these steps to set up the project locally for development.
    ```env
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   # Add other variables like Cloudinary or EmailJS keys if applicable
+   VITE_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   VITE_CLOUDINARY_UPLOAD_PRESET=your_cloudinary_preset
+   VITE_CLOUDINARY_API_KEY=your_api_key
+   VITE_CLOUDINARY_API_SECRET=your_api_secret
+   # Add other variables like EmailJS keys if applicable
    ```
 
 4. **Run the development server**
