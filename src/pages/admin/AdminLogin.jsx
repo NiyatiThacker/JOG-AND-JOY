@@ -91,7 +91,6 @@ export default function AdminLogin() {
             <p className="text-gray-500 font-medium">
               Enter your admin credentials to continue.
             </p>
-          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
@@ -154,6 +153,7 @@ export default function AdminLogin() {
               )}
             </button>
           </form>
+        </div>
 
       </div>
     </div>
