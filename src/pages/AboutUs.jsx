@@ -15,7 +15,6 @@ const stats = [
 ];
 
 const teamMembers = [
-  { name: 'Ashwin Bhai K Shah', role: 'Founder & Visionary', image: 'https://ui-avatars.com/api/?name=Ashwin+Shah&background=FFE89A&color=000&size=300' },
   { name: 'Vaishal A Shah', role: 'Managing Director', image: 'https://ui-avatars.com/api/?name=Vaishal+Shah&background=AEE6FF&color=000&size=300' }
 ];
 
@@ -143,7 +142,7 @@ export default function AboutUs() {
               Activewear is about <span className="text-transparent bg-clip-text bg-linear-to-r from-[#00A3E0] to-[#EF4A45]">freedom</span>, not just fabric.
             </h2>
             <p className="text-slate-600 text-base font-semibold leading-relaxed font-poppins">
-              We started our journey in 1996 with a singular focus on perfect knitting and stitching. Today, Jog&Joy brings vibrant, durable, and extremely comfortable activewear directly to the next generation of kids and men.
+              We started our journey in 1996 with a singular focus on perfect knitting and stitching. Today, Jog&Joy brings vibrant, durable, and extremely comfortable activewear directly to the next generation of kids.
             </p>
 
             <div className="pt-4 space-y-6">

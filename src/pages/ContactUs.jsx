@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, ArrowRight, User, Play, ChevronRight, ChevronLeft, Star, MessageSquare, Clock, Sparkles, X, Building2, Globe, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import emailjs from '@emailjs/browser';
 import { Input, Textarea } from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
@@ -71,7 +72,16 @@ export default function ContactUs() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'mobile') {
+      const onlyNums = value.replace(/\D/g, '');
+      if (onlyNums.length <= 10) {
+        setFormData((prev) => ({ ...prev, [name]: onlyNums }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
@@ -80,7 +90,11 @@ export default function ContactUs() {
     const newErrors = {};
 
     if (!formData.name.trim()) newErrors.name = 'Your Name is required';
-    if (!formData.mobile.trim()) newErrors.mobile = 'Mobile Number is required';
+    if (!formData.mobile.trim()) {
+      newErrors.mobile = 'Mobile Number is required';
+    } else if (formData.mobile.length !== 10) {
+      newErrors.mobile = 'Mobile Number must be exactly 10 digits';
+    }
     if (!formData.email.trim()) newErrors.email = 'Email Address is required';
     if (!formData.comment.trim()) newErrors.comment = 'Comment/Inquiry is required';
 
@@ -91,16 +105,19 @@ export default function ContactUs() {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from('messages').insert([{
-        id: crypto.randomUUID(),
-        customerName: formData.name,
-        customerEmail: formData.email,
-        subject: formData.inquiryType,
-        message: `Mobile: ${formData.mobile}\n\n${formData.comment}`,
-        status: 'unread'
-      }]);
+      // 1. Send to Google Sheets
+      const scriptData = new URLSearchParams();
+      scriptData.append('name', formData.name);
+      scriptData.append('mobile', formData.mobile);
+      scriptData.append('email', formData.email);
+      scriptData.append('inquiryType', formData.inquiryType);
+      scriptData.append('comment', formData.comment);
 
-      if (error) throw error;
+      await fetch(import.meta.env.VITE_GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: scriptData,
+        mode: 'no-cors'
+      });
       
       setIsModalOpen(true);
       setFormData({
@@ -164,31 +181,7 @@ export default function ContactUs() {
                 The season of growth has arrived. Reflect who you are with our premium kids activewear collection and dedicated support team.
               </motion.p>
 
-              {/* Email Subscribe / Quick Message bar */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-stretch gap-2 max-w-md bg-white rounded-2xl sm:rounded-full border border-slate-200/80 p-1.5 shadow-md"
-              >
-                <input
-                  type="email"
-                  placeholder="Try typing your email..."
-                  className="flex-1 px-5 py-3 bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
-                />
-                <button 
-                  onClick={() => {
-                    const el = document.getElementById('contact-form');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="bg-[#FF5500] text-white px-6 py-3 rounded-xl sm:rounded-full font-bold text-sm hover:bg-orange-600 transition-all flex items-center justify-center gap-2 shadow-md shadow-orange-500/30 cursor-pointer"
-                >
-                  Quick Contact
-                  <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </button>
-              </motion.div>
+              {/* Email Subscribe / Quick Message bar removed per user request */}
 
 
             </div>
@@ -225,7 +218,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">Call Us Directly</h4>
-                    <p className="text-lg font-black text-slate-900 mt-0.5">+91 79-2213 9665</p>
+                    <p className="text-lg font-black text-slate-900 mt-0.5">+91 97271 25443</p>
                     <p className="text-xs text-slate-500 font-medium">Mon - Sat: 10:00 AM - 7:00 PM IST</p>
                   </div>
                 </div>
@@ -237,7 +230,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">Email Support</h4>
-                    <p className="text-lg font-black text-slate-900 mt-0.5">info@jognjoy.com</p>
+                    <p className="text-lg font-black text-slate-900 mt-0.5">jogjoy85@gmail.com</p>
                     <p className="text-xs text-slate-500 font-medium">Fast response within 24 business hours</p>
                   </div>
                 </div>
@@ -250,7 +243,7 @@ export default function ContactUs() {
                   <div>
                     <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">Head Office Location</h4>
                     <p className="text-sm font-black text-slate-900 mt-0.5 leading-snug">
-                      49, Kamal House, Pankaj Society, Nr. SBI Bank, Bhthha, Paldi, Ahmedabad - 380007, Gujarat, India.
+                      49, Kamal House, Pankaj Society, Nr. SBI Bank, Bhattha, Paldi, Ahmedabad - 380007, Gujarat, India.
                     </p>
                   </div>
                 </div>

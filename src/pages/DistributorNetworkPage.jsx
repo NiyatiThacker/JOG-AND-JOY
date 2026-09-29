@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Network, Globe, TrendingUp, ArrowRight, MapPin, Play, Sparkles, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 import LiquidEther from '../components/ui/LiquidEther';
 import { Input, Textarea } from '../components/ui/Input';
 import CustomDropdown from '../components/ui/CustomDropdown';
@@ -22,15 +23,28 @@ export default function DistributorNetworkPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    if (name === 'mobile') {
+      const onlyNums = value.replace(/\D/g, '');
+      if (onlyNums.length <= 10) {
+        setFormData((prev) => ({ ...prev, [name]: onlyNums }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+    
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.mobile.trim()) newErrors.mobile = 'Mobile Number is required';
+    if (!formData.mobile.trim()) {
+      newErrors.mobile = 'Mobile Number is required';
+    } else if (formData.mobile.length !== 10) {
+      newErrors.mobile = 'Mobile Number must be exactly 10 digits';
+    }
     if (!formData.email.trim()) newErrors.email = 'Email Address is required';
     if (!formData.companyName.trim()) newErrors.companyName = 'Company Name is required';
     if (!formData.address.trim()) newErrors.address = 'Address is required';
@@ -43,11 +57,32 @@ export default function DistributorNetworkPage() {
       return;
     }
 
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({ name: '', mobile: '', email: '', companyName: '', address: '', city: '', state: '', message: '' });
-    }, 3000);
+    try {
+      const scriptData = new URLSearchParams();
+      scriptData.append('name', formData.name);
+      scriptData.append('mobile', formData.mobile);
+      scriptData.append('email', formData.email);
+      scriptData.append('companyName', formData.companyName);
+      scriptData.append('address', formData.address);
+      scriptData.append('city', formData.city);
+      scriptData.append('state', formData.state);
+      scriptData.append('message', formData.message);
+
+      await fetch(import.meta.env.VITE_DISTRIBUTOR_SCRIPT_URL, {
+        method: 'POST',
+        body: scriptData,
+        mode: 'no-cors'
+      });
+
+      setIsSubmitted(true);
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({ name: '', mobile: '', email: '', companyName: '', address: '', city: '', state: '', message: '' });
+      }, 3000);
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      alert('Sorry, there was an error sending your application. Please try again.');
+    }
   };
 
   return (

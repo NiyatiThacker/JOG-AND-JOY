@@ -28,11 +28,6 @@ const departments = [
     image: kidsWearMobile,
     tabImage: kidsWearTab,
     desktopImage: kidsWearDesktop
-  },
-  {
-    title: 'Men Wear',
-    link: '/products?category=Male',
-    image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=1920&q=80'
   }
 ];
 

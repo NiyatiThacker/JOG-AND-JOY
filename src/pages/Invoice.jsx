@@ -7,7 +7,7 @@ export default function Invoice() {
   const { orderId } = useParams();
   const { data: ordersData, isLoading } = useOrdersList({ pageSize: 1000 });
   const { formatCurrency, formatDate } = useSettingsContext();
-  
+
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Invoice() {
       <div className="w-full max-w-3xl bg-white shadow-2xl p-8 md:p-12">
         {/* Header Action (Hidden when printing) */}
         <div className="flex justify-end mb-8 print:hidden">
-          <button 
+          <button
             onClick={() => window.print()}
             className="px-6 py-2 bg-slate-900 text-white font-bold text-sm rounded-lg hover:bg-slate-800 transition-colors shadow-md"
           >
@@ -47,7 +47,7 @@ export default function Invoice() {
           </div>
           <div className="text-right">
             <h1 className="text-3xl font-black text-slate-200 uppercase tracking-widest mb-2">Invoice</h1>
-            <p className="text-sm font-bold text-slate-800">Order #{order.orderNumber || order.id.substring(0,8).toUpperCase()}</p>
+            <p className="text-sm font-bold text-slate-800">Order #{order.orderNumber || order.id.substring(0, 8).toUpperCase()}</p>
             <p className="text-xs font-semibold text-slate-500">{formatDate(order.createdAt)}</p>
           </div>
         </div>
@@ -63,8 +63,8 @@ export default function Invoice() {
           <div>
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Shipping Address</h3>
             <p className="text-sm font-semibold text-slate-600 leading-relaxed">
-              {order.shippingAddress?.line1}<br/>
-              {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.postalCode}<br/>
+              {order.shippingAddress?.line1}<br />
+              {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.postalCode}<br />
               {order.shippingAddress?.country || 'India'}
             </p>
           </div>
@@ -127,9 +127,10 @@ export default function Invoice() {
           <p className="text-[10px] font-semibold text-slate-400">If you have any questions about this invoice, please contact support@jogandjoy.in</p>
         </div>
       </div>
-      
+
       {/* Global Print Styles (Only applied on this page when printing) */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           body * { visibility: hidden; }
           .min-h-screen > div, .min-h-screen > div * { visibility: visible; }

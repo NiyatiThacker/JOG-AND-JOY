@@ -61,7 +61,6 @@ function AdminLayoutContent() {
      title: 'CONTENT',
      items: [
        { name: 'Reviews', path: '/admin/reviews', icon: Star },
-       { name: 'Messages', path: '/admin/messages', icon: Mail },
        { name: 'Settings', path: '/admin/settings', icon: Settings },
      ]
    }
@@ -87,7 +86,7 @@ function AdminLayoutContent() {
   </button>
  </div>
  
- <nav className="flex-1 flex flex-col pb-4">
+ <nav className="flex-1 flex flex-col pb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
  {navGroups.map((group, index) => (
    <div key={group.title} className={index > 0 ? "mt-6" : "mt-4"}>
      <div className="mb-3 pl-8 pr-4 text-[11px] font-bold text-[#7d8fb3] uppercase tracking-[0.15em]">{group.title}</div>
@@ -126,7 +125,7 @@ function AdminLayoutContent() {
  </div>
 
  {/* Main Content */}
- <div className="flex-1 md:ml-64 relative min-h-screen flex flex-col w-full overflow-hidden bg-slate-50">
+ <div className="flex-1 md:ml-64 relative min-h-screen flex flex-col w-full min-w-0 bg-slate-50">
  {/* Top Navbar */}
  <header className="h-16 bg-white border-b border-slate-100 shadow-sm flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
  <div className="flex items-center gap-3">

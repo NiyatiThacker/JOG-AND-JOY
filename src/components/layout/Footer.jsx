@@ -135,7 +135,7 @@ export default function Footer() {
               {/* Paragraph & Right Social Column */}
               <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 w-full">
                 <p className="text-sm sm:text-base font-semibold text-slate-900 leading-relaxed max-w-xs text-center sm:text-left">
-                  Jog & Joy is adding a breath of fresh air to men's athleisure wear with a passion for quality, comfort, and style. Our trendy outfits are designed to empower the joy of movement.
+                  Jog & Joy is adding a breath of fresh air to kids athleisure wear with a passion for quality, comfort, and style. Our trendy outfits are designed to empower the joy of movement.
                 </p>
 
                 {/* Vertical Social Icons Column */}

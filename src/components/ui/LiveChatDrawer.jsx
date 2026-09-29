@@ -26,7 +26,7 @@ export default function LiveChatDrawer({ isOpen, onClose }) {
 
     // Simulated Bot Reply
     setTimeout(() => {
-      let botReply = "Thank you for reaching out! Our kids fashion specialists are available to assist you. You can also chat directly with us on WhatsApp at +91 79 2213 9665!";
+      let botReply = "Thank you for reaching out! Our kids fashion specialists are available to assist you. You can also chat directly with us on WhatsApp at +91 97271 25443!";
       if (text.includes('size')) {
         botReply = "For kids sizing, we recommend choosing 1 size up if your child is in between ages. Check our official Size Guide modal on any product page!";
       } else if (text.includes('Track') || text.includes('order')) {
