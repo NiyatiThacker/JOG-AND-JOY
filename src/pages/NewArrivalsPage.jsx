@@ -5,6 +5,7 @@ import QuickViewModal from '../components/ui/QuickViewModal';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { Link } from 'react-router-dom';
 import DomeGallery from '../components/ui/DomeGallery';
+import AnimatedLogoLoader from '../components/ui/AnimatedLogoLoader';
 
 const newArrivalImages = [
   { src: "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop", alt: "Active Play Orange Set" },
@@ -235,7 +236,7 @@ export default function NewArrivalsPage() {
         </div>
 
         {isLoading ? (
-          <div className="py-20 text-center text-slate-400 font-bold">Loading newest drops...</div>
+          <AnimatedLogoLoader text="Loading Newest Drops..." />
         ) : newProducts.length > 0 ? (
           <div className="mb-16">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">

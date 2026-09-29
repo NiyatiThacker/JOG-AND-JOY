@@ -7,6 +7,7 @@ import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { useCategoriesList } from '../queries/useCategories';
 import { Filter, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 import CustomDropdown from '../components/ui/CustomDropdown';
+import AnimatedLogoLoader from '../components/ui/AnimatedLogoLoader';
 
 export default function Products({ pageCategory = null }) {
   const [searchParams] = useSearchParams();
@@ -163,9 +164,7 @@ export default function Products({ pageCategory = null }) {
 
         {/* Product Grid */}
         {isLoading ? (
-          <div className="text-center py-20 bg-white rounded-3xl p-8 shadow-md border border-slate-100 space-y-3">
-             <div className="text-slate-400 font-bold">Loading products...</div>
-          </div>
+          <AnimatedLogoLoader text="Loading Products..." />
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (

@@ -8,6 +8,7 @@ import { createSlug } from '../utils/helpers';
 import ProductCard from '../components/ui/ProductCard';
 import SizeGuideModal from '../components/ui/SizeGuideModal';
 import QuickViewModal from '../components/ui/QuickViewModal';
+import AnimatedLogoLoader from '../components/ui/AnimatedLogoLoader';
 import { flyToCart } from '../utils/animations';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -169,7 +170,11 @@ export default function ProductDetails() {
   }, [activeVariantImage, product?.image, selectedColor, selectedSize]);
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#FFF8EC] font-black text-slate-400">Loading Product...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF8EC]">
+        <AnimatedLogoLoader text="Loading Product Details..." />
+      </div>
+    );
   }
 
   if (!product) {

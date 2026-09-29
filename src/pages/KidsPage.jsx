@@ -8,6 +8,7 @@ import ClothDoodlesBackground from '../components/ui/ClothDoodlesBackground';
 import { useCombinedProducts } from '../queries/useCombinedProducts';
 import { useCategoriesList } from '../queries/useCategories';
 import ShopByAge from '../components/home/ShopByAge';
+import AnimatedLogoLoader from '../components/ui/AnimatedLogoLoader';
 
 
 
@@ -27,6 +28,7 @@ export default function KidsPage() {
   const [expandedSections, setExpandedSections] = useState({
     productType: true,
     price: true,
+    ageGroup: true,
     gender: true,
     size: true,
     color: true
@@ -35,12 +37,17 @@ export default function KidsPage() {
   const [filters, setFilters] = useState({
     types: [],
     prices: [],
+    ageGroups: ageParam ? [ageParam.replace('–', '-')] : [],
     sizes: [],
     colors: []
   });
 
   useEffect(() => {
     setCurrentPage(1);
+    const newAge = searchParams.get('age');
+    if (newAge) {
+      setFilters(prev => ({ ...prev, ageGroups: [newAge.replace('–', '-')] }));
+    }
   }, [searchParams]);
 
   const [sortBy, setSortBy] = useState('Recommended');
@@ -121,10 +128,36 @@ export default function KidsPage() {
         matchColor = allColors.some(c => filters.colors.includes(c));
       }
 
-      // Age Group Filter (from URL)
-      let matchAge = !ageParam;
+      // Age Group Filter
+      let matchAge = filters.ageGroups.length === 0;
       if (!matchAge) {
-        if (p.ageGroup === ageParam) matchAge = true;
+        matchAge = filters.ageGroups.some(selectedAge => {
+          const normAge = selectedAge.toLowerCase().replace('–', '-');
+          
+          if (p.ageGroup && p.ageGroup.toLowerCase().replace('–', '-') === normAge) {
+            return true;
+          }
+
+          const allSizes = [
+            ...(p.sizes || []),
+            ...(p.variants || []).map(v => v.size)
+          ].filter(Boolean).map(s => s.toLowerCase().replace('–', '-'));
+
+          if (normAge.includes('0-2')) {
+            return allSizes.some(s => s.includes('0-3') || s.includes('3-6') || s.includes('6-12') || s.includes('1-2') || s.includes('2-3') || s.includes('months') || s.includes('0-2'));
+          }
+          if (normAge.includes('3-5')) {
+            return allSizes.some(s => s.includes('3-4') || s.includes('4-5') || s.includes('5-6') || s.includes('3-5'));
+          }
+          if (normAge.includes('6-8')) {
+            return allSizes.some(s => s.includes('6-7') || s.includes('7-8') || s.includes('8-9') || s.includes('6-8'));
+          }
+          if (normAge.includes('9-12')) {
+            return allSizes.some(s => s.includes('9-10') || s.includes('10-11') || s.includes('11-12') || s.includes('9-12'));
+          }
+
+          return false;
+        });
       }
 
       return matchType && matchPrice && matchSize && matchColor && matchAge;
@@ -182,6 +215,16 @@ export default function KidsPage() {
   }, [dbCategories, kidsProducts]);
 
 
+
+  const ageGroupOptions = useMemo(() => {
+    const ages = new Set(['0-2 Years', '3-5 Years', '6-8 Years', '9-12 Years']);
+    kidsProducts.forEach(p => {
+      if (p.ageGroup) {
+        ages.add(p.ageGroup.replace('–', '-'));
+      }
+    });
+    return Array.from(ages).sort();
+  }, [kidsProducts]);
 
   const sizeOptions = useMemo(() => {
     const sizes = new Set();
@@ -415,6 +458,32 @@ export default function KidsPage() {
 
 
 
+            {/* Age Group Accordion */}
+            <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-xs">
+              <button
+                onClick={() => toggleSection('ageGroup')}
+                className="w-full px-5 py-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors"
+              >
+                <span className="text-sm font-black text-slate-800">Age Group</span>
+                {expandedSections.ageGroup ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+              </button>
+              {expandedSections.ageGroup && (
+                <div className="p-5 space-y-3">
+                  {ageGroupOptions.map((age) => (
+                    <label key={age} className="flex items-center gap-3 group cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.ageGroups.includes(age)}
+                        onChange={() => handleFilterChange('ageGroups', age)}
+                        className="w-4 h-4 rounded border-slate-300 text-[#A7DEB9] focus:ring-[#A7DEB9] cursor-pointer"
+                      />
+                      <span className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">{age}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Size Accordion */}
             <div className="border border-slate-100 rounded-xl overflow-hidden bg-white shadow-xs">
               <button
@@ -474,7 +543,7 @@ export default function KidsPage() {
           {/* Right Product Grid */}
           <div className="lg:col-span-4">
             {isLoading ? (
-              <div className="flex items-center justify-center py-20 text-slate-400 font-bold">Loading kids collection...</div>
+              <AnimatedLogoLoader text="Loading Kids Collection..." />
             ) : currentProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 sm:gap-x-6 sm:gap-y-10">

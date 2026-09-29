@@ -218,7 +218,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-400">Call Us Directly</h4>
-                    <p className="text-lg font-black text-slate-900 mt-0.5">+91 97271 25443</p>
+                    <p className="text-lg font-black text-slate-900 mt-0.5">+91 94299 05118</p>
                     <p className="text-xs text-slate-500 font-medium">Mon - Sat: 10:00 AM - 7:00 PM IST</p>
                   </div>
                 </div>
@@ -252,7 +252,7 @@ export default function ContactUs() {
                 <div className="w-full h-48 mt-4 rounded-3xl overflow-hidden border border-slate-200 shadow-sm relative group">
                   <iframe 
                     title="Jog and Joy Location"
-                    src="https://www.google.com/maps?q=49,Kamal+House,pankaj+society,nr.+Sbi+bank,bhthha,paldi,ahmedabad-7&output=embed" 
+                    src="https://www.google.com/maps?q=Kamal+Clothing,+49,+Kamal+House,+Pankaj+Society,+Nr.+SBI+Bank,+Bhattha,+Paldi,+Ahmedabad+-+380007,+Gujarat,+India&output=embed" 
                     width="100%" 
                     height="100%" 
                     style={{ border: 0 }} 

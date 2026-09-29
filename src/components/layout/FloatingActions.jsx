@@ -29,7 +29,7 @@ export default function FloatingActions({ onOpenLiveChat }) {
 
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/919727125443?text=Hello%20Jog%20%26%20Joy!%20I%20have%20an%20inquiry%20about%20kids%20clothing."
+        href="https://wa.me/919429905118?text=Hello%20Jog%20%26%20Joy!%20I%20have%20an%20inquiry%20about%20kids%20clothing."
         target="_blank"
         rel="noopener noreferrer"
         className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#25D366] text-white shadow-xl hover:scale-110 flex items-center justify-center transition-all duration-200 border-2 border-white"
